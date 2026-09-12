@@ -9,7 +9,7 @@ export function useAuditLogs(filters: any) {
   const query = useQuery({
     queryKey: ['auditLogs', filters, page],
     queryFn: async () => {
-      let q = supabase.from('audit_logs').select('*, profiles(email, name)', { count: 'exact' });
+      let q = supabase.from('audit_logs').select('*, profiles(email, full_name)', { count: 'exact' });
       
       if (filters.action) q = q.eq('action', filters.action);
       if (filters.table_name) q = q.eq('table_name', filters.table_name);

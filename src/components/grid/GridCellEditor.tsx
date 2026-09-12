@@ -54,7 +54,7 @@ export function GridCellEditor({ date, userId, allocation, projects, onSave, onC
   );
 
   return (
-    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-72 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3">
+    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-72 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
       <div className="font-semibold text-sm">Edit Allocation</div>
       
       <div className="flex flex-col gap-1">
