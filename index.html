@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Allocation Calendar</title>
+  </head>
+  <body>
+    <div id="error-overlay" style="color: red; padding: 20px; font-family: monospace; white-space: pre-wrap; z-index: 99999; position: relative;"></div>
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        var el = document.getElementById('error-overlay');
+        if (el) {
+          el.innerHTML += 'Global Error: ' + msg + '\n' + (error ? error.stack : '') + '\n\n';
+        }
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function(event) {
+        var el = document.getElementById('error-overlay');
+        if (el) {
+          el.innerHTML += 'Unhandled Promise: ' + event.reason + '\n\n';
+        }
+      });
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
