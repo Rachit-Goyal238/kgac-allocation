@@ -93,10 +93,10 @@ BEGIN
     SELECT array_agg(id) INTO v_dept_ids FROM public.departments WHERE name LIKE '%(Demo)%';
     
     -- 2. Create Clients
-    INSERT INTO public.clients (name) VALUES
-    ('Retail Corp (Demo)'),
-    ('Tech Solutions (Demo)'),
-    ('Mega Mart (Demo)');
+    INSERT INTO public.clients (name, code) VALUES
+    ('Retail Corp (Demo)', 'RC-DEMO'),
+    ('Tech Solutions (Demo)', 'TS-DEMO'),
+    ('Mega Mart (Demo)', 'MM-DEMO');
     
     SELECT array_agg(id) INTO v_client_ids FROM public.clients WHERE name LIKE '%(Demo)%';
     
