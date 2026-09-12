@@ -131,7 +131,7 @@ BEGIN
         VALUES ('00000000-0000-0000-0000-000000000000', v_user_id, 'authenticated', 'authenticated', v_email, 'fake_hash', now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, ('{"full_name":"' || v_fname || ' ' || v_lname || '"}')::jsonb, now(), now(), '', '', '', '');
         
         -- The auth.users trigger creates the profile, we just update it
-        UPDATE public.profiles SET department_id = v_dept_id, role = v_role, status = 'active' WHERE id = v_user_id;
+        UPDATE public.profiles SET department_id = v_dept_id, roles = ARRAY[v_role], status = 'active' WHERE id = v_user_id;
         v_emp_count := v_emp_count + 1;
     END LOOP;
     
