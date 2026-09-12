@@ -21,7 +21,7 @@ export function GridToolbar({ filters, onFiltersChange, onExport }: GridToolbarP
       if (searchValue !== filters.searchQuery) {
         onFiltersChange({ ...filters, searchQuery: searchValue });
       }
-    }, 400);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [searchValue, filters, onFiltersChange]);
 
