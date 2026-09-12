@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAuditStatus, useDeleteAudit } from '@/hooks/useAudits';
+import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit } from '@/hooks/useAudits';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,7 +16,7 @@ export function TeamBuilder() {
   const { data: team, isLoading: isLoadingTeam } = useAuditTeams(selectedAuditId || undefined);
   const assignMember = useAssignTeamMember();
   const removeMember = useRemoveTeamMember();
-  const updateStatus = useUpdateAuditStatus();
+  const updateAudit = useUpdateAudit();
   const deleteAudit = useDeleteAudit();
 
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
@@ -105,23 +105,43 @@ export function TeamBuilder() {
             </CardDescription>
           </div>
           {selectedAudit && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase">Status:</span>
-              <select 
-                className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                value={selectedAudit.status}
-                onChange={(e) => updateStatus.mutate({ id: selectedAudit.id, status: e.target.value })}
-                disabled={updateStatus.isPending}
-              >
-                <option value="scheduled">Scheduled</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Revenue:</span>
+                <div className="relative">
+                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₹</span>
+                  <input 
+                    type="number"
+                    className="h-8 w-24 rounded-md border border-input bg-background pl-6 pr-2 py-1 text-xs"
+                    defaultValue={selectedAudit.billing_amount || 0}
+                    onBlur={(e) => {
+                      const val = Number(e.target.value);
+                      if (val !== selectedAudit.billing_amount) {
+                        updateAudit.mutate({ id: selectedAudit.id, billing_amount: val });
+                      }
+                    }}
+                    disabled={updateAudit.isPending}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Status:</span>
+                <select 
+                  className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                  value={selectedAudit.status}
+                  onChange={(e) => updateAudit.mutate({ id: selectedAudit.id, status: e.target.value })}
+                  disabled={updateAudit.isPending}
+                >
+                  <option value="scheduled">Scheduled</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 ml-2"
                 onClick={() => {
                   if (confirm('Are you sure you want to delete this audit? This will remove all team assignments and delete the associated project.')) {
                     deleteAudit.mutate(selectedAudit, { onSuccess: () => setSelectedAuditId(null) });

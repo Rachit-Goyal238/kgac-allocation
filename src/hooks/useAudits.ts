@@ -99,17 +99,17 @@ export function useRemoveTeamMember() {
   });
 }
 
-export function useUpdateAuditStatus() {
+export function useUpdateAudit() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string, status: string }) => {
-      const { data, error } = await supabase.from('audits').update({ status }).eq('id', id).select().single();
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<any>) => {
+      const { data, error } = await supabase.from('audits').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['audits'] });
-      toast.success('Audit status updated');
+      toast.success('Audit updated successfully');
     },
     onError: (error: any) => toast.error(error.message)
   });
