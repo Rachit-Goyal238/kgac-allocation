@@ -68,7 +68,8 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center flex flex-col items-center">
+          <img src="/logo.png" alt="KGAC Logo" className="h-24 w-auto object-contain mb-4" />
           <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">
             KGAC Audit Allocation
           </h1>

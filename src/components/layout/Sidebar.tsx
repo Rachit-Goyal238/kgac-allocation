@@ -52,7 +52,8 @@ export function Sidebar({ onClose }: SidebarProps) {
 
   return (
     <div className="flex h-full flex-col border-r bg-white">
-      <div className="flex h-16 items-center px-6">
+      <div className="flex h-16 items-center px-6 gap-3">
+        <img src="/logo.png" alt="KGAC Logo" className="h-8 w-auto object-contain" />
         <h2 className="text-lg font-bold tracking-tight text-gray-900">
           Team Allocation
         </h2>
