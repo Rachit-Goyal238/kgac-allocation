@@ -1,5 +1,8 @@
 -- Phase 3: Update Demo Data Functions for the Audit Engine
 
+DROP FUNCTION IF EXISTS public.seed_demo_data();
+DROP FUNCTION IF EXISTS public.clear_demo_data();
+
 CREATE OR REPLACE FUNCTION public.clear_demo_data()
 RETURNS void
 LANGUAGE plpgsql
