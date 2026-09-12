@@ -49,7 +49,9 @@ export function GridCellEditor({ date, userId, allocation, projects, onSave, onC
   };
 
   const isLeaveType = ['pto', 'sick'].includes(status);
-  const availableStatuses = ALLOCATION_STATUSES.filter(s => !['public_holiday', 'pto', 'sick'].includes(s.value));
+  const availableStatuses = ALLOCATION_STATUSES.filter(
+    s => !['public_holiday', 'pto', 'sick'].includes(s.value) || s.value === status
+  );
 
   return (
     <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-72 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3">
@@ -74,6 +76,12 @@ export function GridCellEditor({ date, userId, allocation, projects, onSave, onC
         </select>
         {!!projectId && <span className="text-[10px] text-slate-400">Status is tied to the selected project.</span>}
       </div>
+
+      {isLeaveType && (
+        <div className="bg-amber-50 p-2 rounded border border-amber-200 text-amber-800 text-xs">
+          This day is marked as {status.toUpperCase()}. If you need to assign work, change the billing status to Billable or Internal first.
+        </div>
+      )}
 
       {!isLeaveType && (
         <>

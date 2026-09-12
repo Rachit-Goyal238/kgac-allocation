@@ -14,7 +14,7 @@ export function CompletionPage() {
 
   useEffect(() => {
     const fetchAllocations = async () => {
-      const { data } = await supabase.from('allocations').select('*, projects(name)').gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd')).lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+      const { data } = await supabase.from('allocations').select('*, projects(name), profiles(full_name)').gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd')).lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
       if (data) setAllocations(data);
     };
     fetchAllocations();
@@ -91,7 +91,9 @@ export function CompletionPage() {
             {mismatches.length > 0 ? (
               <ul className="space-y-2">
                 {mismatches.map((m: any) => (
-                  <li key={m.id} className="text-red-500">Alloc ID: {m.id} - {m.hours} hours logged but status is 'not_started'</li>
+                  <li key={m.id} className="text-red-500 text-sm">
+                    <strong>{m.profiles?.full_name || 'Unknown User'}</strong> ({format(new Date(m.allocation_date), 'MMM d, yyyy')}): {m.hours} hours logged but status is 'not_started'
+                  </li>
                 ))}
               </ul>
             ) : <p>No mismatches found.</p>}
