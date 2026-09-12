@@ -69,8 +69,8 @@ export function Sidebar({ onClose }: SidebarProps) {
             Calendar
           </NavLink>
 
-          {/* Planner - Planner, Admin, Super Admin */}
-          {hasAnyRole(roles, ['planner', 'admin', 'super_admin']) && (
+          {/* Planner - Planner, Manager, Client Head, Admin, Super Admin */}
+          {hasAnyRole(roles, ['planner', 'manager', 'client_head', 'admin', 'super_admin']) && (
             <NavLink to="/planner" onClick={handleLinkClick} className={navLinkClasses}>
               <ClipboardList className="mr-3 h-5 w-5 flex-shrink-0" />
               Audit Planner

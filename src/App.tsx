@@ -68,7 +68,7 @@ export default function App() {
             <Route
               path="planner"
               element={
-                <ProtectedRoute requiredRole="planner">
+                <ProtectedRoute allowedRoles={['planner', 'manager', 'client_head']}>
                   <Suspense fallback={<PageLoader />}><PlannerPage /></Suspense>
                 </ProtectedRoute>
               }
