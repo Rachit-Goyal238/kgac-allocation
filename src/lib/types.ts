@@ -3,8 +3,6 @@
 export type UserRole = 'employee' | 'audit_executive' | 'audit_manager' | 'planner' | 'backend_staff' | 'manager' | 'client_head' | 'hr' | 'finance' | 'admin' | 'super_admin' | 'pending';
 export type UserStatus = 'active' | 'pending' | 'inactive';
 export type AllocationStatus = 'billable' | 'internal' | 'pto' | 'sick' | 'public_holiday';
-export type ResourceType = 'internal' | 'external';
-export type RateBasis = 'hourly' | 'daily';
 export type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'pending_review' | 'blocked';
 export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'ROLE_CHANGE' | 'STATUS_CHANGE' | 'LOGIN' | 'APPROVAL';
 export type UserEntity = 'KGAC' | 'KPL';
@@ -86,17 +84,6 @@ export interface Client {
   created_at: string;
 }
 
-export interface RateCard {
-  id: string;
-  profile_id: string;
-  rate_amount: number;
-  rate_basis: RateBasis;
-  effective_from: string; // 'YYYY-MM-DD'
-  effective_to: string | null;
-  created_by: string | null;
-  created_at: string;
-}
-
 export interface AuditLog {
   id: string;
   actor_id: string | null;
@@ -106,46 +93,6 @@ export interface AuditLog {
   before_values: Record<string, unknown> | null;
   after_values: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
-  created_at: string;
-}
-
-export interface ClientUpload {
-  id: string;
-  client_id: string;
-  uploaded_by: string;
-  file_name: string;
-  row_count: number | null;
-  validation_status: 'pending' | 'validated' | 'errors' | 'approved' | 'rejected';
-  mapping_template_id: string | null;
-  error_details: Record<string, unknown> | null;
-  approved_by: string | null;
-  approved_at: string | null;
-  created_at: string;
-}
-
-export interface ClientFieldMapping {
-  id: string;
-  client_id: string;
-  template_name: string;
-  mapping_json: Record<string, string>;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ClientAllocationRow {
-  id: string;
-  upload_id: string;
-  resource_email: string | null;
-  project_name: string | null;
-  client_name: string | null;
-  allocated_days: number | null;
-  period_start: string | null;
-  period_end: string | null;
-  matched_profile_id: string | null;
-  internal_logged_hours: number | null;
-  variance_hours: number | null;
-  status: 'pending' | 'matched' | 'unmatched' | 'approved' | 'rejected';
   created_at: string;
 }
 
@@ -262,10 +209,6 @@ export interface CSVEmployeeRow {
   Email: string;
   Role: string;
   Department: string;
-  'Resource Type'?: string;
-  'Vendor/Agency'?: string;
-  'Agreed Rate'?: string;
-  'Rate Basis'?: string;
 }
 
 export interface CSVValidationResult {

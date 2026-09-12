@@ -67,7 +67,6 @@ export function RoleAlignmentConsole() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Current Role</TableHead>
-                <TableHead>Resource Type</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -78,7 +77,6 @@ export function RoleAlignmentConsole() {
                   <TableCell>{p.name}</TableCell>
                   <TableCell>{p.email}</TableCell>
                   <TableCell>{p.role}</TableCell>
-                  <TableCell>{p.resource_type}</TableCell>
                   <TableCell>{p.status}</TableCell>
                   <TableCell>
                     <Select value={p.role} onValueChange={(val) => updateRole.mutate({ id: p.id, role: val })}>

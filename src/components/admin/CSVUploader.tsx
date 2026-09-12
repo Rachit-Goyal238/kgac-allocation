@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { UploadCloud, Download, Check, X, Loader2 } from 'lucide-react';
 import { SAMPLE_CSV_CONTENT } from '@/lib/constants';
-import { CSVValidationResult, UserRole, ResourceType } from '@/lib/types';
+import { CSVValidationResult, UserRole } from '@/lib/types';
 import { useBulkInsertProfiles } from '@/hooks/useProfiles';
 
 export function CSVUploader() {

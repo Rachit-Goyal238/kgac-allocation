@@ -9,7 +9,7 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }) {
     queryFn: async () => {
       const { data: allocations } = await supabase
         .from('allocations')
-        .select('*, profiles(resource_type), projects(name)')
+        .select('*, projects(name)')
         .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
 
