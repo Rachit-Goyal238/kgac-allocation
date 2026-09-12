@@ -83,13 +83,13 @@ export function SuperAdminCommandCenter() {
 
       <h3 className="text-lg font-medium mb-4">Quick Links</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link to="/admin/roles">
+        <Link to="/admin/users">
           <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
             <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2"><ShieldCheck className="h-4 w-4"/> Role Alignment</CardTitle>
+              <CardTitle className="text-base flex items-center gap-2"><Users className="h-4 w-4"/> Users & Roles</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">Manage role hierarchies and elevate users to Super Admin.</p>
+              <p className="text-sm text-muted-foreground">Manage user access, assign multi-roles, and elevate users to Super Admin.</p>
             </CardContent>
           </Card>
         </Link>
