@@ -80,7 +80,9 @@ export function AuditImportTool() {
               audit_date: safeDate(getField(row, ['date'])),
               audit_type: getField(row, ['type', 'audit type']) || 'General',
               status: 'scheduled',
-              billing_amount: Number(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])) || 0
+              billing_amount: Number(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])) || 0,
+              required_leads: Number(getField(row, ['leads', 'required leads', 'lead count'])) || 0,
+              required_executives: Number(getField(row, ['executives', 'required executives', 'executive count'])) || 0
             }));
 
             if (audits.length === 0) {

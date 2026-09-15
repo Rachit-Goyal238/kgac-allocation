@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Download, Calendar as CalendarIcon } from 'l
 import { format, addWeeks, subWeeks, parseISO } from 'date-fns';
 import { getNextWeekRange, getPreviousWeekRange } from '@/lib/utils';
 import { LeaveRequestModal } from '@/components/shared/LeaveRequestModal';
-import { ExportButton } from '../shared/ExportButton';
+import { ExportModal } from '../shared/ExportModal';
 
 interface GridToolbarProps {
   filters: GridFilters;
@@ -77,7 +77,7 @@ export function GridToolbar({ filters, onFiltersChange, onExport }: GridToolbarP
       </div>
       
       <div className="flex items-center gap-2">
-        <ExportButton onExport={onExport} />
+        <ExportModal />
       </div>
     </div>
   );

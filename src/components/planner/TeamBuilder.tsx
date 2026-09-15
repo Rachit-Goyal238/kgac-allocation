@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, UserPlus, Trash2, Building, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
 export function TeamBuilder() {
   const { data: audits, isLoading: isLoadingAudits } = useAudits();
@@ -29,14 +30,20 @@ export function TeamBuilder() {
     const { data } = await supabase.from('profiles').select('*').eq('status', 'active'); return data;
   }});
 
+  const selectedAudit = audits?.find(a => a.id === selectedAuditId);
+  const assignedLeads = team?.filter(m => m.role === 'lead').length || 0;
+  const assignedExecs = team?.filter(m => m.role === 'executive').length || 0;
+  const reqLeads = selectedAudit?.required_leads || 0;
+  const reqExecs = selectedAudit?.required_executives || 0;
+  const isTeamSatisfied = (assignedLeads >= reqLeads) && (assignedExecs >= reqExecs);
+  const requirementsMet = reqLeads > 0 || reqExecs > 0 ? isTeamSatisfied : true;
+
   const [selectedVendor, setSelectedVendor] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
   const [agreedRate, setAgreedRate] = useState('');
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
-
-  const selectedAudit = audits?.find(a => a.id === selectedAuditId);
 
   const handleAssignVendor = () => {
     if (!selectedAuditId || !selectedVendor || !selectedAudit) return;
@@ -60,7 +67,7 @@ export function TeamBuilder() {
       vendor_id: null,
       user_id: selectedEmployee,
       role: selectedRole,
-      agreed_rate: null // Employees are salaried, no per-audit rate needed usually
+      agreed_rate: agreedRate ? Number(agreedRate) : null
     }, { onSuccess: () => setEmployeeModalOpen(false) });
   };
 
@@ -129,7 +136,14 @@ export function TeamBuilder() {
                 <select 
                   className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
                   value={selectedAudit.status}
-                  onChange={(e) => updateAudit.mutate({ id: selectedAudit.id, status: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if ((val === 'in_progress' || val === 'completed') && !requirementsMet) {
+                      toast.error('Cannot change status: Team size requirements not met.');
+                      return;
+                    }
+                    updateAudit.mutate({ id: selectedAudit.id, status: val });
+                  }}
                   disabled={updateAudit.isPending}
                 >
                   <option value="scheduled">Scheduled</option>
@@ -163,6 +177,26 @@ export function TeamBuilder() {
           ) : (
             <div className="space-y-6">
               
+              {(reqLeads > 0 || reqExecs > 0) && (
+                <div className={`p-4 rounded-lg border ${requirementsMet ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                  <h4 className={`text-sm font-semibold mb-2 ${requirementsMet ? 'text-green-800' : 'text-amber-800'}`}>
+                    {requirementsMet ? 'Team Size Satisfied' : 'Missing Team Requirements'}
+                  </h4>
+                  <div className="flex gap-6 text-sm">
+                    {reqLeads > 0 && (
+                      <div className={assignedLeads < reqLeads ? 'text-amber-700 font-medium' : 'text-green-700'}>
+                        Leads: {assignedLeads} / {reqLeads}
+                      </div>
+                    )}
+                    {reqExecs > 0 && (
+                      <div className={assignedExecs < reqExecs ? 'text-amber-700 font-medium' : 'text-green-700'}>
+                        Executives: {assignedExecs} / {reqExecs}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex justify-end gap-2">
                 <Button size="sm" variant="outline" onClick={() => setVendorModalOpen(true)}><Building className="w-4 h-4 mr-2" /> Add Vendor</Button>
                 <Button size="sm" onClick={() => setEmployeeModalOpen(true)}><UserPlus className="w-4 h-4 mr-2" /> Add Employee</Button>
@@ -263,6 +297,10 @@ export function TeamBuilder() {
                 <option value="lead">Lead</option>
                 <option value="executive">Executive</option>
               </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Man Day Cost (₹) [Optional]</label>
+              <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={agreedRate} onChange={e => setAgreedRate(e.target.value)} placeholder="Cost per day" />
             </div>
           </div>
           <DialogFooter>

@@ -35,7 +35,7 @@ export function ReconciliationPage() {
       if (error) throw error;
 
       return audits.map(audit => {
-        let totalVendorCost = 0;
+        let totalTeamCost = 0;
         let internalCount = 0;
 
         audit.teams?.forEach((team: any) => {
@@ -46,14 +46,17 @@ export function ReconciliationPage() {
                 ? team.vendor.default_asset_rate 
                 : team.vendor.default_human_rate;
             }
-            totalVendorCost += Number(rate) || 0;
+            totalTeamCost += Number(rate) || 0;
           } else if (!team.vendor_id) {
             internalCount += 1;
+            if (team.agreed_rate) {
+              totalTeamCost += Number(team.agreed_rate);
+            }
           }
         });
 
         const billing = Number(audit.billing_amount) || 0;
-        const grossMargin = billing - totalVendorCost;
+        const grossMargin = billing - totalTeamCost;
         const marginPercent = billing > 0 ? (grossMargin / billing) * 100 : 0;
 
         return {
@@ -63,7 +66,7 @@ export function ReconciliationPage() {
           store: `${audit.store_name} ${audit.store_code ? `(${audit.store_code})` : ''}`,
           status: audit.status,
           billing,
-          vendorCost: totalVendorCost,
+          teamCost: totalTeamCost,
           internalCount,
           grossMargin,
           marginPercent
@@ -74,7 +77,7 @@ export function ReconciliationPage() {
 
   const totals = marginData?.reduce((acc, curr) => {
     acc.revenue += curr.billing;
-    acc.cost += curr.vendorCost;
+    acc.cost += curr.teamCost;
     acc.margin += curr.grossMargin;
     return acc;
   }, { revenue: 0, cost: 0, margin: 0 }) || { revenue: 0, cost: 0, margin: 0 };
@@ -86,7 +89,7 @@ export function ReconciliationPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Audit Margin Report</h2>
-          <p className="text-sm text-slate-500">Track revenue, vendor costs, and gross margins per audit.</p>
+          <p className="text-sm text-slate-500">Track revenue, team costs, and gross margins per audit.</p>
         </div>
         <div className="flex items-center gap-2">
           <DateRangePicker 
@@ -104,7 +107,7 @@ export function ReconciliationPage() {
                 'Status': d.status,
                 'Internal Staff': d.internalCount,
                 'Billing Revenue': d.billing,
-                'Vendor Cost': d.vendorCost,
+                'Team Cost': d.teamCost,
                 'Gross Margin': d.grossMargin,
                 'Margin %': d.marginPercent.toFixed(1) + '%'
               })));
@@ -134,12 +137,12 @@ export function ReconciliationPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium">Total Vendor Cost</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Team Cost</CardTitle>
             <Building className="w-4 h-4 text-slate-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">₹{totals.cost.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Direct external expenses</p>
+            <p className="text-xs text-muted-foreground mt-1">Direct external + internal expenses</p>
           </CardContent>
         </Card>
         <Card>
@@ -158,56 +161,52 @@ export function ReconciliationPage() {
         </Card>
       </div>
 
-      <Card className="flex-1">
-        <CardHeader>
-          <CardTitle>Audit Breakdown</CardTitle>
-          <CardDescription>Individual margins for all audits in the selected period.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="flex-1 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-auto">
           {isLoading ? (
-            <div className="flex justify-center p-8"><Loader2 className="animate-spin h-8 w-8 text-slate-400" /></div>
-          ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Client & Store</TableHead>
-                    <TableHead>Internal Staff</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
-                    <TableHead className="text-right">Vendor Cost</TableHead>
-                    <TableHead className="text-right">Margin</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {marginData?.map((audit) => (
-                    <TableRow key={audit.id}>
-                      <TableCell className="whitespace-nowrap">{format(new Date(audit.date), 'MMM d, yyyy')}</TableCell>
-                      <TableCell>
-                        <div className="font-medium text-slate-900">{audit.client}</div>
-                        <div className="text-xs text-slate-500">{audit.store}</div>
-                      </TableCell>
-                      <TableCell>{audit.internalCount} {audit.internalCount === 1 ? 'person' : 'people'}</TableCell>
-                      <TableCell className="text-right font-medium text-green-700">₹{audit.billing.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-medium text-orange-700">₹{audit.vendorCost.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="font-medium text-blue-700">₹{audit.grossMargin.toLocaleString()}</div>
-                        <div className="text-xs text-slate-500">{audit.marginPercent.toFixed(1)}%</div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {marginData?.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                        No audits found in this date range.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+            <div className="flex justify-center p-8">
+              <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
             </div>
+          ) : (
+            <Table>
+              <TableHeader className="sticky top-0 bg-white shadow-sm z-10">
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Client & Store</TableHead>
+                  <TableHead>Internal Staff</TableHead>
+                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Team Cost</TableHead>
+                  <TableHead className="text-right">Margin</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {marginData?.map((audit) => (
+                  <TableRow key={audit.id}>
+                    <TableCell className="whitespace-nowrap">{format(new Date(audit.date), 'MMM d, yyyy')}</TableCell>
+                    <TableCell>
+                      <div className="font-medium text-slate-900">{audit.client}</div>
+                      <div className="text-xs text-slate-500">{audit.store}</div>
+                    </TableCell>
+                    <TableCell>{audit.internalCount} {audit.internalCount === 1 ? 'person' : 'people'}</TableCell>
+                    <TableCell className="text-right font-medium text-green-700">₹{audit.billing.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-medium text-orange-700">₹{audit.teamCost.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="font-medium text-blue-700">₹{audit.grossMargin.toLocaleString()}</div>
+                      <div className="text-xs text-slate-500">{audit.marginPercent.toFixed(1)}%</div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {marginData?.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No audits found in this date range.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           )}
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
