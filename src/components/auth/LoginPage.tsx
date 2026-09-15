@@ -13,7 +13,7 @@ export function LoginPage() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'email' | 'otp'>('phone');
+  const [step, setStep] = useState<'phone' | 'email' | 'otp' | 'magic-link'>('phone');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isLoading) {
@@ -37,10 +37,11 @@ export function LoginPage() {
     try {
       if (loginMethod === 'phone') {
         await signInWithPhone(phone);
+        setStep('otp');
       } else {
         await signInWithEmail(email);
+        setStep('magic-link');
       }
-      setStep('otp');
     } catch (error) {
       // handled in hook
     } finally {
@@ -101,7 +102,7 @@ export function LoginPage() {
               variant="outline"
             >
               <Mail className="mr-2 h-4 w-4" />
-              Sign in with Email OTP (Free)
+              Sign in with Magic Link
             </Button>
             
             <Button
@@ -137,32 +138,53 @@ export function LoginPage() {
                   {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
                 </Button>
               </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="otp">Verification Code</Label>
-                  <Input
-                    id="otp"
-                    type="text"
-                    placeholder="Enter 6-digit code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                  />
+              ) : step === 'otp' ? (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">Verification Code</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      placeholder="Enter 6-digit code"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify Code'}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full"
+                    onClick={() => setStep(loginMethod)}
+                  >
+                    Back
+                  </Button>
+                </form>
+              ) : step === 'magic-link' ? (
+                <div className="space-y-6 text-center mt-4">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
+                    <Mail className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-semibold">Check your email</h3>
+                    <p className="text-sm text-gray-500">
+                      We sent a magic link to <strong>{email}</strong>.<br />
+                      Click the link in the email to sign in securely.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setStep('email')}
+                  >
+                    Back to Login
+                  </Button>
                 </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify Code'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setStep(loginMethod)}
-                >
-                  Back
-                </Button>
-              </form>
-            )}
+              ) : null}
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
