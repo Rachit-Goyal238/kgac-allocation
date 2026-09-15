@@ -75,8 +75,10 @@ export function useAllocationsQuery(filters: GridFilters) {
                totalHours: dayAlloc ? dayAlloc.hours : 0,
             };
          });
+         const leaveDays = userAllocs.filter(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday').length;
+         const adjustedWorkingDays = Math.max(0, workingDayCount - leaveDays);
          const weeklyTotal = cells.reduce((sum, c) => sum + c.totalHours, 0);
-         const utilization = calculateUtilization(weeklyTotal, workingDayCount);
+         const utilization = calculateUtilization(weeklyTotal, adjustedWorkingDays);
          
          // Build allocations record keyed by date
          const allocRecord: Record<string, Allocation | null> = {};

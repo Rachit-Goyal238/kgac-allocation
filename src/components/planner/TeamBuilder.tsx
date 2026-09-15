@@ -112,7 +112,7 @@ export function TeamBuilder() {
             </CardDescription>
           </div>
           {selectedAudit && (
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase">Revenue:</span>
                 <div className="relative">
@@ -130,6 +130,36 @@ export function TeamBuilder() {
                     disabled={updateAudit.isPending}
                   />
                 </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Req. Leads:</span>
+                <input 
+                  type="number"
+                  className="h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                  defaultValue={selectedAudit.required_leads || 0}
+                  onBlur={(e) => {
+                    const val = Number(e.target.value);
+                    if (val !== (selectedAudit.required_leads || 0)) {
+                      updateAudit.mutate({ id: selectedAudit.id, required_leads: val });
+                    }
+                  }}
+                  disabled={updateAudit.isPending}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase">Req. Execs:</span>
+                <input 
+                  type="number"
+                  className="h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
+                  defaultValue={selectedAudit.required_executives || 0}
+                  onBlur={(e) => {
+                    const val = Number(e.target.value);
+                    if (val !== (selectedAudit.required_executives || 0)) {
+                      updateAudit.mutate({ id: selectedAudit.id, required_executives: val });
+                    }
+                  }}
+                  disabled={updateAudit.isPending}
+                />
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase">Status:</span>

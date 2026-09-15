@@ -5,12 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
-import { subMonths, format } from 'date-fns';
+import { subMonths, addMonths, format } from 'date-fns';
 import { Loader2, TrendingUp, TrendingDown, DollarSign, Building } from 'lucide-react';
 import Papa from 'papaparse';
 
 export function ReconciliationPage() {
-  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: new Date() });
+  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
 
   const { data: marginData, isLoading } = useQuery({
     queryKey: ['auditMargins', dateRange],

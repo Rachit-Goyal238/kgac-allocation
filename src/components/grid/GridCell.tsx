@@ -61,12 +61,14 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     <div className="relative w-full h-full min-h-[3rem]">
       <div 
         onClick={handleEditClick}
-        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} ${bgColor} ${hours === 0 ? 'border-dashed border-red-300' : 'border-transparent'}`}
+        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} ${bgColor} ${hours === 0 && (!allocation || (allocation.status !== 'pto' && allocation.status !== 'sick')) ? 'border-dashed border-red-300' : 'border-transparent'}`}
       >
         {hours > 0 ? (
           <span className={`font-semibold ${textColor}`}>{formatHours(hours)}</span>
         ) : (
-          <span className={`text-xs font-semibold ${textColor}`}>IDLE</span>
+          <span className={`text-xs font-semibold ${textColor}`}>
+            {allocation?.status === 'pto' ? 'PTO' : allocation?.status === 'sick' ? 'SICK' : 'IDLE'}
+          </span>
         )}
       </div>
 
