@@ -75,10 +75,20 @@ export function useAllocationsQuery(filters: GridFilters) {
                totalHours: dayAlloc ? dayAlloc.hours : 0,
             };
          });
-         const leaveDays = userAllocs.filter(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday').length;
-         const adjustedWorkingDays = Math.max(0, workingDayCount - leaveDays);
+         let workingCapacity = 0;
+         cells.forEach(c => {
+           const d = parseISO(c.date);
+           const isWeekend = d.getDay() === 0; // Sunday is 0
+           const alloc = c.allocations[0];
+           const isLeave = alloc && (alloc.status === 'pto' || alloc.status === 'sick' || alloc.status === 'public_holiday');
+           
+           if (!isWeekend && !isLeave) {
+             workingCapacity += WORK_HOURS_PER_DAY;
+           }
+         });
+         
          const weeklyTotal = cells.reduce((sum, c) => sum + c.totalHours, 0);
-         const utilization = calculateUtilization(weeklyTotal, adjustedWorkingDays);
+         const utilization = workingCapacity > 0 ? Math.round((weeklyTotal / workingCapacity) * 100) : 0;
          
          // Build allocations record keyed by date
          const allocRecord: Record<string, Allocation | null> = {};
