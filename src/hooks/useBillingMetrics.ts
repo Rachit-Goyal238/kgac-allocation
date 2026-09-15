@@ -15,7 +15,8 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
           client:clients(name),
           teams:audit_teams(
             id, role, agreed_rate, user_id, vendor_id,
-            vendor:vendors(name, default_human_rate, default_asset_rate)
+            vendor:vendors(name, default_human_rate, default_asset_rate),
+            user:profiles(full_name)
           )
         `)
         .gte('audit_date', format(dateRange.start, 'yyyy-MM-dd'))
@@ -31,25 +32,36 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
         let auditTotal = 0;
         
         audit.teams?.forEach((team: any) => {
+          let rate = 0;
+          let resourceName = '';
+          
           if (team.vendor_id && team.vendor) {
-            // Calculate cost for this vendor assignment
-            let rate = team.agreed_rate;
+            // Vendor resource
+            rate = team.agreed_rate;
             if (!rate) {
               rate = team.role === 'asset' 
                 ? team.vendor.default_asset_rate 
                 : team.vendor.default_human_rate;
             }
-            
             rate = Number(rate) || 0;
+            resourceName = team.vendor.name;
+          } else if (team.user_id && team.agreed_rate) {
+            // Internal resource with cost
+            rate = Number(team.agreed_rate) || 0;
+            resourceName = 'Internal Employee';
+          }
+          
+          if (rate > 0) {
             totalOwed += rate;
             auditTotal += rate;
             
-            vendorOwedMap[team.vendor.name] = (vendorOwedMap[team.vendor.name] || 0) + rate;
+            vendorOwedMap[resourceName] = (vendorOwedMap[resourceName] || 0) + rate;
             
             externalResources.push({
               audit_name: audit.store_name,
               audit_date: audit.audit_date,
-              vendor: team.vendor.name,
+              vendor: resourceName,
+              resource_name: team.vendor ? team.vendor.name : (team.user?.full_name || 'Internal'),
               role: team.role,
               amount: rate
             });
