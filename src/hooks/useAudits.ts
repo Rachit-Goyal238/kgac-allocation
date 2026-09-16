@@ -43,34 +43,46 @@ export function useAuditTeams(auditId?: string) {
 export function useAssignTeamMember() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (assignment: Omit<AuditTeam, 'id' | 'created_at'> & { audit_date?: string, project_id?: string }) => {
-      const { audit_date, project_id, ...teamData } = assignment;
-      
-      const { data, error } = await supabase
-        .from('audit_teams')
-        .insert([teamData])
-        .select()
-        .single();
-      if (error) throw error;
+      mutationFn: async (assignment: Omit<AuditTeam, 'id' | 'created_at'> & { audit_date?: string, project_id?: string }) => {
+        const { audit_date, project_id, ...teamData } = assignment;
+        
+        const { data, error } = await supabase
+          .from('audit_teams')
+          .insert([teamData])
+          .select()
+          .single();
+        if (error) throw error;
+  
+        if (teamData.user_id && project_id) {
+          // 1. Assign employee to the project for their selective view
+          const { error: projError } = await supabase
+            .from('project_assignments')
+            .upsert({
+              project_id: project_id,
+              user_id: teamData.user_id
+            }, { onConflict: 'project_id,user_id' });
+            
+          if (projError) console.error('Failed to assign project:', projError);
 
-      // If it's an internal employee, create a calendar allocation
-      if (teamData.user_id && audit_date && project_id) {
-        const { error: allocError } = await supabase
-          .from('allocations')
-          .upsert({
-            user_id: teamData.user_id,
-            allocation_date: audit_date,
-            audit_id: teamData.audit_id,
-            project_id: project_id, // Link to the auto-generated project!
-            hours: 0, // User updates themselves
-            status: 'billable',
-            notes: 'Auto-assigned from Audit Planner'
-          }, { onConflict: 'user_id,allocation_date' });
-        if (allocError) console.error('Failed to create allocation:', allocError);
-      }
-
-      return data;
-    },
+          // 2. Create a calendar allocation (now using insert since we allow multiple projects per day)
+          if (audit_date) {
+            const { error: allocError } = await supabase
+              .from('allocations')
+              .insert({
+                user_id: teamData.user_id,
+                allocation_date: audit_date,
+                audit_id: teamData.audit_id,
+                project_id: project_id,
+                hours: 0,
+                status: 'billable',
+                notes: 'Auto-assigned from Audit Planner'
+              });
+            if (allocError) console.error('Failed to create allocation:', allocError);
+          }
+        }
+  
+        return data;
+      },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['audit_teams', data.audit_id] });
       queryClient.invalidateQueries({ queryKey: ['allocations'] });

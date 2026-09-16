@@ -14,12 +14,13 @@ import { useAuthContext } from '@/contexts/AuthContext';
 export function DashboardPage() {
   const [startDate, setStartDate] = useState(subDays(new Date(), 14));
   const [endDate, setEndDate] = useState(new Date());
+  const [zoneFilter, setZoneFilter] = useState<string>('');
   const { profile } = useAuthContext();
   
   const startStr = format(startDate, 'yyyy-MM-dd');
   const endStr = format(endDate, 'yyyy-MM-dd');
 
-  const { data, isLoading, error } = useDashboardMetrics(startStr, endStr);
+  const { data, isLoading, error } = useDashboardMetrics(startStr, endStr, undefined, zoneFilter || undefined);
 
   const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner'].includes(r));
 
@@ -31,14 +32,23 @@ export function DashboardPage() {
           <p className="text-sm text-slate-500">Overview of resource utilization and capacity.</p>
         </div>
         {isManagerOrAdmin && (
-          <DateRangePicker 
-            startDate={startDate}
-            endDate={endDate}
-            onChange={(start, end) => {
-              if (start) setStartDate(start);
-              if (end) setEndDate(end);
-            }}
-          />
+          <div className="flex gap-2">
+            <input 
+              type="text" 
+              placeholder="Filter by Zone..." 
+              className="border rounded p-2 text-sm max-w-[150px]"
+              value={zoneFilter}
+              onChange={e => setZoneFilter(e.target.value)}
+            />
+            <DateRangePicker 
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                if (start) setStartDate(start);
+                if (end) setEndDate(end);
+              }}
+            />
+          </div>
         )}
       </div>
 

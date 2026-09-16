@@ -18,7 +18,8 @@ import {
   Shield,
   ClipboardList,
   Database,
-  Calculator
+  Calculator,
+  Monitor
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -81,6 +82,12 @@ export function Sidebar({ onClose }: SidebarProps) {
           <NavLink to="/dashboard" onClick={handleLinkClick} className={navLinkClasses}>
             <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
             Dashboard
+          </NavLink>
+
+          {/* Assets - All users */}
+          <NavLink to="/assets" onClick={handleLinkClick} className={navLinkClasses}>
+            <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
+            Internal Assets
           </NavLink>
 
           {/* Audit Margins - Manager, Admin, Super Admin */}

@@ -12,6 +12,7 @@ import { Loader2 } from 'lucide-react';
 const AuditLogViewer = lazy(() => import('@/components/admin/AuditLogViewer').then(m => ({ default: m.AuditLogViewer })));
 const ClientManager = lazy(() => import('@/components/admin/ClientManager').then(m => ({ default: m.ClientManager })));
 const DatabaseMaintenance = lazy(() => import('@/components/admin/DatabaseMaintenance').then(m => ({ default: m.DatabaseMaintenance })));
+const VendorManager = lazy(() => import('@/components/admin/VendorManager').then(m => ({ default: m.VendorManager })));
 
 function TabLoader() {
   return (
@@ -35,6 +36,7 @@ export function AdminPage() {
   let activeTab = 'users';
   if (location.pathname.includes('/admin/departments')) activeTab = 'departments';
   if (location.pathname.includes('/admin/projects')) activeTab = 'projects';
+  if (location.pathname.includes('/admin/vendors')) activeTab = 'vendors';
   if (location.pathname.includes('/admin/holidays')) activeTab = 'holidays';
   if (location.pathname.includes('/admin/clients')) activeTab = 'clients';
   if (location.pathname.includes('/admin/settings')) activeTab = 'settings';
@@ -59,6 +61,7 @@ export function AdminPage() {
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="holidays">Holidays</TabsTrigger>
           {isAdminPlus && <TabsTrigger value="projects">Projects</TabsTrigger>}
+          {isAdminPlus && <TabsTrigger value="vendors">Vendors</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="clients">Clients</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="settings">Settings</TabsTrigger>}
           {isSuperAdmin && <TabsTrigger value="audit-log">Audit Log</TabsTrigger>}
@@ -81,6 +84,16 @@ export function AdminPage() {
           <TabsContent value="projects" className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <ProjectManager />
+            </div>
+          </TabsContent>
+        )}
+
+        {isAdminPlus && (
+          <TabsContent value="vendors" className="mt-0">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <Suspense fallback={<TabLoader />}>
+                <VendorManager />
+              </Suspense>
             </div>
           </TabsContent>
         )}

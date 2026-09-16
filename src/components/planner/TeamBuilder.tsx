@@ -24,7 +24,16 @@ export function TeamBuilder() {
   const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
 
   const { data: vendors } = useQuery({ queryKey: ['vendors'], queryFn: async () => {
-    const { data } = await supabase.from('vendors').select('*'); return data;
+    const { data: v } = await supabase.from('vendors').select('*'); 
+    const { data: internal } = await supabase.from('profiles').select('id, full_name, is_internal_vendor').eq('status', 'active');
+    
+    const internalVendors = internal?.filter(i => i.is_internal_vendor).map(i => ({
+      id: i.id,
+      name: `${i.full_name} (Internal Vendor)`,
+      is_internal: true
+    })) || [];
+    
+    return [...(v || []), ...internalVendors];
   }});
   const { data: employees } = useQuery({ queryKey: ['profiles'], queryFn: async () => {
     const { data } = await supabase.from('profiles').select('*').eq('status', 'active'); return data;
@@ -39,23 +48,47 @@ export function TeamBuilder() {
   const requirementsMet = reqLeads > 0 || reqExecs > 0 ? isTeamSatisfied : true;
 
   const [selectedVendor, setSelectedVendor] = useState('');
+  const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
   const [agreedRate, setAgreedRate] = useState('');
+
+  const { data: vendorRates } = useQuery({ queryKey: ['vendor_rates', selectedVendor], queryFn: async () => {
+    if (!selectedVendor) return [];
+    const { data } = await supabase.from('vendor_rates').select('*').eq('vendor_id', selectedVendor); 
+    return data || [];
+  }, enabled: !!selectedVendor });
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
 
   const handleAssignVendor = () => {
     if (!selectedAuditId || !selectedVendor || !selectedAudit) return;
+    
+    const isInternal = vendors?.find((v: any) => v.id === selectedVendor)?.is_internal;
+    
+    let rateToUse = null;
+    if (selectedRateId) {
+       const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
+       if (selectedRateObj) {
+         rateToUse = selectedRole === 'asset' ? selectedRateObj.asset_rate : selectedRateObj.human_rate;
+       }
+    } else {
+       // fallback to default rate
+       const vObj = vendors?.find((v: any) => v.id === selectedVendor);
+       if (vObj && !isInternal) {
+          rateToUse = selectedRole === 'asset' ? vObj.default_asset_rate : vObj.default_human_rate;
+       }
+    }
+
     assignMember.mutate({
       audit_id: selectedAuditId,
       audit_date: selectedAudit.audit_date,
       project_id: selectedAudit.project_id,
-      vendor_id: selectedVendor,
-      user_id: null,
+      vendor_id: isInternal ? null : selectedVendor,
+      user_id: isInternal ? selectedVendor : null,
       role: selectedRole,
-      agreed_rate: agreedRate ? Number(agreedRate) : null
-    }, { onSuccess: () => setVendorModalOpen(false) });
+      agreed_rate: rateToUse
+    }, { onSuccess: () => { setVendorModalOpen(false); setSelectedVendor(''); setSelectedRateId(''); } });
   };
 
   const handleAssignEmployee = () => {
@@ -133,33 +166,11 @@ export function TeamBuilder() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase">Req. Leads:</span>
-                <input 
-                  type="number"
-                  className="h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  defaultValue={selectedAudit.required_leads || 0}
-                  onBlur={(e) => {
-                    const val = Number(e.target.value);
-                    if (val !== (selectedAudit.required_leads || 0)) {
-                      updateAudit.mutate({ id: selectedAudit.id, required_leads: val });
-                    }
-                  }}
-                  disabled={updateAudit.isPending}
-                />
+                <span className="text-sm font-semibold">{selectedAudit.required_leads || 0}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase">Req. Execs:</span>
-                <input 
-                  type="number"
-                  className="h-8 w-16 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  defaultValue={selectedAudit.required_executives || 0}
-                  onBlur={(e) => {
-                    const val = Number(e.target.value);
-                    if (val !== (selectedAudit.required_executives || 0)) {
-                      updateAudit.mutate({ id: selectedAudit.id, required_executives: val });
-                    }
-                  }}
-                  disabled={updateAudit.isPending}
-                />
+                <span className="text-sm font-semibold">{selectedAudit.required_executives || 0}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-muted-foreground uppercase">Status:</span>
@@ -279,11 +290,22 @@ export function TeamBuilder() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Select Vendor</label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedVendor} onChange={e => setSelectedVendor(e.target.value)}>
+              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedRateId(''); }}>
                 <option value="">-- Choose Vendor --</option>
                 {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
               </select>
             </div>
+            
+            {vendorRates && vendorRates.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Variable Rate (Zone/Reason)</label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedRateId} onChange={e => setSelectedRateId(e.target.value)}>
+                  <option value="">-- Use Default Rate --</option>
+                  {vendorRates.map((r: any) => <option key={r.id} value={r.id}>{r.zone_or_reason} (Human: {r.human_rate || '-'}, Asset: {r.asset_rate || '-'})</option>)}
+                </select>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Role</label>
               <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
@@ -291,15 +313,26 @@ export function TeamBuilder() {
                 <option value="executive">Executive</option>
                 <option value="asset">Asset / Equipment</option>
               </select>
+              {selectedRole === 'lead' && assignedLeads >= reqLeads && (
+                <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
+              )}
+              {selectedRole === 'executive' && assignedExecs >= reqExecs && (
+                <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
+              )}
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Override Rate (₹) [Optional]</label>
-              <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={agreedRate} onChange={e => setAgreedRate(e.target.value)} placeholder="Leave blank to use default rate" />
-            </div>
+
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setVendorModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAssignVendor} disabled={!selectedVendor || assignMember.isPending}>
+            <Button 
+              onClick={handleAssignVendor} 
+              disabled={
+                !selectedVendor || 
+                assignMember.isPending || 
+                (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
+                (selectedRole === 'executive' && assignedExecs >= reqExecs)
+              }
+            >
               {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Assign
             </Button>
@@ -327,6 +360,12 @@ export function TeamBuilder() {
                 <option value="lead">Lead</option>
                 <option value="executive">Executive</option>
               </select>
+              {selectedRole === 'lead' && assignedLeads >= reqLeads && (
+                <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
+              )}
+              {selectedRole === 'executive' && assignedExecs >= reqExecs && (
+                <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Man Day Cost (₹) [Optional]</label>
@@ -335,7 +374,15 @@ export function TeamBuilder() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEmployeeModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleAssignEmployee} disabled={!selectedEmployee || assignMember.isPending}>
+            <Button 
+              onClick={handleAssignEmployee} 
+              disabled={
+                !selectedEmployee || 
+                assignMember.isPending || 
+                (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
+                (selectedRole === 'executive' && assignedExecs >= reqExecs)
+              }
+            >
               {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Assign
             </Button>
@@ -345,3 +392,6 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+// (I will rewrite TeamBuilder completely to include this if needed, but it is 300+ lines. Let's use replace_file_content)
+

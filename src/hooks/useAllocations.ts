@@ -68,11 +68,12 @@ export function useAllocationsQuery(filters: GridFilters) {
          const userAllocs = allocations.filter(a => a.user_id === p.id);
          const cells = days.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd');
-            const dayAlloc = userAllocs.find(a => a.allocation_date === dateStr);
+            const dayAllocs = userAllocs.filter(a => a.allocation_date === dateStr);
+            const totalHours = dayAllocs.reduce((sum, a) => sum + Number(a.hours || 0), 0);
             return {
                date: dateStr,
-               allocations: dayAlloc ? [dayAlloc] : [],
-               totalHours: dayAlloc ? dayAlloc.hours : 0,
+               allocations: dayAllocs,
+               totalHours: totalHours,
             };
          });
          let workingCapacity = 0;
@@ -150,6 +151,45 @@ export function useDeleteAllocation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allocations'] });
       toast.success('Allocation deleted');
+    }
+  });
+}
+
+
+export function useSaveDayAllocations() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, date, allocations }: { userId: string, date: string, allocations: Partial<Allocation>[] }) => {
+      // Find existing to preserve PTO/Sick
+      const { data: existing } = await supabase.from('allocations').select('*').eq('user_id', userId).eq('allocation_date', date);
+      const leave = existing?.find(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+      
+      if (leave) {
+         throw new Error('Cannot overwrite a leave day from the grid.');
+      }
+
+      await supabase.from('allocations').delete().eq('user_id', userId).eq('allocation_date', date);
+      
+      if (allocations.length > 0) {
+        const toInsert = allocations.map((a: any) => {
+          delete a.id;
+          return {
+            ...a,
+            user_id: userId,
+            allocation_date: date
+          };
+        });
+        const { error } = await supabase.from('allocations').insert(toInsert);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allocations'] });
+      toast.success('Day saved');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to save: ' + error.message);
     }
   });
 }

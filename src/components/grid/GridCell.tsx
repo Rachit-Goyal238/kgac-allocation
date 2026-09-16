@@ -33,10 +33,12 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     );
   }
 
-  const colorClasses = getCellColorClass(allocation, isWeekend, isHoliday);
+  const allocations = cellData.allocations || (allocation ? [allocation] : []);
+  const colorClasses = getCellColorClass(allocations, isWeekend, isHoliday);
   const bgColor = colorClasses.bg;
   const textColor = colorClasses.text;
-  const hours = allocation?.hours || 0;
+  const hours = cellData.totalHours || 0;
+  const leaveAlloc = allocations.find(a => a.status === 'pto' || a.status === 'sick');
   
   const canEdit = () => {
     if (!profile) return false;
@@ -61,13 +63,16 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     <div className="relative w-full h-full min-h-[3rem]">
       <div 
         onClick={handleEditClick}
-        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} ${bgColor} ${hours === 0 && (!allocation || (allocation.status !== 'pto' && allocation.status !== 'sick')) ? 'border-dashed border-red-300' : 'border-transparent'}`}
+        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} ${bgColor} ${hours === 0 && !leaveAlloc ? 'border-dashed border-red-300' : 'border-transparent'}`}
       >
         {hours > 0 ? (
-          <span className={`font-semibold ${textColor}`}>{formatHours(hours)}</span>
+          <div className="flex flex-col items-center">
+             <span className={`font-semibold ${textColor}`}>{formatHours(hours)}</span>
+             {allocations.length > 1 && <span className="text-[9px] leading-none opacity-60 mt-0.5 tracking-tighter">({allocations.length} projects)</span>}
+          </div>
         ) : (
           <span className={`text-xs font-semibold ${textColor}`}>
-            {allocation?.status === 'pto' ? 'PTO' : allocation?.status === 'sick' ? 'SICK' : 'IDLE'}
+            {leaveAlloc?.status === 'pto' ? 'PTO' : leaveAlloc?.status === 'sick' ? 'SICK' : 'IDLE'}
           </span>
         )}
       </div>
@@ -76,7 +81,7 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
         <GridCellEditor 
           date={date} 
           userId={userId} 
-          allocation={allocation} 
+          allocations={allocations} 
           projects={projects}
           onSave={() => onEdit('', '')}
           onClose={() => onEdit('', '')}

@@ -1,11 +1,32 @@
 // ─── Enums & Literal Types ───────────────────────────────────────────────────
 
-export type UserRole = 'employee' | 'audit_executive' | 'audit_manager' | 'planner' | 'backend_staff' | 'manager' | 'client_head' | 'hr' | 'finance' | 'admin' | 'super_admin' | 'pending';
-export type UserStatus = 'active' | 'pending' | 'inactive';
-export type AllocationStatus = 'billable' | 'internal' | 'pto' | 'sick' | 'public_holiday';
-export type TaskStatus = 'not_started' | 'in_progress' | 'completed' | 'pending_review' | 'blocked';
-export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'ROLE_CHANGE' | 'STATUS_CHANGE' | 'LOGIN' | 'APPROVAL';
-export type UserEntity = 'KGAC' | 'KPL';
+export type UserRole =
+  | "employee"
+  | "audit_executive"
+  | "audit_manager"
+  | "planner"
+  | "backend_staff"
+  | "manager"
+  | "client_head"
+  | "hr"
+  | "finance"
+  | "admin"
+  | "super_admin"
+  | "pending";
+export type UserStatus = "active" | "pending" | "inactive";
+export type AllocationStatus =
+  "billable" | "internal" | "pto" | "sick" | "public_holiday";
+export type TaskStatus =
+  "not_started" | "in_progress" | "completed" | "pending_review" | "blocked";
+export type AuditAction =
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "ROLE_CHANGE"
+  | "STATUS_CHANGE"
+  | "LOGIN"
+  | "APPROVAL";
+export type UserEntity = "KGAC" | "KPL";
 
 // ─── Database Row Types ──────────────────────────────────────────────────────
 
@@ -18,6 +39,8 @@ export interface Profile {
   entity: UserEntity | null;
   department_id: string | null;
   status: UserStatus;
+  zone?: string | null;
+  is_internal_vendor?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -59,9 +82,9 @@ export interface LeaveRequest {
   id: string;
   user_id: string;
   start_date: string; // 'YYYY-MM-DD'
-  end_date: string;   // 'YYYY-MM-DD'
-  type: 'sick' | 'pto';
-  status: 'pending' | 'approved' | 'rejected';
+  end_date: string; // 'YYYY-MM-DD'
+  type: "sick" | "pto";
+  status: "pending" | "approved" | "rejected";
   manager_id: string | null;
   created_at: string;
   updated_at: string;
@@ -160,8 +183,14 @@ export interface ManDaysMetrics {
   totalManDays: number;
   internalManDays: number;
   externalManDays: number;
-  byProject: Record<string, { total: number; internal: number; external: number }>;
-  byMonth: Record<string, { total: number; internal: number; external: number }>;
+  byProject: Record<
+    string,
+    { total: number; internal: number; external: number }
+  >;
+  byMonth: Record<
+    string,
+    { total: number; internal: number; external: number }
+  >;
 }
 
 export interface CompletionMetrics {
@@ -195,7 +224,7 @@ export interface OverAllocationEntry {
 
 export interface OfflineAction {
   id: string;
-  type: 'upsert' | 'delete' | 'upsert_allocation' | 'delete_allocation';
+  type: "upsert" | "delete" | "upsert_allocation" | "delete_allocation";
   table: string;
   payload: Record<string, unknown>;
   timestamp: string | number;
@@ -226,7 +255,7 @@ export interface GridFilters {
   searchQuery: string;
   dateRange: {
     start: string; // 'YYYY-MM-DD'
-    end: string;   // 'YYYY-MM-DD'
+    end: string; // 'YYYY-MM-DD'
   };
   // Flat aliases used by some components
   startDate?: string;
@@ -235,12 +264,16 @@ export interface GridFilters {
 
 // ─── Task Status Labels ──────────────────────────────────────────────────────
 
-export const TASK_STATUS_OPTIONS: { value: TaskStatus; label: string; color: string }[] = [
-  { value: 'not_started', label: 'Not Started', color: 'bg-gray-400' },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-500' },
-  { value: 'completed', label: 'Completed', color: 'bg-green-500' },
-  { value: 'pending_review', label: 'Pending Review', color: 'bg-yellow-500' },
-  { value: 'blocked', label: 'Blocked', color: 'bg-red-500' },
+export const TASK_STATUS_OPTIONS: {
+  value: TaskStatus;
+  label: string;
+  color: string;
+}[] = [
+  { value: "not_started", label: "Not Started", color: "bg-gray-400" },
+  { value: "in_progress", label: "In Progress", color: "bg-blue-500" },
+  { value: "completed", label: "Completed", color: "bg-green-500" },
+  { value: "pending_review", label: "Pending Review", color: "bg-yellow-500" },
+  { value: "blocked", label: "Blocked", color: "bg-red-500" },
 ];
 
 export interface Audit {
@@ -252,7 +285,7 @@ export interface Audit {
   location: string | null;
   audit_date: string;
   audit_type: string;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  status: "scheduled" | "in_progress" | "completed" | "cancelled";
   billing_amount: number;
   created_at: string;
   updated_at: string;
@@ -262,7 +295,7 @@ export interface Vendor {
   id: string;
   name: string;
   contact_email: string | null;
-  type: 'agency' | 'individual';
+  type: "agency" | "individual";
   default_human_rate: number | null;
   default_asset_rate: number | null;
   created_at: string;
@@ -273,7 +306,45 @@ export interface AuditTeam {
   audit_id: string;
   user_id: string | null;
   vendor_id: string | null;
-  role: 'lead' | 'executive' | 'asset';
+  role: "lead" | "executive" | "asset";
   agreed_rate: number | null;
   created_at: string;
 }
+
+export interface ProjectAssignment {
+  project_id: string;
+  user_id: string;
+  created_at: string;
+}
+
+export interface VendorRate {
+  id: string;
+  vendor_id: string;
+  zone_or_reason: string;
+  human_rate: number | null;
+  asset_rate: number | null;
+  created_at: string;
+}
+
+export interface InternalAsset {
+  id: string;
+  name: string;
+  type: string;
+  status: 'available' | 'in_use' | 'maintenance';
+  assigned_to: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
+export interface AssetRequest {
+  id: string;
+  asset_id: string;
+  user_id: string;
+  start_date: string;
+  end_date: string;
+  status: 'pending' | 'approved' | 'rejected';
+  manager_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+

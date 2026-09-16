@@ -16,7 +16,7 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
           teams:audit_teams(
             id, role, agreed_rate, user_id, vendor_id,
             vendor:vendors(name, default_human_rate, default_asset_rate),
-            user:profiles(full_name)
+            user:profiles(full_name, is_internal_vendor)
           )
         `)
         .gte('audit_date', format(dateRange.start, 'yyyy-MM-dd'))
@@ -48,7 +48,7 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
           } else if (team.user_id && team.agreed_rate) {
             // Internal resource with cost
             rate = Number(team.agreed_rate) || 0;
-            resourceName = 'Internal Employee';
+            resourceName = team.user?.is_internal_vendor ? team.user.full_name : 'Internal Employee';
           }
           
           if (rate > 0) {

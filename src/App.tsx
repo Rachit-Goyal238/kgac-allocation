@@ -21,6 +21,7 @@ const CompletionPage = lazy(() => import('@/pages/CompletionPage').then(m => ({ 
 const ReconciliationPage = lazy(() => import('@/pages/ReconciliationPage').then(m => ({ default: m.ReconciliationPage })));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const PlannerPage = lazy(() => import('@/pages/PlannerPage').then(m => ({ default: m.PlannerPage })));
+const AssetsPage = lazy(() => import('@/pages/AssetsPage').then(m => ({ default: m.AssetsPage })));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
 function PageLoader() {
@@ -79,6 +80,13 @@ export default function App() {
               path="dashboard"
               element={
                 <Suspense fallback={<PageLoader />}><DashboardPage /></Suspense>
+              }
+            />
+
+            <Route
+              path="assets"
+              element={
+                <Suspense fallback={<PageLoader />}><AssetsPage /></Suspense>
               }
             />
 

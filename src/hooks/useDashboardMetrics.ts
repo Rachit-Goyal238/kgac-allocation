@@ -3,14 +3,17 @@ import { supabase } from '@/lib/supabase';
 import { DashboardMetrics, IdleDayEntry, OverAllocationEntry, Profile, Allocation } from '@/lib/types';
 import { eachDayOfInterval, parseISO, format, isWeekend } from 'date-fns';
 
-export function useDashboardMetrics(startDate: string, endDate: string, departmentId?: string) {
+export function useDashboardMetrics(startDate: string, endDate: string, departmentId?: string, zone?: string) {
   return useQuery({
-    queryKey: ['dashboard_metrics', startDate, endDate, departmentId],
+    queryKey: ['dashboard_metrics', startDate, endDate, departmentId, zone],
     queryFn: async () => {
       // Fetch profiles
       let profilesQuery = supabase.from('profiles').select('*').eq('status', 'active');
       if (departmentId) {
         profilesQuery = profilesQuery.eq('department_id', departmentId);
+      }
+      if (zone) {
+        profilesQuery = profilesQuery.eq('zone', zone);
       }
       const { data: profiles, error: profilesError } = await profilesQuery;
       if (profilesError) throw profilesError;

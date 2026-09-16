@@ -105,6 +105,8 @@ export function UserManagement() {
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Department</TableHead>
+              <TableHead>Zone</TableHead>
+              <TableHead>Vendor</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -112,7 +114,7 @@ export function UserManagement() {
           <TableBody>
             {activeProfiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No users found matching filters.</TableCell>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No users found matching filters.</TableCell>
               </TableRow>
             ) : (
               activeProfiles.map(profile => (
@@ -130,36 +132,36 @@ export function UserManagement() {
                       </div>
                     </div>
                   </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="w-[140px] h-8 text-xs justify-between">
-                            <span className="truncate">
-                              {profile.roles && profile.roles.length > 1 
-                                ? `${profile.roles.length} roles` 
-                                : (profile.roles && profile.roles.length > 0 
-                                    ? ROLE_LABELS[profile.roles[0] as keyof typeof ROLE_LABELS] || profile.roles[0]
-                                    : 'Select role')}
-                            </span>
-                            <ChevronDown className="h-4 w-4 opacity-50" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[180px]">
-                          {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                            <DropdownMenuCheckboxItem
-                              key={value}
-                              checked={profile.roles?.includes(value as any)}
-                              onCheckedChange={() => handleRoleToggle(profile.id, profile.roles, value)}
-                            >
-                              {label}
-                            </DropdownMenuCheckboxItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="w-[120px] h-8 text-xs justify-between">
+                          <span className="truncate">
+                            {profile.roles && profile.roles.length > 1 
+                              ? `${profile.roles.length} roles` 
+                              : (profile.roles && profile.roles.length > 0 
+                                  ? ROLE_LABELS[profile.roles[0] as keyof typeof ROLE_LABELS] || profile.roles[0]
+                                  : 'Select role')}
+                          </span>
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[180px]">
+                        {Object.entries(ROLE_LABELS).map(([value, label]) => (
+                          <DropdownMenuCheckboxItem
+                            key={value}
+                            checked={profile.roles?.includes(value as any)}
+                            onCheckedChange={() => handleRoleToggle(profile.id, profile.roles, value)}
+                          >
+                            {label}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                   <TableCell>
                     <Select value={profile.department_id && departments.some(d => d.id === profile.department_id) ? profile.department_id : 'none'} onValueChange={(v) => handleDeptChange(profile.id, v === 'none' ? '' : v)}>
-                      <SelectTrigger className="w-[140px] h-8 text-xs"><SelectValue placeholder="Assign dept" /></SelectTrigger>
+                      <SelectTrigger className="w-[120px] h-8 text-xs"><SelectValue placeholder="Assign dept" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">None</SelectItem>
                         {departments.map(d => (
@@ -167,6 +169,29 @@ export function UserManagement() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </TableCell>
+                  <TableCell>
+                    <input 
+                      type="text" 
+                      className="border rounded p-1 text-xs w-[80px]" 
+                      placeholder="Zone..." 
+                      defaultValue={profile.zone || ''}
+                      onBlur={e => {
+                        if (e.target.value !== (profile.zone || '')) {
+                          updateProfile.mutate({ id: profile.id, zone: e.target.value });
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <input 
+                        type="checkbox" 
+                        checked={!!profile.is_internal_vendor} 
+                        onChange={(e) => updateProfile.mutate({ id: profile.id, is_internal_vendor: e.target.checked })} 
+                      />
+                      <span className="text-xs">Yes</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={profile.status === 'active' ? 'default' : 'secondary'} className={profile.status === 'active' ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20' : ''}>

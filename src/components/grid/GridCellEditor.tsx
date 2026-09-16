@@ -1,143 +1,167 @@
 import React, { useState } from 'react';
 import { Allocation, Project, TaskStatus } from '@/lib/types';
-import { useUpsertAllocation } from '@/hooks/useAllocations';
-import { ALLOCATION_STATUSES, TASK_STATUS_LABELS } from '@/lib/constants';
+import { useSaveDayAllocations } from '@/hooks/useAllocations';
+import { TASK_STATUS_LABELS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { Trash2, Plus, Loader2 } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 
 interface GridCellEditorProps {
   date: string;
   userId: string;
-  allocation: Allocation | null;
+  allocations: Allocation[];
   projects: Project[];
-  onSave: (data: Partial<Allocation>) => void;
+  onSave: () => void;
   onClose: () => void;
 }
 
 const TASK_STATUSES: TaskStatus[] = ['not_started', 'in_progress', 'completed', 'pending_review', 'blocked'];
 
-export function GridCellEditor({ date, userId, allocation, projects, onSave, onClose }: GridCellEditorProps) {
-  const [hours, setHours] = useState(allocation?.hours || 8);
-  const [status, setStatus] = useState(allocation?.status || 'billable');
-  const [taskStatus, setTaskStatus] = useState<TaskStatus>(allocation?.task_status || 'not_started');
-  const [projectId, setProjectId] = useState(allocation?.project_id || '');
-  const [notes, setNotes] = useState(allocation?.notes || '');
-  const { mutate } = useUpsertAllocation();
+export function GridCellEditor({ date, userId, allocations, projects, onSave, onClose }: GridCellEditorProps) {
+  const { profile } = useAuthContext();
+  const [drafts, setDrafts] = useState<Partial<Allocation>[]>(
+    allocations.length > 0 
+      ? allocations 
+      : [{ hours: 8, status: 'billable', task_status: 'not_started', project_id: '' }]
+  );
+  
+  const { mutate, isPending } = useSaveDayAllocations();
+
+  // Fetch project assignments for this user to filter dropdown
+  const { data: assignments } = useQuery({
+    queryKey: ['project_assignments', userId],
+    queryFn: async () => {
+      const { data } = await supabase.from('project_assignments').select('project_id').eq('user_id', userId);
+      return data?.map(d => d.project_id) || [];
+    }
+  });
+
+  const isEmployeeOnly = !profile?.roles?.some(r => ['super_admin', 'admin', 'manager', 'planner'].includes(r));
+  
+  // Filter projects: If employee, only show assigned. Else show all.
+  const availableProjects = isEmployeeOnly 
+    ? projects.filter(p => assignments?.includes(p.id)) 
+    : projects;
 
   const handleSave = () => {
-    const data = {
-      id: allocation?.id,
-      user_id: userId,
-      allocation_date: date,
-      hours,
-      status,
-      task_status: taskStatus,
-      project_id: projectId || undefined,
-      notes
-    };
-    mutate(data);
-    onSave(data);
-    onClose();
+    // Filter out drafts with no project selected (as requested)
+    const validDrafts = drafts.filter(d => !!d.project_id);
+    mutate({ userId, date, allocations: validDrafts }, {
+      onSuccess: () => {
+        onSave();
+        onClose();
+      }
+    });
   };
 
-  const handleProjectChange = (pid: string) => {
-    setProjectId(pid);
-    if (!pid) return;
-    const project = projects.find(p => p.id === pid);
-    if (project) {
-      setStatus(project.is_billable ? 'billable' : 'internal');
-    }
+  const updateDraft = (index: number, updates: Partial<Allocation>) => {
+    const newDrafts = [...drafts];
+    newDrafts[index] = { ...newDrafts[index], ...updates };
+    setDrafts(newDrafts);
   };
 
-  const isLeaveType = ['pto', 'sick'].includes(status);
-  const availableStatuses = ALLOCATION_STATUSES.filter(
-    s => !['public_holiday', 'pto', 'sick'].includes(s.value) || s.value === status
-  );
+  const removeDraft = (index: number) => {
+    setDrafts(drafts.filter((_, i) => i !== index));
+  };
+
+  const addDraft = () => {
+    setDrafts([...drafts, { hours: 0, status: 'billable', task_status: 'not_started', project_id: '' }]);
+  };
+
+  const hasLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
 
   return (
-    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-72 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
-      <div className="font-semibold text-sm">Edit Allocation</div>
+    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-80 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
+      <div className="font-semibold text-sm">Edit Allocations ({date})</div>
       
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">Billing Status</label>
-        <select 
-          className="border rounded p-1.5 text-sm bg-white" 
-          value={status} 
-          onChange={(e) => {
-            const newStatus = e.target.value as any;
-            setStatus(newStatus);
-            if (['pto', 'sick'].includes(newStatus)) {
-              setHours(0);
-              setProjectId('');
-            }
-          }}
-          disabled={!!projectId}
-        >
-          {availableStatuses.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
-        {!!projectId && <span className="text-[10px] text-slate-400">Status is tied to the selected project.</span>}
-      </div>
-
-      {isLeaveType && (
+      {hasLeave ? (
         <div className="bg-amber-50 p-2 rounded border border-amber-200 text-amber-800 text-xs">
-          This day is marked as {status.toUpperCase()}. If you need to assign work, change the billing status to Billable or Internal first.
+          This day has an approved leave. You cannot manually assign hours.
         </div>
-      )}
-
-      {!isLeaveType && (
+      ) : (
         <>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-slate-500">Project</label>
-            <select 
-              className="border rounded p-1.5 text-sm bg-white" 
-              value={projectId} 
-              onChange={(e) => handleProjectChange(e.target.value)}
-            >
-              <option value="">Select a project...</option>
-              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+          <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
+            {drafts.map((draft, i) => (
+              <div key={i} className="border p-2 rounded relative flex flex-col gap-2 bg-slate-50">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-1 right-1 h-6 w-6 text-slate-400 hover:text-red-500"
+                  onClick={() => removeDraft(i)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+                
+                <div className="flex flex-col gap-1 pr-6">
+                  <label className="text-[10px] uppercase font-semibold text-slate-500">Project</label>
+                  <select 
+                    className="border rounded p-1 text-xs bg-white" 
+                    value={draft.project_id || ''} 
+                    onChange={(e) => {
+                      const pid = e.target.value;
+                      const proj = projects.find(p => p.id === pid);
+                      updateDraft(i, { 
+                        project_id: pid, 
+                        status: proj ? (proj.is_billable ? 'billable' : 'internal') : 'billable' 
+                      });
+                    }}
+                  >
+                    <option value="">-- Select a project --</option>
+                    {availableProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                </div>
+
+                <div className="flex gap-2">
+                  <div className="flex flex-col gap-1 flex-1">
+                    <label className="text-[10px] uppercase font-semibold text-slate-500">Hours</label>
+                    <input 
+                      type="number" 
+                      min="0" max="24" step="0.5" 
+                      className="border rounded p-1 text-xs bg-white" 
+                      value={draft.hours || 0} 
+                      onChange={(e) => updateDraft(i, { hours: parseFloat(e.target.value) || 0 })} 
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 flex-1">
+                    <label className="text-[10px] uppercase font-semibold text-slate-500">Status</label>
+                    <select 
+                      className="border rounded p-1 text-xs bg-white" 
+                      value={draft.task_status || 'not_started'} 
+                      onChange={(e) => updateDraft(i, { task_status: e.target.value as TaskStatus })}
+                    >
+                      {TASK_STATUSES.map(ts => (
+                        <option key={ts} value={ts}>{TASK_STATUS_LABELS[ts]}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <input 
+                    type="text" 
+                    className="border rounded p-1 text-xs bg-white" 
+                    value={draft.notes || ''} 
+                    onChange={(e) => updateDraft(i, { notes: e.target.value })} 
+                    placeholder="Optional notes..."
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-slate-500">Task Progress</label>
-            <select 
-              className="border rounded p-1.5 text-sm bg-white" 
-              value={taskStatus} 
-              onChange={(e) => setTaskStatus(e.target.value as TaskStatus)}
-            >
-              {TASK_STATUSES.map(ts => (
-                <option key={ts} value={ts}>{TASK_STATUS_LABELS[ts]}</option>
-              ))}
-            </select>
-          </div>
+          <Button variant="outline" size="sm" className="w-full text-xs h-7" onClick={addDraft}>
+            <Plus className="h-3 w-3 mr-1" /> Add Project
+          </Button>
         </>
       )}
 
-      {!isLeaveType && (
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-slate-500">Hours</label>
-          <input 
-            type="number" 
-            min="0" max="24" step="0.5" 
-            className="border rounded p-1.5 text-sm" 
-            value={hours} 
-            onChange={(e) => setHours(parseFloat(e.target.value))} 
-          />
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">Notes</label>
-        <input 
-          type="text" 
-          className="border rounded p-1.5 text-sm" 
-          value={notes} 
-          onChange={(e) => setNotes(e.target.value)} 
-          placeholder="Optional notes..."
-        />
-      </div>
-
-      <div className="flex gap-2 mt-1">
-        <Button size="sm" onClick={handleSave} className="flex-1">Save</Button>
+      <div className="flex gap-2 mt-2 pt-2 border-t">
+        <Button size="sm" onClick={handleSave} className="flex-1" disabled={isPending || hasLeave}>
+          {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save
+        </Button>
         <Button size="sm" variant="outline" onClick={onClose}>Cancel</Button>
       </div>
     </div>

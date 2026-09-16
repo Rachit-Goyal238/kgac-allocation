@@ -55,22 +55,24 @@ export function getWeekDates(weekStart: Date): Date[] {
 // ─── Allocation Utilities ────────────────────────────────────────────────────
 
 export function getCellColorClass(
-  allocation: Allocation | null,
+  allocations: Allocation[],
   isWeekend: boolean,
   isHoliday: boolean
 ): typeof CELL_COLORS[keyof typeof CELL_COLORS] {
   if (isWeekend) return CELL_COLORS.weekend;
   if (isHoliday) return CELL_COLORS.leave;
 
-  if (!allocation) return CELL_COLORS.idle; // Working day with no entry = idle
+  if (!allocations || allocations.length === 0) return CELL_COLORS.idle;
 
-  if (allocation.status === 'pto' || allocation.status === 'sick' || allocation.status === 'public_holiday') {
-    return CELL_COLORS.leave;
-  }
+  // Check if any allocation is a leave
+  const isLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+  if (isLeave) return CELL_COLORS.leave;
 
-  if (allocation.hours === 0) return CELL_COLORS.idle;
-  if (allocation.hours > WORK_HOURS_PER_DAY) return CELL_COLORS.over;
-  if (allocation.hours >= WORK_HOURS_PER_DAY - 1) return CELL_COLORS.standard; // 7-8h
+  const totalHours = allocations.reduce((sum, a) => sum + Number(a.hours || 0), 0);
+
+  if (totalHours === 0) return CELL_COLORS.idle;
+  if (totalHours > WORK_HOURS_PER_DAY) return CELL_COLORS.over;
+  if (totalHours >= WORK_HOURS_PER_DAY - 1) return CELL_COLORS.standard; // 7-8h
   return CELL_COLORS.idle; // < 7h on a working day = under-allocated (treated as idle)
 }
 
