@@ -150,6 +150,14 @@ export default function App() {
               }
             />
             <Route
+              path="admin/vendors"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="admin/holidays"
               element={
                 <ProtectedRoute requiredRole="admin">
