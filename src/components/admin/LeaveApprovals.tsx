@@ -18,6 +18,7 @@ export function LeaveApprovals() {
     queryKey: ['leave_requests_manager', profile?.id, profile?.roles],
     queryFn: async () => {
       const isAdmin = profile?.roles?.some(r => r === 'admin' || r === 'super_admin' || r === 'hr');
+      const isManager = profile?.roles?.some(r => r === 'manager');
       
       let query = supabase
         .from('leave_requests')
@@ -29,7 +30,24 @@ export function LeaveApprovals() {
         .order('created_at', { ascending: false });
 
       if (!isAdmin) {
-        query = query.eq('manager_id', profile?.id);
+        if (isManager && profile?.department_id) {
+          // Manager can see leaves for anyone in their department
+          const { data: deptProfiles } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('department_id', profile.department_id);
+            
+          const userIds = deptProfiles?.map(p => p.id) || [];
+          if (userIds.length > 0) {
+            query = query.in('user_id', userIds);
+          } else {
+            // No users in department? Query nothing.
+            query = query.eq('user_id', '00000000-0000-0000-0000-000000000000');
+          }
+        } else {
+          // Fallback to explicit manager_id
+          query = query.eq('manager_id', profile?.id);
+        }
       }
 
       const { data, error } = await query;

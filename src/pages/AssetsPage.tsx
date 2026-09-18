@@ -142,10 +142,33 @@ function MyAssetRequests({ userId }: { userId?: string }) {
 
 function AssetApprovals() {
   const queryClient = useQueryClient();
+  const { profile } = useAuthContext();
+
   const { data: requests, isLoading } = useQuery({
-    queryKey: ['asset_requests_all'],
+    queryKey: ['asset_requests_all', profile?.id],
     queryFn: async () => {
-      const { data } = await supabase.from('asset_requests').select('*, asset:internal_assets(name), user:profiles(full_name)').eq('status', 'pending');
+      const isAdmin = profile?.roles?.some(r => r === 'admin' || r === 'super_admin' || r === 'hr');
+      const isManager = profile?.roles?.some(r => r === 'manager');
+      
+      let query = supabase.from('asset_requests')
+        .select('*, asset:internal_assets(name), user:profiles(full_name)')
+        .eq('status', 'pending');
+
+      if (!isAdmin) {
+        if (isManager && profile?.department_id) {
+          const { data: deptProfiles } = await supabase.from('profiles').select('id').eq('department_id', profile.department_id);
+          const userIds = deptProfiles?.map(p => p.id) || [];
+          if (userIds.length > 0) {
+            query = query.in('user_id', userIds);
+          } else {
+            query = query.eq('user_id', '00000000-0000-0000-0000-000000000000');
+          }
+        } else {
+           query = query.eq('manager_id', profile?.id);
+        }
+      }
+
+      const { data } = await query;
       return data;
     }
   });
