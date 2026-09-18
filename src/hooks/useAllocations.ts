@@ -158,6 +158,7 @@ export function useDeleteAllocation() {
 
 export function useSaveDayAllocations() {
   const queryClient = useQueryClient();
+  const { profile } = useAuthContext();
   
   return useMutation({
     mutationFn: async ({ userId, date, allocations }: { userId: string, date: string, allocations: Partial<Allocation>[] }) => {
@@ -165,7 +166,9 @@ export function useSaveDayAllocations() {
       const { data: existing } = await supabase.from('allocations').select('*').eq('user_id', userId).eq('allocation_date', date);
       const leave = existing?.find(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
       
-      if (leave) {
+      const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner'].includes(r));
+      
+      if (leave && !isManagerOrAdmin) {
          throw new Error('Cannot overwrite a leave day from the grid.');
       }
 
@@ -193,4 +196,5 @@ export function useSaveDayAllocations() {
     }
   });
 }
+
 

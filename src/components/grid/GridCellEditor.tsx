@@ -76,17 +76,24 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
   };
 
   const hasLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+  const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner'].includes(r));
+  const isBlockedByLeave = hasLeave && !isManagerOrAdmin;
 
   return (
     <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-80 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
       <div className="font-semibold text-sm">Edit Allocations ({date})</div>
       
-      {hasLeave ? (
+      {isBlockedByLeave ? (
         <div className="bg-amber-50 p-2 rounded border border-amber-200 text-amber-800 text-xs">
           This day has an approved leave. You cannot manually assign hours.
         </div>
       ) : (
         <>
+          {hasLeave && (
+            <div className="bg-amber-50 p-2 mb-2 rounded border border-amber-200 text-amber-800 text-xs">
+              This day has a leave status. You have administrative override to edit it.
+            </div>
+          )}
           <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
             {drafts.map((draft, i) => (
               <div key={i} className="border p-2 rounded relative flex flex-col gap-2 bg-slate-50">
@@ -166,7 +173,7 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
       )}
 
       <div className="flex gap-2 mt-2 pt-2 border-t">
-        <Button size="sm" onClick={handleSave} className="flex-1" disabled={isPending || hasLeave}>
+        <Button size="sm" onClick={handleSave} className="flex-1" disabled={isPending || isBlockedByLeave}>
           {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save
         </Button>
