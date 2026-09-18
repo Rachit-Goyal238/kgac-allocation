@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { DashboardMetrics, IdleDayEntry, OverAllocationEntry, Profile, Allocation } from '@/lib/types';
-import { eachDayOfInterval, parseISO, format } from 'date-fns';
+import { eachDayOfInterval, parseISO, format, getISOWeek, getYear } from 'date-fns';
 
 export function useDashboardMetrics(startDate: string, endDate: string, departmentId?: string, zone?: string) {
   return useQuery({
@@ -80,20 +80,27 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
       profiles.forEach(p => {
         let idleCount = 0;
         let overCountDays = 0;
-        let userTotalHours = 0;
-        let userCapacity = 0;
+        
+        // Track capacity and hours per ISO week
+        const weeklyStats: Record<string, { capacity: number, hours: number }> = {};
 
         allDays.forEach(d => {
           const { hours, status } = userAllocs[p.id][d];
-          const isWeekend = parseISO(d).getDay() === 0;
+          const dateObj = parseISO(d);
+          const isWeekend = dateObj.getDay() === 0;
           const isLeave = ['pto', 'sick', 'public_holiday'].includes(status);
           
-          userTotalHours += hours;
+          const weekKey = `${getYear(dateObj)}-W${getISOWeek(dateObj)}`;
+          if (!weeklyStats[weekKey]) {
+            weeklyStats[weekKey] = { capacity: 0, hours: 0 };
+          }
+          
+          weeklyStats[weekKey].hours += hours;
           
           // Capacity logic matches grid: exclude Sundays and Leave days
           if (!isWeekend && !isLeave) {
-             userCapacity += 8;
-             totalCapacityHours += 8;
+             weeklyStats[weekKey].capacity += 8;
+             totalCapacityHours += 8; // Global capacity for dashboard team utilization
           }
 
           // Idle day logic: working day (Mon-Sat), not on leave, 0 hours logged
@@ -107,7 +114,15 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
           }
         });
 
-        const isOverAllocated = overCountDays > 0 || userTotalHours > userCapacity;
+        // Check if they exceeded their capacity in ANY week
+        let exceededWeeklyCapacity = false;
+        Object.values(weeklyStats).forEach(stat => {
+          if (stat.hours > stat.capacity) {
+            exceededWeeklyCapacity = true;
+          }
+        });
+
+        const isOverAllocated = overCountDays > 0 || exceededWeeklyCapacity;
 
         if (isOverAllocated) {
           overAllocatedCount++;
