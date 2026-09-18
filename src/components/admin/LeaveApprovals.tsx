@@ -74,17 +74,35 @@ export function LeaveApprovals() {
             end: parseISO(request.end_date) 
           });
           
-          const allocationsToInsert = days.map(d => ({
+          const dateStrings = days.map(d => format(d, 'yyyy-MM-dd'));
+
+          // Delete any existing allocations for these days
+          const { error: deleteError } = await supabase
+            .from('allocations')
+            .delete()
+            .eq('user_id', request.user_id)
+            .in('allocation_date', dateStrings);
+            
+          if (deleteError) {
+            console.error('Failed to clear previous allocations for leave:', deleteError);
+          }
+          
+          const allocationsToInsert = dateStrings.map(dateStr => ({
             user_id: request.user_id,
-            allocation_date: format(d, 'yyyy-MM-dd'),
+            allocation_date: dateStr,
             hours: 0,
             status: request.type,
             task_status: 'completed', // auto-complete task status for leave
           }));
 
-          // Upsert allocations (ON CONFLICT DO UPDATE)
-          // Since our constraint is unique(user_id, allocation_date), we can just use upsert
-          await supabase.from('allocations').upsert(allocationsToInsert, { onConflict: 'user_id,allocation_date' });
+          // Insert the new leave allocations
+          const { error: insertError } = await supabase.from('allocations').insert(allocationsToInsert);
+          if (insertError) {
+             console.error('Failed to insert leave allocations:', insertError);
+             toast.error('Failed to apply leave to calendar. ' + insertError.message);
+          } else {
+             queryClient.invalidateQueries({ queryKey: ['allocations'] });
+          }
         });
       }
 
