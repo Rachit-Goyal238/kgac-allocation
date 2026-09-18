@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Plus, Pencil, Loader2, Trash } from 'lucide-react';
+import { Plus, Pencil, Loader2, Trash, Users } from 'lucide-react';
+import { ProjectTeamModal } from './ProjectTeamModal';
 
 export function ProjectManager() {
   const queryClient = useQueryClient();
@@ -26,6 +27,9 @@ export function ProjectManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [teamModalProject, setTeamModalProject] = useState<Project | null>(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -36,21 +40,20 @@ export function ProjectManager() {
 
   const addMutation = useMutation({
     mutationFn: async (data: Omit<Project, 'id' | 'created_at' | 'is_active'>) => {
-      // By default new projects are active
       const { error } = await supabase.from('projects').insert([{ ...data, is_active: true }]);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin_projects'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('Project created');
+      toast.success('Project added successfully');
       closeDialog();
     },
-    onError: (error: any) => toast.error(`Failed to create: ${error.message}`),
+    onError: (error: any) => toast.error(`Failed to add: ${error.message}`),
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { id: string } & Partial<Project>) => {
+    mutationFn: async (data: Partial<Project> & { id: string }) => {
       const { id, ...updates } = data;
       const { error } = await supabase.from('projects').update(updates).eq('id', id);
       if (error) throw error;
@@ -104,6 +107,16 @@ export function ProjectManager() {
     setIsDialogOpen(false);
     setEditingProject(null);
     setFormData({ name: '', code: '', color: '#3b82f6', is_billable: true, client_id: null });
+  };
+
+  const openTeamModal = (project: Project) => {
+    setTeamModalProject(project);
+    setIsTeamModalOpen(true);
+  };
+
+  const closeTeamModal = () => {
+    setTeamModalProject(null);
+    setIsTeamModalOpen(false);
   };
 
   const handleSubmit = () => {
@@ -182,6 +195,9 @@ export function ProjectManager() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" onClick={() => openTeamModal(project)}>
+                      <Users className="h-4 w-4 mr-1" /> Team
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openDialog(project)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -256,6 +272,8 @@ export function ProjectManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <ProjectTeamModal project={teamModalProject} isOpen={isTeamModalOpen} onClose={closeTeamModal} />
     </div>
   );
 }
