@@ -47,7 +47,10 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
 
   const handleSave = () => {
     // Filter out drafts with no project selected (as requested)
-    const validDrafts = drafts.filter(d => !!d.project_id);
+    const validDrafts = drafts.filter(d => !!d.project_id).map(d => ({
+      ...d,
+      hours: d.hours === undefined ? 0 : d.hours
+    }));
     mutate({ userId, date, allocations: validDrafts }, {
       onSuccess: () => {
         onSave();
@@ -57,17 +60,19 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
   };
 
   const updateDraft = (index: number, updates: Partial<Allocation>) => {
-    const newDrafts = [...drafts];
-    newDrafts[index] = { ...newDrafts[index], ...updates };
-    setDrafts(newDrafts);
+    setDrafts(prev => {
+      const newDrafts = [...prev];
+      newDrafts[index] = { ...newDrafts[index], ...updates };
+      return newDrafts;
+    });
   };
 
   const removeDraft = (index: number) => {
-    setDrafts(drafts.filter((_, i) => i !== index));
+    setDrafts(prev => prev.filter((_, i) => i !== index));
   };
 
   const addDraft = () => {
-    setDrafts([...drafts, { hours: 0, status: 'billable', task_status: 'not_started', project_id: '' }]);
+    setDrafts(prev => [...prev, { hours: 0, status: 'billable', task_status: 'not_started', project_id: '' }]);
   };
 
   const hasLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
@@ -120,8 +125,11 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
                       type="number" 
                       min="0" max="24" step="0.5" 
                       className="border rounded p-1 text-xs bg-white" 
-                      value={draft.hours || 0} 
-                      onChange={(e) => updateDraft(i, { hours: parseFloat(e.target.value) || 0 })} 
+                      value={draft.hours === undefined ? '' : draft.hours} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateDraft(i, { hours: val === '' ? undefined : parseFloat(val) });
+                      }} 
                     />
                   </div>
                   <div className="flex flex-col gap-1 flex-1">
