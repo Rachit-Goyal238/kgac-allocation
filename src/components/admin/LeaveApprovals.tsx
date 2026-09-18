@@ -65,47 +65,7 @@ export function LeaveApprovals() {
         .eq('id', id);
       
       if (error) throw error;
-
-      if (status === 'approved' && request) {
-        // Create allocations for the date range
-        import('date-fns').then(async ({ eachDayOfInterval, format, parseISO }) => {
-          const days = eachDayOfInterval({ 
-            start: parseISO(request.start_date), 
-            end: parseISO(request.end_date) 
-          });
-          
-          const dateStrings = days.map(d => format(d, 'yyyy-MM-dd'));
-
-          // Delete any existing allocations for these days
-          const { error: deleteError } = await supabase
-            .from('allocations')
-            .delete()
-            .eq('user_id', request.user_id)
-            .in('allocation_date', dateStrings);
-            
-          if (deleteError) {
-            console.error('Failed to clear previous allocations for leave:', deleteError);
-          }
-          
-          const allocationsToInsert = dateStrings.map(dateStr => ({
-            user_id: request.user_id,
-            allocation_date: dateStr,
-            hours: 0,
-            status: request.type,
-            task_status: 'completed', // auto-complete task status for leave
-          }));
-
-          // Insert the new leave allocations
-          const { error: insertError } = await supabase.from('allocations').insert(allocationsToInsert);
-          if (insertError) {
-             console.error('Failed to insert leave allocations:', insertError);
-             toast.error('Failed to apply leave to calendar. ' + insertError.message);
-          } else {
-             queryClient.invalidateQueries({ queryKey: ['allocations'] });
-          }
-        });
-      }
-
+      
       return { id, status };
     },
     onSuccess: () => {
