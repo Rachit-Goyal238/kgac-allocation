@@ -165,9 +165,39 @@ export function AuditImportTool() {
 
           <div className="bg-blue-50 text-blue-800 p-4 rounded-md text-sm flex gap-3">
             <AlertCircle className="h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-medium mb-1">Expected CSV Format</p>
-              <p>Your CSV should contain the following headers: <code>Store Name</code>, <code>Store Code</code>, <code>Location</code>, <code>Audit Date</code> (YYYY-MM-DD), and <code>Audit Type</code>.</p>
+            <div className="w-full">
+              <div className="flex justify-between items-start">
+                <p className="font-medium mb-1">Expected CSV Format</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200"
+                  onClick={() => {
+                    const csvContent = "data:text/csv;charset=utf-8,Store Name,Store Code,Location,Audit Date (DD-MM-YYYY),Audit Type,Billing Amount,Required Leads,Required Executives\nDemo Store,DEMO-001,New York,25-10-2026,General,1500,1,2";
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "audit_import_template.csv");
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                >
+                  <FileText className="h-3 w-3 mr-1" />
+                  Download Template
+                </Button>
+              </div>
+              <p className="mb-2">Your CSV should contain the following headers:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs opacity-90">
+                <li><code>Store Name</code></li>
+                <li><code>Store Code</code> (optional)</li>
+                <li><code>Location</code></li>
+                <li><code>Audit Date</code> (DD-MM-YYYY or YYYY-MM-DD)</li>
+                <li><code>Audit Type</code></li>
+                <li><code>Billing Amount</code> (optional)</li>
+                <li><code>Required Leads</code> (number of Team Leads needed)</li>
+                <li><code>Required Executives</code> (number of Executives needed)</li>
+              </ul>
             </div>
           </div>
 
