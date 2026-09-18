@@ -39,7 +39,7 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-amber-600">{metrics.overAllocatedCount}</div>
-          <p className="text-xs text-muted-foreground">Members with &gt;8h days</p>
+          <p className="text-xs text-muted-foreground">Members exceeding capacity</p>
         </CardContent>
       </Card>
 
