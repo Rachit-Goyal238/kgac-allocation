@@ -25,14 +25,6 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
   const isWorkDay = isWorkingDay(date);
   const isWeekend = !isWorkDay;
   
-  if (isWeekend || isHoliday) {
-    return (
-      <div className="h-12 w-full rounded bg-slate-100 flex items-center justify-center opacity-50 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#f1f5f9_10px,#f1f5f9_20px)] border border-slate-200">
-        {isHoliday && <span className="text-xs text-slate-500">Holiday</span>}
-      </div>
-    );
-  }
-
   const allocations = cellData.allocations || (allocation ? [allocation] : []);
   const colorClasses = getCellColorClass(allocations, isWeekend, isHoliday);
   const bgColor = colorClasses.bg;
@@ -42,7 +34,7 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
   
   const canEdit = () => {
     if (!profile) return false;
-    if (profile.roles?.some(r => ['super_admin', 'admin', 'manager', 'audit_manager'].includes(r))) return true;
+    if (profile.roles?.some(r => ['super_admin', 'admin', 'manager', 'audit_manager', 'planner'].includes(r))) return true;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -58,14 +50,21 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     if (!isEditable) return;
     onEdit(date, userId);
   };
+  
+  const hasAllocations = allocations.length > 0;
+  const isEmptyWeekendOrHoliday = (isWeekend || isHoliday) && !hasAllocations;
 
   return (
     <div className="relative w-full h-full min-h-[3rem]">
       <div 
         onClick={handleEditClick}
-        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} ${bgColor} ${hours === 0 && !leaveAlloc ? 'border-dashed border-red-300' : 'border-transparent'}`}
+        className={`w-full h-12 rounded transition-all flex items-center justify-center border ${isEditable ? 'cursor-pointer hover:ring-2 hover:ring-blue-300' : 'cursor-not-allowed opacity-80'} 
+          ${isEmptyWeekendOrHoliday ? 'bg-slate-50 border-slate-200 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,#f1f5f9_10px,#f1f5f9_20px)]' : bgColor} 
+          ${hours === 0 && !leaveAlloc && !isEmptyWeekendOrHoliday ? 'border-dashed border-red-300' : 'border-transparent'}`}
       >
-        {hours > 0 ? (
+        {isEmptyWeekendOrHoliday ? (
+          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{isHoliday ? 'Holiday' : 'Weekend'}</span>
+        ) : hours > 0 ? (
           <div className="flex flex-col items-center">
              <span className={`font-semibold ${textColor}`}>{formatHours(hours)}</span>
              {allocations.length > 1 && <span className="text-[9px] leading-none opacity-60 mt-0.5 tracking-tighter">({allocations.length} projects)</span>}
