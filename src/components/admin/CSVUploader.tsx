@@ -57,6 +57,8 @@ export function CSVUploader() {
           full_name: rowData.Name || rowData.full_name,
           roles: [(rowData.Role || rowData.role || 'employee').toLowerCase() as UserRole],
           department_id: rowData.Department || rowData.department_id || 'engineering',
+          entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase() as any,
+          zone: rowData.Zone || rowData.zone || null,
           status: 'active' as const
         };
       });

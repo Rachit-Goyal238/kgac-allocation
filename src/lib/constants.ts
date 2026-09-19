@@ -79,13 +79,13 @@ export const ROLE_LABELS = {
 
 export const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
-// ─── CSV Template ────────────────────────────────────────────────────────────
+// 📅 CSV Template 📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅
 
-export const SAMPLE_CSV_CONTENT = `Name,Email,Role,Department
-John Doe,john.doe@kgac.in,audit_executive,Engineering
-Jane Smith,jane.smith@kgac.in,audit_manager,Design
-Alice Brown,alice.brown@kgac.in,employee,Engineering
-Charlie Davis,charlie.davis@kgac.in,employee,Operations`;
+export const SAMPLE_CSV_CONTENT = `Name,Email,Role,Department,Entity,Zone
+John Doe,john.doe@kgac.in,audit_executive,Engineering,KGAC,North
+Jane Smith,jane.smith@kgac.in,audit_manager,Design,KPL,South
+Alice Brown,alice.brown@kgac.in,employee,Engineering,KGAC,East
+Charlie Davis,charlie.davis@kgac.in,employee,Operations,KGAC,West`;
 
 // ─── Default Departments ─────────────────────────────────────────────────────
 
