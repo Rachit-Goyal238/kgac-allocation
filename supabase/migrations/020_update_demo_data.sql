@@ -152,7 +152,7 @@ BEGIN
             roles = ARRAY[v_role], 
             status = 'active',
             zone = v_zone,
-            entity = (CASE WHEN v_entity = 'KGAC' THEN 'KGAC'::"UserEntity" ELSE 'KPL'::"UserEntity" END),
+            entity = v_entity,
             is_internal_vendor = (random() > 0.8)
         WHERE id = v_user_id;
         
@@ -170,7 +170,7 @@ BEGIN
         v_req_leads := 1 + mod((random() * 1000)::int, 2);
         v_req_execs := 2 + mod((random() * 1000)::int, 3);
         
-        INSERT INTO public.audits (client_id, store_name, audit_date, audit_type, billing_amount, status, team_size, required_leads, required_executives)
+        INSERT INTO public.audits (client_id, store_name, audit_date, audit_type, billing_amount, status, required_leads, required_executives)
         VALUES (
             v_client_id, 
             'Store ' || i || ' (Demo)', 
@@ -178,7 +178,6 @@ BEGIN
             CASE WHEN i % 2 = 0 THEN 'Internal Audit' ELSE 'Statutory Audit' END, 
             (random() * 50000 + 10000)::numeric(10,2),
             CASE WHEN v_date < current_date THEN 'completed' ELSE 'scheduled' END,
-            v_req_leads + v_req_execs,
             v_req_leads,
             v_req_execs
         ) RETURNING id, project_id INTO v_audit_id, v_proj_id;

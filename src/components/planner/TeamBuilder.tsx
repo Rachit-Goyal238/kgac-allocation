@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Loader2, UserPlus, Trash2, Building, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -66,18 +67,21 @@ export function TeamBuilder() {
     
     const isInternal = vendors?.find((v: any) => v.id === selectedVendor)?.is_internal;
     
-    let rateToUse = null;
-    if (selectedRateId) {
-       const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
-       if (selectedRateObj) {
-         rateToUse = selectedRole === 'asset' ? selectedRateObj.asset_rate : selectedRateObj.human_rate;
-       }
-    } else {
-       // fallback to default rate
-       const vObj = vendors?.find((v: any) => v.id === selectedVendor);
-       if (vObj && !isInternal) {
-          rateToUse = selectedRole === 'asset' ? vObj.default_asset_rate : vObj.default_human_rate;
-       }
+    let rateToUse = agreedRate ? Number(agreedRate) : null;
+    
+    if (!rateToUse) {
+      if (selectedRateId) {
+         const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
+         if (selectedRateObj) {
+           rateToUse = selectedRole === 'asset' ? selectedRateObj.asset_rate : selectedRateObj.human_rate;
+         }
+      } else {
+         // fallback to default rate
+         const vObj = vendors?.find((v: any) => v.id === selectedVendor);
+         if (vObj && !isInternal) {
+            rateToUse = selectedRole === 'asset' ? vObj.default_asset_rate : vObj.default_human_rate;
+         }
+      }
     }
 
     assignMember.mutate({
@@ -321,6 +325,11 @@ export function TeamBuilder() {
               )}
             </div>
 
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Agreed Rate Override (Required for Internal Vendors)</label>
+              <Input type="number" value={agreedRate} onChange={(e: any) => setAgreedRate(e.target.value)} placeholder="0.00" />
+            </div>
+
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setVendorModalOpen(false)}>Cancel</Button>
@@ -369,7 +378,7 @@ export function TeamBuilder() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Man Day Cost (₹) [Optional]</label>
-              <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={agreedRate} onChange={e => setAgreedRate(e.target.value)} placeholder="Cost per day" />
+              <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={agreedRate} onChange={(e: any) => setAgreedRate(e.target.value)} placeholder="Cost per day" />
             </div>
           </div>
           <DialogFooter>
