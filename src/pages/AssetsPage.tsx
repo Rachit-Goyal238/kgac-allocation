@@ -4,12 +4,13 @@ import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Plus, Monitor, Laptop } from 'lucide-react';
+import { Loader2, Plus, Monitor, Laptop, Smartphone, Mouse, Scanner } from 'lucide-react';
 import { toast } from 'sonner';
+import { AssetImportTool } from '@/components/admin/AssetImportTool';
 
 export function AssetsPage() {
   const { profile } = useAuthContext();
-  const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager'].includes(r));
+  const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'hr'].includes(r));
   const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
@@ -27,19 +28,19 @@ export function AssetsPage() {
           {isManagerOrAdmin && <TabsTrigger value="manage">Manage Assets</TabsTrigger>}
         </TabsList>
 
-        <TabsContent value="dashboard">
+        <TabsContent value="dashboard" className="mt-0">
           <AssetDashboard />
         </TabsContent>
-        <TabsContent value="my-requests">
+        <TabsContent value="my-requests" className="mt-0">
           <MyAssetRequests userId={profile?.id} />
         </TabsContent>
         {isManagerOrAdmin && (
-          <TabsContent value="approvals">
+          <TabsContent value="approvals" className="mt-0">
             <AssetApprovals />
           </TabsContent>
         )}
         {isManagerOrAdmin && (
-          <TabsContent value="manage">
+          <TabsContent value="manage" className="mt-0">
             <ManageAssets />
           </TabsContent>
         )}
@@ -53,7 +54,7 @@ function AssetDashboard() {
     queryKey: ['internal_assets'],
     queryFn: async () => {
       const { data } = await supabase.from('internal_assets').select(`
-        *, holder:profiles(full_name)
+        *, assigned_profile:profiles!internal_assets_assigned_to_fkey(full_name)
       `);
       return data;
     }
@@ -61,13 +62,23 @@ function AssetDashboard() {
 
   if (isLoading) return <Loader2 className="animate-spin text-slate-400" />;
 
+  const getIcon = (type: string) => {
+    switch(type) {
+      case 'laptop': return <Laptop className="h-5 w-5 text-slate-500" />;
+      case 'phone': return <Smartphone className="h-5 w-5 text-slate-500" />;
+      case 'mouse': return <Mouse className="h-5 w-5 text-slate-500" />;
+      case 'hht': return <Scanner className="h-5 w-5 text-slate-500" />;
+      default: return <Monitor className="h-5 w-5 text-slate-500" />;
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {assets?.map((asset: any) => (
         <div key={asset.id} className="bg-white p-4 rounded-lg shadow-sm border">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
-              {asset.type === 'laptop' ? <Laptop className="h-5 w-5 text-slate-500" /> : <Monitor className="h-5 w-5 text-slate-500" />}
+              {getIcon(asset.type)}
               <div className="font-medium">{asset.name}</div>
             </div>
             <span className={`text-xs px-2 py-1 rounded-full ${asset.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -76,7 +87,7 @@ function AssetDashboard() {
           </div>
           <div className="mt-4 text-sm text-slate-600">
             <div>S/N: {asset.serial_number || 'N/A'}</div>
-            <div className="mt-1">Current Holder: <span className="font-medium text-slate-900">{asset.holder?.full_name || 'None'}</span></div>
+            <div className="mt-1">Current Holder: <span className="font-medium text-slate-900">{asset.assigned_profile?.full_name || 'None'}</span></div>
           </div>
         </div>
       ))}
@@ -90,7 +101,7 @@ function MyAssetRequests({ userId }: { userId?: string }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const { data: assets } = useQuery({ queryKey: ['internal_assets'], queryFn: async () => (await supabase.from('internal_assets').select('*').eq('status', 'available')).data });
+  const { data: assets } = useQuery({ queryKey: ['internal_assets_avail'], queryFn: async () => (await supabase.from('internal_assets').select('*').eq('status', 'available')).data });
   const { data: requests } = useQuery({ queryKey: ['asset_requests', userId], queryFn: async () => (await supabase.from('asset_requests').select('*, asset:internal_assets(name)').eq('user_id', userId)).data, enabled: !!userId });
 
   const requestAsset = useMutation({
@@ -151,7 +162,7 @@ function AssetApprovals() {
       const isManager = profile?.roles?.some(r => r === 'manager');
       
       let query = supabase.from('asset_requests')
-        .select('*, asset:internal_assets(name), user:profiles(full_name)')
+        .select('*, asset:internal_assets(name), user:profiles!asset_requests_user_id_fkey(full_name)')
         .eq('status', 'pending');
 
       if (!isAdmin) {
@@ -176,11 +187,12 @@ function AssetApprovals() {
   const approveRequest = useMutation({
     mutationFn: async ({ id, assetId, userId }: { id: string, assetId: string, userId: string }) => {
       await supabase.from('asset_requests').update({ status: 'approved' }).eq('id', id);
-      await supabase.from('internal_assets').update({ status: 'in_use', current_holder_id: userId }).eq('id', assetId);
+      await supabase.from('internal_assets').update({ status: 'in_use', assigned_to: userId }).eq('id', assetId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['asset_requests_all'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
+      queryClient.invalidateQueries({ queryKey: ['internal_assets_avail'] });
       toast.success('Request approved');
     }
   });
@@ -223,7 +235,7 @@ function ManageAssets() {
   const queryClient = useQueryClient();
   const [newAsset, setNewAsset] = useState({ name: '', type: 'laptop', serial_number: '' });
   
-  const { data: assets } = useQuery({ queryKey: ['internal_assets_manage'], queryFn: async () => (await supabase.from('internal_assets').select('*')).data });
+  const { data: assets } = useQuery({ queryKey: ['internal_assets_manage'], queryFn: async () => (await supabase.from('internal_assets').select('*').order('created_at', { ascending: false })).data });
 
   const addAsset = useMutation({
     mutationFn: async () => {
@@ -232,6 +244,7 @@ function ManageAssets() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
+      queryClient.invalidateQueries({ queryKey: ['internal_assets_avail'] });
       setNewAsset({ name: '', type: 'laptop', serial_number: '' });
       toast.success('Asset added');
     }
@@ -239,19 +252,23 @@ function ManageAssets() {
 
   const reclaimAsset = useMutation({
     mutationFn: async (id: string) => {
-      await supabase.from('internal_assets').update({ status: 'available', current_holder_id: null }).eq('id', id);
+      await supabase.from('internal_assets').update({ status: 'available', assigned_to: null }).eq('id', id);
       // also mark any ongoing requests as completed
       await supabase.from('asset_requests').update({ status: 'returned' }).eq('asset_id', id).eq('status', 'approved');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
+      queryClient.invalidateQueries({ queryKey: ['internal_assets_avail'] });
       toast.success('Asset reclaimed');
     }
   });
 
   return (
     <div className="space-y-6">
+      
+      <AssetImportTool />
+
       <div className="bg-slate-50 p-4 rounded-lg border flex gap-4 items-end">
         <div className="flex-1">
           <label className="text-xs font-medium">Asset Name</label>
@@ -262,6 +279,9 @@ function ManageAssets() {
           <select className="w-full border rounded p-2 text-sm" value={newAsset.type} onChange={e => setNewAsset({...newAsset, type: e.target.value})}>
             <option value="laptop">Laptop</option>
             <option value="monitor">Monitor</option>
+            <option value="hht">HHT</option>
+            <option value="phone">Phone</option>
+            <option value="mouse">Mouse</option>
             <option value="other">Other</option>
           </select>
         </div>
@@ -269,21 +289,24 @@ function ManageAssets() {
           <label className="text-xs font-medium">Serial / Tag</label>
           <input className="w-full border rounded p-2 text-sm" value={newAsset.serial_number} onChange={e => setNewAsset({...newAsset, serial_number: e.target.value})} />
         </div>
-        <Button onClick={() => addAsset.mutate()} disabled={!newAsset.name}><Plus className="h-4 w-4 mr-2" /> Add</Button>
+        <Button onClick={() => addAsset.mutate()} disabled={!newAsset.name}><Plus className="h-4 w-4 mr-2" /> Add Single</Button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border">
-        {assets?.map((a: any) => (
-          <div key={a.id} className="flex justify-between items-center p-3 border-b last:border-0">
-            <div>
-              <div className="font-medium">{a.name} ({a.type})</div>
-              <div className="text-xs text-slate-500">Status: {a.status}</div>
+        <div className="p-4 font-medium border-b bg-slate-50 rounded-t-lg">Asset Directory</div>
+        <div className="max-h-[400px] overflow-auto">
+          {assets?.map((a: any) => (
+            <div key={a.id} className="flex justify-between items-center p-3 border-b last:border-0">
+              <div>
+                <div className="font-medium">{a.name} <span className="text-slate-500 font-normal">({a.type})</span></div>
+                <div className="text-xs text-slate-500">Status: {a.status} {a.serial_number ? `| S/N: ${a.serial_number}` : ''}</div>
+              </div>
+              {a.status === 'in_use' && (
+                <Button size="sm" variant="outline" onClick={() => reclaimAsset.mutate(a.id)}>Reclaim Asset</Button>
+              )}
             </div>
-            {a.status === 'in_use' && (
-              <Button size="sm" variant="outline" onClick={() => reclaimAsset.mutate(a.id)}>Reclaim Asset</Button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
