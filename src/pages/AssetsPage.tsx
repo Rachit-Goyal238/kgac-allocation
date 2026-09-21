@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Plus, Monitor, Laptop, Smartphone, Mouse, Scanner } from 'lucide-react';
+import { Loader2, Plus, Monitor, Laptop, Smartphone, Mouse, Tablet } from 'lucide-react';
 import { toast } from 'sonner';
 import { AssetImportTool } from '@/components/admin/AssetImportTool';
 
@@ -67,7 +67,7 @@ function AssetDashboard() {
       case 'laptop': return <Laptop className="h-5 w-5 text-slate-500" />;
       case 'phone': return <Smartphone className="h-5 w-5 text-slate-500" />;
       case 'mouse': return <Mouse className="h-5 w-5 text-slate-500" />;
-      case 'hht': return <Scanner className="h-5 w-5 text-slate-500" />;
+      case 'hht': return <Tablet className="h-5 w-5 text-slate-500" />;
       default: return <Monitor className="h-5 w-5 text-slate-500" />;
     }
   };
