@@ -9,7 +9,8 @@ import Papa from 'papaparse';
 
 export function BillingPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
-  const { data, isLoading } = useBillingMetrics(dateRange);
+  const [zoneFilter, setZoneFilter] = useState('');
+  const { data, isLoading } = useBillingMetrics(dateRange, zoneFilter);
 
   if (isLoading || !data) return <div className="p-8">Loading billing data...</div>;
   
@@ -20,6 +21,13 @@ export function BillingPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Audit Expense Dashboard</h1>
         <div className="flex gap-4">
+          <input 
+            type="text" 
+            placeholder="Filter by Zone..." 
+            className="border rounded p-2 text-sm max-w-[150px]"
+            value={zoneFilter} 
+            onChange={e => setZoneFilter(e.target.value)} 
+          />
           <DateRangePicker 
             startDate={dateRange.start} 
             endDate={dateRange.end} 

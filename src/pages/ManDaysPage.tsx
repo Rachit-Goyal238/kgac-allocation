@@ -9,23 +9,34 @@ import { Label } from '@/components/ui/label';
 import { useManDaysMetrics } from '@/hooks/useManDaysMetrics';
 
 export function ManDaysPage() {
-  const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
+  const [dateRange, setDateRange] = useState({ start: new Date(new Date().getFullYear(), new Date().getMonth(), 1), end: new Date() });
+  const [zoneFilter, setZoneFilter] = useState('');
   const [showBreakdown, setShowBreakdown] = useState(false);
-  const { data, isLoading } = useManDaysMetrics(dateRange);
+  const { data, isLoading } = useManDaysMetrics(dateRange, zoneFilter);
 
-  if (isLoading || !data) return <div>Loading man-days data...</div>;
+  if (isLoading || !data) return <div className="p-8">Loading man-days data...</div>;
 
   const { totalManDays, internalManDays, externalManDays, byProject, byMonth } = data;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Man-Days Deployment</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Man-Days Dashboard</h1>
+          <p className="text-muted-foreground text-sm">Overview of team and vendor effort across projects.</p>
+        </div>
         <div className="flex gap-4 items-center">
            <div className="flex items-center space-x-2">
             <Switch id="breakdown" checked={showBreakdown} onCheckedChange={setShowBreakdown} />
             <Label htmlFor="breakdown">Show Breakdown</Label>
           </div>
+          <input 
+            type="text" 
+            placeholder="Filter by Zone..." 
+            className="border rounded p-2 text-sm max-w-[150px]"
+            value={zoneFilter} 
+            onChange={e => setZoneFilter(e.target.value)} 
+          />
           <DateRangePicker 
             startDate={dateRange.start} 
             endDate={dateRange.end} 

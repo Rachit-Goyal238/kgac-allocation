@@ -13,7 +13,7 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
         profilesQuery = profilesQuery.eq('department_id', departmentId);
       }
       if (zone) {
-        profilesQuery = profilesQuery.eq('zone', zone);
+        profilesQuery = profilesQuery.ilike('zone', `%${zone}%`);
       }
       const { data: profiles, error: profilesError } = await profilesQuery;
       if (profilesError) throw profilesError;

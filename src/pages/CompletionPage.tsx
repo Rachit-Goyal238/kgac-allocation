@@ -10,15 +10,18 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280'];
 
 export function CompletionPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
+  const [zoneFilter, setZoneFilter] = useState('');
   const [allocations, setAllocations] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchAllocations = async () => {
-      const { data } = await supabase.from('allocations').select('*, projects(name), profiles(full_name)').gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd')).lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+      let q = supabase.from('allocations').select('*, projects(name), profiles!inner(full_name, zone)').gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd')).lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+      if (zoneFilter) q = q.ilike('profiles.zone', `%${zoneFilter}%`);
+      const { data } = await q;
       if (data) setAllocations(data);
     };
     fetchAllocations();
-  }, [dateRange]);
+  }, [dateRange, zoneFilter]);
 
   const total = allocations.length;
   const completed = allocations.filter(a => a.task_status === 'completed').length;
@@ -55,12 +58,21 @@ export function CompletionPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Task Completion Tracker</h1>
-        <DateRangePicker 
-          startDate={dateRange.start} 
-          endDate={dateRange.end} 
-          onChange={(start, end) => setDateRange({ start, end })} 
-        />
+        <h1 className="text-2xl font-bold">Timesheet Completion & Status</h1>
+        <div className="flex gap-4">
+          <input 
+            type="text" 
+            placeholder="Filter by Zone..." 
+            className="border rounded p-2 text-sm max-w-[150px]"
+            value={zoneFilter} 
+            onChange={e => setZoneFilter(e.target.value)} 
+          />
+          <DateRangePicker 
+            startDate={dateRange.start} 
+            endDate={dateRange.end} 
+            onChange={(start, end) => setDateRange({ start, end })} 
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">

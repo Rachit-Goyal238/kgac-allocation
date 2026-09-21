@@ -1,9 +1,6 @@
 import React from 'react';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { format, parseISO } from 'date-fns';
+import { Input } from '@/components/ui/input';
 
 interface DateRangePickerProps {
   startDate: Date;
@@ -12,33 +9,38 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ startDate, endDate, onChange }: DateRangePickerProps) {
-  const date = { from: startDate, to: endDate };
+  const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      onChange(parseISO(e.target.value), endDate);
+    }
+  };
+
+  const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value) {
+      onChange(startDate, parseISO(e.target.value));
+    }
+  };
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant={"outline"}
-          className="justify-start text-left font-normal w-[260px]"
-        >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {format(startDate, "LLL dd, y")} - {format(endDate, "LLL dd, y")}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 scale-90 origin-top-right" align="end">
-        <Calendar
-          initialFocus
-          mode="range"
-          defaultMonth={startDate}
-          selected={date}
-          onSelect={(range) => {
-            if (range?.from && range?.to) {
-              onChange(range.from, range.to);
-            }
-          }}
-          numberOfMonths={2}
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 bg-background border border-input rounded-md px-3 h-10">
+        <span className="text-sm text-muted-foreground whitespace-nowrap">Start:</span>
+        <input 
+          type="date" 
+          className="bg-transparent border-none text-sm outline-none w-[120px]"
+          value={format(startDate, 'yyyy-MM-dd')} 
+          onChange={handleStartChange} 
         />
-      </PopoverContent>
-    </Popover>
+      </div>
+      <div className="flex items-center space-x-2 bg-background border border-input rounded-md px-3 h-10">
+        <span className="text-sm text-muted-foreground whitespace-nowrap">End:</span>
+        <input 
+          type="date" 
+          className="bg-transparent border-none text-sm outline-none w-[120px]"
+          value={format(endDate, 'yyyy-MM-dd')} 
+          onChange={handleEndChange} 
+        />
+      </div>
+    </div>
   );
 }

@@ -2,13 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 
-export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
+export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFilter?: string) {
   return useQuery({
-    queryKey: ['billingMetrics', dateRange],
+    queryKey: ['billingMetrics', dateRange, zoneFilter],
     queryFn: async () => {
-      // Fetch audits in date range (only care about completed or all?)
-      // Let's fetch all audits in the date range and their teams
-      const { data: audits } = await supabase
+      // Fetch audits in date range
+      let query = supabase
         .from('audits')
         .select(`
           *,
@@ -16,11 +15,13 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
           teams:audit_teams(
             id, role, agreed_rate, user_id, vendor_id,
             vendor:vendors(name, default_human_rate, default_asset_rate),
-            user:profiles(full_name, is_internal_vendor)
+            user:profiles!left(full_name, is_internal_vendor, zone)
           )
         `)
         .gte('audit_date', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('audit_date', format(dateRange.end, 'yyyy-MM-dd'));
+        
+      const { data: audits } = await query;
 
       let totalOwed = 0;
       let idleCostLeakage = 0;
@@ -32,6 +33,12 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }) {
         let auditTotal = 0;
         
         audit.teams?.forEach((team: any) => {
+          if (zoneFilter && team.user?.zone?.toLowerCase() !== zoneFilter.toLowerCase()) {
+             // For vendors without a user profile, we might skip them or include them?
+             // Usually zone filtering applies to internal employees/internal vendors.
+             if (team.user_id) return;
+          }
+          
           let rate = 0;
           let resourceName = '';
           

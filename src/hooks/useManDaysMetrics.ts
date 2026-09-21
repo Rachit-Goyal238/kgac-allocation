@@ -3,15 +3,21 @@ import { supabase } from '@/lib/supabase';
 import { WORK_HOURS_PER_DAY } from '@/lib/constants';
 import { format } from 'date-fns';
 
-export function useManDaysMetrics(dateRange: { start: Date, end: Date }) {
+export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFilter?: string) {
   return useQuery({
-    queryKey: ['manDaysMetrics', dateRange],
+    queryKey: ['manDaysMetrics', dateRange, zoneFilter],
     queryFn: async () => {
-      const { data: allocations } = await supabase
+      let query = supabase
         .from('allocations')
-        .select('*, projects(name)')
+        .select('*, projects(name), profiles!inner(zone)')
         .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+        
+      if (zoneFilter) {
+        query = query.ilike('profiles.zone', `%${zoneFilter}%`);
+      }
+      
+      const { data: allocations } = await query;
 
       // Also fetch external vendor assignments from audit_teams
       const { data: vendorTeams } = await supabase

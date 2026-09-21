@@ -11,9 +11,10 @@ import Papa from 'papaparse';
 
 export function ReconciliationPage() {
   const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
+  const [zoneFilter, setZoneFilter] = useState('');
 
   const { data: marginData, isLoading } = useQuery({
-    queryKey: ['auditMargins', dateRange],
+    queryKey: ['auditMargins', dateRange, zoneFilter],
     queryFn: async () => {
       const startStr = format(dateRange.start, 'yyyy-MM-dd');
       const endStr = format(dateRange.end, 'yyyy-MM-dd');
@@ -25,7 +26,8 @@ export function ReconciliationPage() {
           client:clients(name),
           teams:audit_teams(
             role, agreed_rate, vendor_id,
-            vendor:vendors(name, default_human_rate, default_asset_rate)
+            vendor:vendors(name, default_human_rate, default_asset_rate),
+            user:profiles!left(zone)
           )
         `)
         .gte('audit_date', startStr)
@@ -34,7 +36,14 @@ export function ReconciliationPage() {
 
       if (error) throw error;
 
-      return audits.map(audit => {
+      let filteredAudits = audits;
+      if (zoneFilter) {
+        filteredAudits = audits.filter(audit => {
+          return audit.teams?.some((t: any) => t.user?.zone?.toLowerCase().includes(zoneFilter.toLowerCase()));
+        });
+      }
+
+      return filteredAudits.map(audit => {
         let totalTeamCost = 0;
         let internalCount = 0;
 
@@ -92,6 +101,13 @@ export function ReconciliationPage() {
           <p className="text-sm text-slate-500">Track revenue, team costs, and gross margins per audit.</p>
         </div>
         <div className="flex items-center gap-2">
+          <input 
+            type="text" 
+            placeholder="Filter by Zone..." 
+            className="border rounded p-2 text-sm max-w-[150px]"
+            value={zoneFilter} 
+            onChange={e => setZoneFilter(e.target.value)} 
+          />
           <DateRangePicker 
             startDate={dateRange.start} 
             endDate={dateRange.end} 
