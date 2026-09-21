@@ -50,6 +50,7 @@ export function Sidebar({ onClose }: SidebarProps) {
   const isAdminPlus = hasAnyRole(roles, ['admin', 'super_admin']);
   const isSuperAdmin = hasRole(roles, 'super_admin');
   const isHR = hasAnyRole(roles, ['hr', 'admin', 'super_admin']);
+  const isClientHead = hasRole(roles, 'client_head');
 
   return (
     <div className="flex h-full flex-col border-r bg-white">
@@ -64,7 +65,7 @@ export function Sidebar({ onClose }: SidebarProps) {
 
       <div className="flex-1 overflow-y-auto py-4">
         <nav className="space-y-1 px-3">
-          {/* Calendar — all roles */}
+          {/* Calendar - all roles */}
           <NavLink to="/calendar" onClick={handleLinkClick} className={navLinkClasses}>
             <CalendarDays className="mr-3 h-5 w-5 flex-shrink-0" />
             Calendar
@@ -78,7 +79,7 @@ export function Sidebar({ onClose }: SidebarProps) {
             </NavLink>
           )}
 
-          {/* Dashboard - All users (employees see My Audits, managers see metrics) */}
+          {/* Dashboard - All users */}
           <NavLink to="/dashboard" onClick={handleLinkClick} className={navLinkClasses}>
             <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
             Dashboard
@@ -90,15 +91,15 @@ export function Sidebar({ onClose }: SidebarProps) {
             Internal Assets
           </NavLink>
 
-          {/* Audit Margins - Manager, Admin, Super Admin */}
-          {isManagerPlus && (
+          {/* Audit Margins - Manager, Admin, Super Admin, Finance */}
+          {(isManagerPlus || isFinance) && (
             <NavLink to="/reconciliation" onClick={handleLinkClick} className={navLinkClasses}>
               <Calculator className="mr-3 h-5 w-5 flex-shrink-0" />
               Audit Margins
             </NavLink>
           )}
 
-          {/* Completion Tracker — Manager, Admin, Super Admin */}
+          {/* Completion Tracker - Manager, Admin, Super Admin */}
           {isManagerPlus && (
             <NavLink to="/completion" onClick={handleLinkClick} className={navLinkClasses}>
               <CheckCircle2 className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -106,61 +107,81 @@ export function Sidebar({ onClose }: SidebarProps) {
             </NavLink>
           )}
 
-          {/* Billing Section — Finance, Manager, Admin, Super Admin */}
-          {(isManagerPlus || isFinance) && (
+          {/* Billing Section - Finance, Manager, Admin, Super Admin, HR */}
+          {(isManagerPlus || isFinance || isHR) && (
             <>
               <div className="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Billing & Reports
               </div>
 
-              <NavLink to="/billing" onClick={handleLinkClick} className={navLinkClasses}>
-                <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
-                Expense Billing
-              </NavLink>
+              {(isManagerPlus || isFinance) && (
+                <NavLink to="/billing" onClick={handleLinkClick} className={navLinkClasses}>
+                  <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Expense Billing
+                </NavLink>
+              )}
 
               <NavLink to="/man-days" onClick={handleLinkClick} className={navLinkClasses}>
                 <Activity className="mr-3 h-5 w-5 flex-shrink-0" />
                 Man-Days
               </NavLink>
-
-
             </>
           )}
 
           {/* Admin Section */}
-          {(isAdminPlus || isHR) && (
+          {(isAdminPlus || isHR || isClientHead) && (
             <>
               <div className="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Admin
               </div>
               
-              <NavLink to="/admin/users" onClick={handleLinkClick} className={navLinkClasses}>
-                <Users className="mr-3 h-5 w-5 flex-shrink-0" />
-                Users
-              </NavLink>
+              {(isAdminPlus || isHR) && (
+                <NavLink to="/admin/users" onClick={handleLinkClick} className={navLinkClasses}>
+                  <Users className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Users & Roles
+                </NavLink>
+              )}
 
-              <NavLink to="/admin/departments" onClick={handleLinkClick} className={navLinkClasses}>
-                <Building2 className="mr-3 h-5 w-5 flex-shrink-0" />
-                Departments
-              </NavLink>
+              {(isAdminPlus || isHR) && (
+                <NavLink to="/admin/departments" onClick={handleLinkClick} className={navLinkClasses}>
+                  <Building2 className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Departments
+                </NavLink>
+              )}
 
-              <NavLink to="/admin/holidays" onClick={handleLinkClick} className={navLinkClasses}>
-                <CalendarOff className="mr-3 h-5 w-5 flex-shrink-0" />
-                Holidays
-              </NavLink>
+              {(isAdminPlus || isHR) && (
+                <NavLink to="/admin/holidays" onClick={handleLinkClick} className={navLinkClasses}>
+                  <CalendarOff className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Holidays
+                </NavLink>
+              )}
 
               {isAdminPlus && (
-                <>
-                  <NavLink to="/admin/projects" onClick={handleLinkClick} className={navLinkClasses}>
-                    <FolderKanban className="mr-3 h-5 w-5 flex-shrink-0" />
-                    Projects
-                  </NavLink>
+                <NavLink to="/admin/projects" onClick={handleLinkClick} className={navLinkClasses}>
+                  <FolderKanban className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Projects
+                </NavLink>
+              )}
 
-                  <NavLink to="/admin/settings" onClick={handleLinkClick} className={navLinkClasses}>
-                    <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
-                    Settings
-                  </NavLink>
-                </>
+              {isAdminPlus && (
+                <NavLink to="/admin/vendors" onClick={handleLinkClick} className={navLinkClasses}>
+                  <Users className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Vendors
+                </NavLink>
+              )}
+
+              {(isAdminPlus || isClientHead) && (
+                <NavLink to="/admin/clients" onClick={handleLinkClick} className={navLinkClasses}>
+                  <Building2 className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Clients
+                </NavLink>
+              )}
+
+              {isAdminPlus && (
+                <NavLink to="/admin/settings" onClick={handleLinkClick} className={navLinkClasses}>
+                  <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
+                  Settings
+                </NavLink>
               )}
             </>
           )}
@@ -176,8 +197,6 @@ export function Sidebar({ onClose }: SidebarProps) {
                 <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
                 Command Center
               </NavLink>
-
-
 
               <NavLink to="/admin/audit-log" onClick={handleLinkClick} className={navLinkClasses}>
                 <ClipboardList className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -210,9 +229,22 @@ export function Sidebar({ onClose }: SidebarProps) {
             <p className="truncate text-sm font-medium text-gray-900">
               {profile?.full_name || 'User'}
             </p>
-            <Badge variant="secondary" className="mt-1 text-[10px] uppercase">
-              {(profile?.roles && profile.roles.length > 0) ? ROLE_LABELS[profile.roles[0] as keyof typeof ROLE_LABELS] || profile.roles[0] : 'Audit Exec'}
-            </Badge>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {(profile?.roles && profile.roles.length > 0) ? (
+                [...profile.roles].sort((a, b) => {
+                  const hierarchy = ['super_admin', 'admin', 'manager', 'client_head', 'planner', 'finance', 'hr', 'employee', 'audit_executive', 'backend_staff'];
+                  const indexA = hierarchy.indexOf(a);
+                  const indexB = hierarchy.indexOf(b);
+                  return (indexA > -1 ? indexA : 99) - (indexB > -1 ? indexB : 99);
+                }).map(role => (
+                  <Badge key={role} variant="secondary" className="text-[9px] uppercase">
+                    {ROLE_LABELS[role as keyof typeof ROLE_LABELS] || role}
+                  </Badge>
+                ))
+              ) : (
+                <Badge variant="secondary" className="text-[9px] uppercase">Audit Exec</Badge>
+              )}
+            </div>
           </div>
         </div>
         

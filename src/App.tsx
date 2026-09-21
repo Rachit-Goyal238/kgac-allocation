@@ -94,7 +94,7 @@ export default function App() {
             <Route
               path="billing"
               element={
-                <ProtectedRoute requiredRole="finance">
+                <ProtectedRoute allowedRoles={['finance', 'super_admin', 'admin', 'manager']}>
                   <Suspense fallback={<PageLoader />}><BillingPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -102,7 +102,7 @@ export default function App() {
             <Route
               path="man-days"
               element={
-                <ProtectedRoute requiredRole="finance">
+                <ProtectedRoute allowedRoles={['finance', 'super_admin', 'admin', 'manager', 'hr']}>
                   <Suspense fallback={<PageLoader />}><ManDaysPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -110,7 +110,7 @@ export default function App() {
             <Route
               path="reconciliation"
               element={
-                <ProtectedRoute requiredRole="finance">
+                <ProtectedRoute allowedRoles={['finance', 'super_admin', 'admin', 'manager']}>
                   <Suspense fallback={<PageLoader />}><ReconciliationPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -120,7 +120,7 @@ export default function App() {
             <Route
               path="admin/users"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -128,7 +128,7 @@ export default function App() {
             <Route
               path="admin/departments"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -136,7 +136,7 @@ export default function App() {
             <Route
               path="admin/projects"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -144,7 +144,7 @@ export default function App() {
             <Route
               path="admin/clients"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'client_head']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -152,7 +152,7 @@ export default function App() {
             <Route
               path="admin/vendors"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -160,7 +160,7 @@ export default function App() {
             <Route
               path="admin/holidays"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
@@ -168,7 +168,7 @@ export default function App() {
             <Route
               path="admin/settings"
               element={
-                <ProtectedRoute requiredRole="admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
