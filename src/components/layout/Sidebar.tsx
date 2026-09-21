@@ -129,7 +129,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           )}
 
           {/* Admin Section */}
-          {(isAdminPlus || isHR || isClientHead) && (
+          {(isManagerPlus || isHR || isClientHead) && (
             <>
               <div className="mt-6 mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
                 Admin
@@ -156,7 +156,7 @@ export function Sidebar({ onClose }: SidebarProps) {
                 </NavLink>
               )}
 
-              {isAdminPlus && (
+              {isManagerPlus && (
                 <NavLink to="/admin/projects" onClick={handleLinkClick} className={navLinkClasses}>
                   <FolderKanban className="mr-3 h-5 w-5 flex-shrink-0" />
                   Projects

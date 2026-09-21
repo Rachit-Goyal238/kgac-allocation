@@ -31,6 +31,7 @@ export function AdminPage() {
   const roles = profile?.roles || [];
   const isSuperAdmin = hasRole(roles, 'super_admin');
   const isAdminPlus = hasAnyRole(roles, ['admin', 'super_admin']);
+  const isManagerPlus = hasAnyRole(roles, ['manager', 'admin', 'super_admin']);
   const isClientHead = hasRole(roles, 'client_head');
   
   // Determine active tab from URL path
@@ -61,7 +62,7 @@ export function AdminPage() {
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="holidays">Holidays</TabsTrigger>
-          {isAdminPlus && <TabsTrigger value="projects">Projects</TabsTrigger>}
+          {isManagerPlus && <TabsTrigger value="projects">Projects</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="vendors">Vendors</TabsTrigger>}
           {(isAdminPlus || isClientHead) && <TabsTrigger value="clients">Clients</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="settings">Settings</TabsTrigger>}
@@ -81,7 +82,7 @@ export function AdminPage() {
           </div>
         </TabsContent>
 
-        {isAdminPlus && (
+        {isManagerPlus && (
           <TabsContent value="projects" className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <ProjectManager />

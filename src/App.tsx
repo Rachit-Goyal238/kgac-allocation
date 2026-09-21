@@ -136,7 +136,7 @@ export default function App() {
             <Route
               path="admin/projects"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'manager']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
