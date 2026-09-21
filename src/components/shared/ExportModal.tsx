@@ -6,17 +6,20 @@ import { Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Papa from 'papaparse';
 import { format, parseISO } from 'date-fns';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 export function ExportModal() {
   const [open, setOpen] = useState(false);
   const [startDate, setStartDate] = useState(format(new Date(), 'yyyy-MM-01'));
   const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [isExporting, setIsExporting] = useState(false);
+  const { profile } = useAuthContext();
+  const isPrivileged = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner', 'hr'].includes(r));
 
   const handleExport = async (formatType: 'csv' | 'excel') => {
     setIsExporting(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('allocations')
         .select(`
           allocation_date,
@@ -29,6 +32,12 @@ export function ExportModal() {
         .gte('allocation_date', startDate)
         .lte('allocation_date', endDate)
         .order('allocation_date', { ascending: true });
+
+      if (!isPrivileged && profile?.id) {
+        query = query.eq('user_id', profile.id);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
