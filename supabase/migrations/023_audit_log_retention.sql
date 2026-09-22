@@ -10,7 +10,7 @@ BEGIN
     RAISE EXCEPTION 'Access denied. Only super_admins can clear audit logs.';
   END IF;
 
-  DELETE FROM public.audit_logs;
+  DELETE FROM public.audit_logs WHERE id IS NOT NULL;
 END;
 $$;
 
