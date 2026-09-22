@@ -95,8 +95,23 @@ export function TeamBuilder() {
     }, { onSuccess: () => { setVendorModalOpen(false); setSelectedVendor(''); setSelectedRateId(''); } });
   };
 
-  const handleAssignEmployee = () => {
+  const handleAssignEmployee = async () => {
     if (!selectedAuditId || !selectedEmployee || !selectedAudit) return;
+
+    // Check for leave conflicts
+    const { data: conflicts } = await supabase.from('allocations')
+      .select('status, notes')
+      .eq('user_id', selectedEmployee)
+      .eq('allocation_date', selectedAudit.audit_date)
+      .in('status', ['pto', 'sick']);
+
+    if (conflicts && conflicts.length > 0) {
+      const conflictMsg = `WARNING: This employee is scheduled for ${conflicts[0].status.toUpperCase()} (Leave) on ${format(new Date(selectedAudit.audit_date), 'MMM d, yyyy')}.\n\nAre you sure you want to assign them to this audit anyway?`;
+      if (!window.confirm(conflictMsg)) {
+        return; // User cancelled
+      }
+    }
+
     assignMember.mutate({
       audit_id: selectedAuditId,
       audit_date: selectedAudit.audit_date,
