@@ -111,11 +111,12 @@ export function AuditImportTool() {
 
               if (match) {
                 updatedCount++;
-                return { ...newAudit, id: match.id }; // Passing the ID forces an UPDATE
+                return { ...newAudit, id: match.id }; // Passing the existing ID forces an UPDATE
               }
               
               newCount++;
-              return newAudit; // No ID forces an INSERT
+              // MUST provide a generated ID so PostgREST sees uniform keys across all objects
+              return { ...newAudit, id: crypto.randomUUID() }; 
             });
 
             const { error } = await supabase.from('audits').upsert(toUpsert);
