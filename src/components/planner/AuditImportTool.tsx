@@ -91,10 +91,37 @@ export function AuditImportTool() {
               return;
             }
 
-            const { error } = await supabase.from('audits').insert(audits);
+            // Fetch existing audits for this client to prevent duplicates
+            const { data: existingAudits, error: fetchError } = await supabase
+              .from('audits')
+              .select('id, store_name, audit_date')
+              .eq('client_id', clientId);
+              
+            if (fetchError) throw fetchError;
+
+            let updatedCount = 0;
+            let newCount = 0;
+
+            const toUpsert = audits.map((newAudit: any) => {
+              // Check if an audit for this exact store and date already exists
+              const match = existingAudits?.find(ea => 
+                ea.store_name?.toLowerCase().trim() === newAudit.store_name?.toLowerCase().trim() && 
+                ea.audit_date === newAudit.audit_date
+              );
+
+              if (match) {
+                updatedCount++;
+                return { ...newAudit, id: match.id }; // Passing the ID forces an UPDATE
+              }
+              
+              newCount++;
+              return newAudit; // No ID forces an INSERT
+            });
+
+            const { error } = await supabase.from('audits').upsert(toUpsert);
             if (error) throw error;
 
-            toast.success(`Successfully imported ${audits.length} audits!`);
+            toast.success(`Successfully imported! (${newCount} new, ${updatedCount} updated)`);
             setFile(null);
             // Optionally clear file input
           } catch (err: any) {
