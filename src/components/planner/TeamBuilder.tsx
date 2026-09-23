@@ -170,6 +170,7 @@ export function TeamBuilder() {
                 <div className="relative">
                   <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₹</span>
                   <input 
+                    key={selectedAudit.id}
                     type="number"
                     className="h-8 w-24 rounded-md border border-input bg-background pl-6 pr-2 py-1 text-xs"
                     defaultValue={selectedAudit.billing_amount || 0}

@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Upload, AlertCircle, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Papa from 'papaparse';
 
 export function AuditImportTool() {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [clientId, setClientId] = useState<string>('');
+  const queryClient = useQueryClient();
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
@@ -137,6 +138,7 @@ export function AuditImportTool() {
             if (error) throw error;
 
             toast.success(`Successfully imported! (${newCount} new, ${updatedCount} updated)`);
+            queryClient.invalidateQueries({ queryKey: ['audits'] });
             setFile(null);
             // Optionally clear file input
           } catch (err: any) {
