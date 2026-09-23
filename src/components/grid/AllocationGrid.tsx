@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAllocationsQuery } from '@/hooks/useAllocations';
 import { useRealtimeAllocations } from '@/hooks/useRealtime';
-import { useBlanketHolidays, isBlanketHoliday } from '@/hooks/useBlanketHolidays';
+
 import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import { GridFilters } from '@/lib/types';
 import { getWeekRange, formatHours } from '@/lib/utils';
@@ -27,7 +27,7 @@ export function AllocationGrid() {
   });
 
   const { data, isLoading } = useAllocationsQuery(filters);
-  const { data: holidays } = useBlanketHolidays();
+  
   useRealtimeAllocations();
   useOfflineQueue();
   const { profile } = useAuthContext();
@@ -58,7 +58,7 @@ export function AllocationGrid() {
               {dates.map(dateStr => {
                 const date = parseISO(dateStr);
                 const isWe = date.getDay() === 0;
-                const isHol = !!isBlanketHoliday(holidays, dateStr);
+                const isHol = false;
                 return (
                   <th key={dateStr} className={`px-2 py-3 border-b border-r text-center font-medium ${isWe || isHol ? 'bg-slate-100 text-slate-400' : 'text-slate-600'} min-w-[8rem]`}>
                     <div className="flex flex-col items-center">

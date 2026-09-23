@@ -149,13 +149,6 @@ export function Sidebar({ onClose }: SidebarProps) {
                 </NavLink>
               )}
 
-              {(isAdminPlus || isHR) && (
-                <NavLink to="/admin/holidays" onClick={handleLinkClick} className={navLinkClasses}>
-                  <CalendarOff className="mr-3 h-5 w-5 flex-shrink-0" />
-                  Holidays
-                </NavLink>
-              )}
-
               {isManagerPlus && (
                 <NavLink to="/admin/projects" onClick={handleLinkClick} className={navLinkClasses}>
                   <FolderKanban className="mr-3 h-5 w-5 flex-shrink-0" />

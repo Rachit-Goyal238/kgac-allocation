@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserManagement } from '@/components/admin/UserManagement';
-import { HolidayManager } from '@/components/admin/HolidayManager';
+
 import { SeedDataToggle } from '@/components/admin/SeedDataToggle';
 import { DepartmentManager } from '@/components/admin/DepartmentManager';
 import { ProjectManager } from '@/components/admin/ProjectManager';
@@ -39,7 +39,6 @@ export function AdminPage() {
   if (location.pathname.includes('/admin/departments')) activeTab = 'departments';
   if (location.pathname.includes('/admin/projects')) activeTab = 'projects';
   if (location.pathname.includes('/admin/vendors')) activeTab = 'vendors';
-  if (location.pathname.includes('/admin/holidays')) activeTab = 'holidays';
   if (location.pathname.includes('/admin/clients')) activeTab = 'clients';
   if (location.pathname.includes('/admin/settings')) activeTab = 'settings';
   if (location.pathname.includes('/admin/roles')) activeTab = 'roles';
@@ -61,7 +60,6 @@ export function AdminPage() {
         <TabsList className="mb-4 flex-wrap h-auto gap-1">
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
-          <TabsTrigger value="holidays">Holidays</TabsTrigger>
           {isManagerPlus && <TabsTrigger value="projects">Projects</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="vendors">Vendors</TabsTrigger>}
           {(isAdminPlus || isClientHead) && <TabsTrigger value="clients">Clients</TabsTrigger>}
@@ -109,12 +107,6 @@ export function AdminPage() {
             </div>
           </TabsContent>
         )}
-        
-        <TabsContent value="holidays" className="mt-0">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <HolidayManager />
-          </div>
-        </TabsContent>
         
         {isAdminPlus && (
           <TabsContent value="settings" className="mt-0">

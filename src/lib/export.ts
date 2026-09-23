@@ -63,7 +63,7 @@ export async function exportToExcel(
   downloadBlob(blob, filename);
 }
 
-export function exportGridToCSV(gridRows: any[], dates: Date[], holidays: any[]) {
+export function exportGridToCSV(gridRows: any[], dates: Date[]) {
   // Simplistic export grid
   const data = gridRows.map(row => {
     const obj: Record<string, any> = {
@@ -81,7 +81,7 @@ export function exportGridToCSV(gridRows: any[], dates: Date[], holidays: any[])
   exportToCSV(data, `allocation_grid_${new Date().toISOString().split('T')[0]}.csv`);
 }
 
-export async function exportGridToExcel(gridRows: any[], dates: Date[], holidays: any[]) {
+export async function exportGridToExcel(gridRows: any[], dates: Date[]) {
   const columns = [
     { header: 'Name', key: 'Name', width: 25 },
     { header: 'Department', key: 'Department', width: 20 },

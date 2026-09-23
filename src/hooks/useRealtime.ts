@@ -15,9 +15,6 @@ export function useRealtimeAllocations() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, (payload) => {
         queryClient.invalidateQueries({ queryKey: ['allocations'] });
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'holidays' }, (payload) => {
-        queryClient.invalidateQueries({ queryKey: ['holidays'] });
-      })
       .subscribe((status) => {
         setIsConnected(status === 'SUBSCRIBED');
       });

@@ -28,7 +28,7 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
     return <Navigate to="/login" replace />;
   }
 
-  if (profile && !profile.entity) {
+  if (profile && !profile.entity_selected) {
     return <EntitySelector />;
   }
 

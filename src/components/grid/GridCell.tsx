@@ -1,7 +1,7 @@
 import React from 'react';
 import { GridCellData, Allocation } from '@/lib/types';
 import { getCellColorClass, isWorkingDay, formatHours } from '@/lib/utils';
-import { useBlanketHolidays, isBlanketHoliday } from '@/hooks/useBlanketHolidays';
+
 import { GridCellEditor } from './GridCellEditor';
 import { useProjects } from '@/hooks/useProjects';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -17,16 +17,16 @@ interface GridCellProps {
 }
 
 export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing }: GridCellProps) {
-  const { data: holidays } = useBlanketHolidays();
+  
   const { projects } = useProjects();
   const { profile } = useAuthContext();
   
-  const isHoliday = !!isBlanketHoliday(holidays, date);
+  
   const isWorkDay = isWorkingDay(date);
   const isWeekend = !isWorkDay;
   
   const allocations = cellData.allocations || (allocation ? [allocation] : []);
-  const colorClasses = getCellColorClass(allocations, isWeekend, isHoliday);
+  const colorClasses = getCellColorClass(allocations, isWeekend, false);
   const bgColor = colorClasses.bg;
   const textColor = colorClasses.text;
   const hours = cellData.totalHours || 0;
@@ -52,7 +52,7 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
   };
   
   const hasAllocations = allocations.length > 0;
-  const isEmptyWeekendOrHoliday = (isWeekend || isHoliday) && !hasAllocations;
+  const isEmptyWeekendOrHoliday = isWeekend && !hasAllocations;
 
   return (
     <div className="relative w-full h-full min-h-[3rem]">
@@ -63,7 +63,7 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
           ${hours === 0 && !leaveAlloc && !isEmptyWeekendOrHoliday ? 'border-dashed border-red-300' : 'border-transparent'}`}
       >
         {isEmptyWeekendOrHoliday ? (
-          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{isHoliday ? 'Holiday' : 'Weekend'}</span>
+          <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{'Weekend'}</span>
         ) : hours > 0 ? (
           <div className="flex flex-col items-center">
              <span className={`font-semibold ${textColor}`}>{formatHours(hours)}</span>

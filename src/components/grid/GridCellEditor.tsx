@@ -75,7 +75,7 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
     setDrafts(prev => [...prev, { hours: 0, status: 'billable', task_status: 'not_started', project_id: '' }]);
   };
 
-  const hasLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+  const hasLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick');
   const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner'].includes(r));
   const isBlockedByLeave = hasLeave && !isManagerOrAdmin;
 

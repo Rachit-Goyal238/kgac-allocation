@@ -81,7 +81,7 @@ export function useAllocationsQuery(filters: GridFilters) {
            const d = parseISO(c.date);
            const isWeekend = d.getDay() === 0; // Sunday is 0
            const alloc = c.allocations[0];
-           const isLeave = alloc && (alloc.status === 'pto' || alloc.status === 'sick' || alloc.status === 'public_holiday');
+           const isLeave = alloc && (alloc.status === 'pto' || alloc.status === 'sick');
            
            if (!isWeekend && !isLeave) {
              workingCapacity += WORK_HOURS_PER_DAY;
@@ -164,7 +164,7 @@ export function useSaveDayAllocations() {
     mutationFn: async ({ userId, date, allocations }: { userId: string, date: string, allocations: Partial<Allocation>[] }) => {
       // Find existing to preserve PTO/Sick
       const { data: existing } = await supabase.from('allocations').select('*').eq('user_id', userId).eq('allocation_date', date);
-      const leave = existing?.find(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+      const leave = existing?.find(a => a.status === 'pto' || a.status === 'sick');
       
       const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'planner'].includes(r));
       

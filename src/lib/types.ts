@@ -15,7 +15,7 @@ export type UserRole =
   | "pending";
 export type UserStatus = "active" | "pending" | "inactive";
 export type AllocationStatus =
-  "billable" | "internal" | "pto" | "sick" | "public_holiday";
+  "billable" | "internal" | "pto" | "sick";
 export type TaskStatus =
   "not_started" | "in_progress" | "completed" | "pending_review" | "blocked";
 export type AuditAction =
@@ -37,6 +37,7 @@ export interface Profile {
   avatar_url: string | null;
   roles: UserRole[];
   entity: UserEntity | null;
+  entity_selected?: boolean;
   department_id: string | null;
   status: UserStatus;
   zone?: string | null;

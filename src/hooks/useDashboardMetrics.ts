@@ -55,7 +55,7 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
           userAllocs[a.user_id][aDate].hours += a.hours;
           
           // prioritize leave status if multiple exist for the day
-          if (['pto', 'sick', 'public_holiday'].includes(a.status)) {
+          if (['pto', 'sick'].includes(a.status)) {
              userAllocs[a.user_id][aDate].status = a.status;
           } else if (userAllocs[a.user_id][aDate].status === 'none') {
              userAllocs[a.user_id][aDate].status = a.status;
@@ -88,7 +88,7 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
           const { hours, status } = userAllocs[p.id][d];
           const dateObj = parseISO(d);
           const isWeekend = dateObj.getDay() === 0;
-          const isLeave = ['pto', 'sick', 'public_holiday'].includes(status);
+          const isLeave = ['pto', 'sick'].includes(status);
           
           const weekKey = `${getYear(dateObj)}-W${getISOWeek(dateObj)}`;
           if (!weeklyStats[weekKey]) {

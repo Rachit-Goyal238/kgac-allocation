@@ -18,7 +18,7 @@ export function EntitySelector() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ entity: selectedEntity })
+        .update({ entity: selectedEntity, entity_selected: true })
         .eq('id', profile.id);
       
       if (error) throw error;
@@ -33,7 +33,7 @@ export function EntitySelector() {
     }
   };
 
-  if (profile?.entity) return null;
+  if (profile?.entity_selected) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">

@@ -158,14 +158,6 @@ export default function App() {
               }
             />
             <Route
-              path="admin/holidays"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="admin/settings"
               element={
                 <ProtectedRoute allowedRoles={['admin', 'super_admin']}>

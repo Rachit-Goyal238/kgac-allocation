@@ -12,15 +12,13 @@ export const ALLOCATION_STATUSES: { value: AllocationStatus; label: string; colo
   { value: 'internal', label: 'Internal', color: 'bg-purple-500' },
   { value: 'pto', label: 'PTO / Leave', color: 'bg-gray-500' },
   { value: 'sick', label: 'Sick', color: 'bg-orange-500' },
-  { value: 'public_holiday', label: 'Public Holiday', color: 'bg-gray-400' },
-];
+  ];
 
 export const STATUS_LABELS: Record<AllocationStatus, string> = {
   billable: 'Billable',
   internal: 'Internal',
   pto: 'PTO / Leave',
   sick: 'Sick',
-  public_holiday: 'Public Holiday',
 };
 
 // ─── Cell Color Coding ───────────────────────────────────────────────────────

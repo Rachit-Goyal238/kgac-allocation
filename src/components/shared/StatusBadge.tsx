@@ -13,7 +13,6 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
     internal: 'bg-purple-100 text-purple-800',
     pto: 'bg-gray-100 text-gray-800',
     sick: 'bg-orange-100 text-orange-800',
-    public_holiday: 'bg-gray-100 text-gray-800',
   };
 
   return (

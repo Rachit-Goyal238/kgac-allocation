@@ -57,7 +57,7 @@ export function getWeekDates(weekStart: Date): Date[] {
 export function getCellColorClass(
   allocations: Allocation[],
   isWeekend: boolean,
-  isHoliday: boolean
+  isHoliday?: boolean
 ): typeof CELL_COLORS[keyof typeof CELL_COLORS] {
   if (isWeekend) return CELL_COLORS.weekend;
   if (isHoliday) return CELL_COLORS.leave;
@@ -65,7 +65,7 @@ export function getCellColorClass(
   if (!allocations || allocations.length === 0) return CELL_COLORS.idle;
 
   // Check if any allocation is a leave
-  const isLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick' || a.status === 'public_holiday');
+  const isLeave = allocations.some(a => a.status === 'pto' || a.status === 'sick');
   if (isLeave) return CELL_COLORS.leave;
 
   const totalHours = allocations.reduce((sum, a) => sum + Number(a.hours || 0), 0);
@@ -88,10 +88,10 @@ export function formatHours(hours: number): string {
   return `${hours.toFixed(1)}h`;
 }
 
-export function isIdleDay(allocation: Allocation | null, isWeekend: boolean, isHoliday: boolean): boolean {
+export function isIdleDay(allocation: Allocation | null, isWeekend: boolean, isHoliday?: boolean): boolean {
   if (isWeekend || isHoliday) return false;
   if (!allocation) return true;
-  if (allocation.status === 'pto' || allocation.status === 'sick' || allocation.status === 'public_holiday') return false;
+  if (allocation.status === 'pto' || allocation.status === 'sick') return false;
   return allocation.hours === 0;
 }
 
