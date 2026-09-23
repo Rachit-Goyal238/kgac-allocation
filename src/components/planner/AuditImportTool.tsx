@@ -42,9 +42,23 @@ export function AuditImportTool() {
               return key ? row[key] : null;
             };
 
-            const safeDate = (dateStr: string) => {
+            const safeNumber = (val: any) => {
+              if (val === null || val === undefined || val === '') return 0;
+              if (typeof val === 'number') return val;
+              const cleanStr = String(val).replace(/[^0-9.-]+/g, '');
+              const num = parseFloat(cleanStr);
+              return isNaN(num) ? 0 : num;
+            };
+
+            const safeString = (val: any, fallback: any = null) => {
+              if (val === null || val === undefined) return fallback;
+              const str = String(val).trim();
+              return str === '' ? fallback : str;
+            };
+
+            const safeDate = (dateStr: any) => {
               if (!dateStr) return new Date().toISOString().split('T')[0];
-              const clean = dateStr.trim();
+              const clean = String(dateStr).trim();
               
               // First try DD-MM-YYYY or DD/MM/YYYY
               const parts = clean.split(/[-/]/);
@@ -74,15 +88,15 @@ export function AuditImportTool() {
 
             const audits = results.data.map((row: any) => ({
               client_id: clientId,
-              store_name: getField(row, ['store', 'name']) || 'Unknown Store',
-              store_code: getField(row, ['code']) || null,
-              location: getField(row, ['location', 'city', 'address']) || null,
+              store_name: safeString(getField(row, ['store', 'name']), 'Unknown Store'),
+              store_code: safeString(getField(row, ['code'])),
+              location: safeString(getField(row, ['location', 'city', 'address'])),
               audit_date: safeDate(getField(row, ['date'])),
-              audit_type: getField(row, ['type', 'audit type']) || 'General',
+              audit_type: safeString(getField(row, ['type', 'audit type']), 'General'),
               status: 'scheduled',
-              billing_amount: Number(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])) || 0,
-              required_leads: Number(getField(row, ['leads', 'required leads', 'lead count'])) || 0,
-              required_executives: Number(getField(row, ['executives', 'required executives', 'executive count'])) || 0
+              billing_amount: safeNumber(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])),
+              required_leads: safeNumber(getField(row, ['leads', 'required leads', 'lead count'])),
+              required_executives: safeNumber(getField(row, ['executives', 'required executives', 'executive count']))
             }));
 
             if (audits.length === 0) {
