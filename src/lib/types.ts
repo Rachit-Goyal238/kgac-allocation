@@ -345,8 +345,10 @@ export interface AssetRequest {
   user_id: string;
   start_date: string;
   end_date: string;
-  status: 'pending' | 'approved' | 'rejected' | 'returned';
+  status: 'pending' | 'approved' | 'rejected' | 'returned' | 'return_pending';
   manager_id: string | null;
+  return_notes?: string | null;
+  return_requested_at?: string | null;
   created_at: string;
   updated_at: string;
 }
