@@ -61,7 +61,7 @@ export function UserManagement() {
   };
 
   const handleApprove = (id: string, role: any, deptId: string | null) => {
-    updateProfile.mutate({ id, status: 'active', roles: [role], department_id: deptId });
+    updateProfile.mutate({ id, status: 'active', roles: [role], department_id: deptId, entity_selected: true });
   };
 
   return (
@@ -112,6 +112,7 @@ export function UserManagement() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Entity</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Zone</TableHead>
               <TableHead>Vendor</TableHead>
@@ -166,6 +167,16 @@ export function UserManagement() {
                         ))}
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  </TableCell>
+                  <TableCell>
+                    <Select value={profile.entity || 'none'} onValueChange={(v) => updateProfile.mutate({ id: profile.id, entity: (v === 'none' ? null : v) as any })}>
+                      <SelectTrigger className="w-[90px] h-8 text-xs"><SelectValue placeholder="Entity" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="KGAC">KGAC</SelectItem>
+                        <SelectItem value="KPL">KPL</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <Select value={profile.department_id && departments.some(d => d.id === profile.department_id) ? profile.department_id : 'none'} onValueChange={(v) => handleDeptChange(profile.id, v === 'none' ? '' : v)}>
