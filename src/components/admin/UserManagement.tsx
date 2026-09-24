@@ -77,7 +77,7 @@ export function UserManagement() {
   };
 
   const handleDeptChange = (id: string, newDept: string) => {
-    updateProfile.mutate({ id, department_id: newDept });
+    updateProfile.mutate({ id, department_id: newDept === '' ? null : newDept });
   };
 
   const handleApprove = (id: string, role: any, deptId: string | null) => {
