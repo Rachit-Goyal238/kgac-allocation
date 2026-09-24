@@ -137,17 +137,33 @@ function MyAssetRequests({ userId }: { userId?: string }) {
       <div className="bg-white p-4 rounded-lg shadow-sm border">
         <h3 className="font-medium mb-4">My Requests History</h3>
         <div className="space-y-2">
-          {requests?.map((req: any) => (
-            <div key={req.id} className="flex justify-between items-center p-3 border rounded text-sm">
-              <div>
-                <div className="font-medium">{req.asset?.name}</div>
-                <div className="text-slate-500 text-xs">{req.start_date} to {req.end_date || 'Ongoing'}</div>
+          {requests?.map((req: any) => {
+            const today = new Date().toISOString().split('T')[0];
+            const isOverdue = req.status === 'approved' && req.end_date && req.end_date < today;
+            return (
+              <div key={req.id} className={`flex justify-between items-center p-3 border rounded text-sm ${isOverdue ? 'border-red-300 bg-red-50' : ''}`}>
+                <div>
+                  <div className="font-medium">{req.asset?.name}</div>
+                  <div className="text-slate-500 text-xs">{req.start_date} to {req.end_date || 'Ongoing'}</div>
+                  {isOverdue && (
+                    <div className="text-xs text-red-600 font-medium mt-0.5 flex items-center gap-1">
+                      ⚠ Return overdue — please return this asset
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`px-2 py-1 rounded text-xs ${req.status === 'approved' ? 'bg-green-100 text-green-700' : req.status === 'rejected' ? 'bg-red-100 text-red-700' : req.status === 'returned' ? 'bg-slate-100 text-slate-600' : 'bg-yellow-100 text-yellow-700'}`}>
+                    {req.status}
+                  </span>
+                  {isOverdue && (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-red-600 text-white">
+                      OVERDUE
+                    </span>
+                  )}
+                </div>
               </div>
-              <span className={`px-2 py-1 rounded text-xs ${req.status === 'approved' ? 'bg-green-100 text-green-700' : req.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                {req.status}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
