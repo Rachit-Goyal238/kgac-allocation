@@ -132,8 +132,8 @@ export function useAuth() {
 
   const signInWithUsername = async (username: string, password: string) => {
     try {
-      // Supabase requires an email format, so we append a hidden local domain to the username
-      const authEmail = `${username.trim().toLowerCase()}@kgac.local`;
+      // Supabase requires an email format, so we append a hidden domain to the username
+      const authEmail = `${username.trim().toLowerCase()}@kgac-users.com`;
       const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
       if (error) throw error;
       setUser(data.session?.user ?? null);
@@ -149,7 +149,7 @@ export function useAuth() {
 
   const signUpWithUsername = async (username: string, password: string, fullName: string) => {
     try {
-      const authEmail = `${username.trim().toLowerCase()}@kgac.local`;
+      const authEmail = `${username.trim().toLowerCase()}@kgac-users.com`;
       const { error } = await supabase.auth.signUp({ 
         email: authEmail, 
         password,
