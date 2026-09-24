@@ -46,7 +46,7 @@ export function IdleDaysTable({ entries }: IdleDaysTableProps) {
                     {departments?.find(d => d.id === entry.employee.department_id)?.name || '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Badge variant="destructive">{entry.idleDaysCount}</Badge>
+                    <Badge variant="destructive">{entry.idleDayCount ?? entry.idleDaysCount}</Badge>
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">{entry.lastActiveDate}</TableCell>
                 </TableRow>
