@@ -4,7 +4,7 @@ import type { AllocationStatus } from './types';
 
 export const WORK_HOURS_PER_DAY = 8;
 export const COMPANY_DOMAIN = 'kgac.in';
-export const APP_LAUNCH_DATE = '2024-09-01'; // Change this date when you officially launch!
+export const APP_LAUNCH_DATE = '2026-09-01'; // Change this date when you officially launch!
 
 // ─── Allocation Status Options ───────────────────────────────────────────────
 
