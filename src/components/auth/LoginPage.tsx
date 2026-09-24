@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Loader2, Phone, Mail } from 'lucide-react';
+import { Loader2, Mail, Lock, User } from 'lucide-react';
 
 export function LoginPage() {
-  const { user, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp } = useAuthContext();
+  const { user, isLoading, signInWithGoogle, signInWithEmailPassword, signUpWithEmailPassword } = useAuthContext();
   
-  const [loginMethod, setLoginMethod] = useState<'google' | 'phone' | 'email'>('google');
-  const [phone, setPhone] = useState('');
+  const [loginMethod, setLoginMethod] = useState<'google' | 'email'>('google');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [step, setStep] = useState<'phone' | 'email' | 'otp' | 'magic-link'>('phone');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isLoading) {
@@ -28,39 +28,23 @@ export function LoginPage() {
     return <Navigate to="/" replace />;
   }
 
-  const handleSendOtp = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginMethod === 'phone' && !phone) return;
-    if (loginMethod === 'email' && !email) return;
+    if (!email || !password) return;
+    if (isSignUp && !fullName) return;
     
     setIsSubmitting(true);
     try {
-      if (loginMethod === 'phone') {
-        await signInWithPhone(phone);
-        setStep('otp');
+      if (isSignUp) {
+        await signUpWithEmailPassword(email, password, fullName);
+        // Automatically switch to sign in after successful sign up
+        setIsSignUp(false);
+        setPassword('');
       } else {
-        await signInWithEmail(email);
-        setStep('magic-link');
+        await signInWithEmailPassword(email, password);
       }
     } catch (error) {
-      // handled in hook
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp) return;
-    setIsSubmitting(true);
-    try {
-      if (loginMethod === 'phone') {
-        await verifyOtp(phone, otp);
-      } else {
-        await verifyEmailOtp(email, otp);
-      }
-    } catch (error) {
-      // handled in hook
+      // Error is handled in the hook
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +59,7 @@ export function LoginPage() {
             KGAC Audit Allocation
           </h1>
           <p className="text-sm text-gray-500">
-            Sign in to access your audit schedule
+            {loginMethod === 'google' ? 'Sign in to access your audit schedule' : isSignUp ? 'Create a new account' : 'Sign in to your account'}
           </p>
         </div>
 
@@ -96,95 +80,98 @@ export function LoginPage() {
               Sign in with Google
             </Button>
             
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+
             <Button
-              onClick={() => { setLoginMethod('email'); setStep('email'); }}
-              className="w-full py-6 text-lg font-medium"
-              variant="outline"
+              onClick={() => { setLoginMethod('email'); setIsSignUp(false); }}
+              className="w-full py-6 text-lg font-medium text-slate-700 hover:text-slate-900 bg-slate-50 border border-slate-200"
+              variant="secondary"
             >
-              <Mail className="mr-2 h-4 w-4" />
-              Sign in with Magic Link
-            </Button>
-            
-            <Button
-              onClick={() => { setLoginMethod('phone'); setStep('phone'); }}
-              className="w-full py-6 text-lg font-medium text-gray-500"
-              variant="ghost"
-            >
-              <Phone className="mr-2 h-4 w-4" />
-              Sign in with Phone Number
+              <Mail className="mr-2 h-5 w-5" />
+              Email & Password
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
-            {step === 'phone' || step === 'email' ? (
-              <form onSubmit={handleSendOtp} className="space-y-4">
+            <form onSubmit={handleEmailSubmit} className="space-y-4">
+              {isSignUp && (
                 <div className="space-y-2">
-                  <Label htmlFor="contact">
-                    {loginMethod === 'phone' ? 'Phone Number' : 'Email Address'}
-                  </Label>
-                  <Input
-                    id="contact"
-                    type={loginMethod === 'phone' ? 'tel' : 'email'}
-                    placeholder={loginMethod === 'phone' ? '+919876543210' : 'name@company.com'}
-                    value={loginMethod === 'phone' ? phone : email}
-                    onChange={(e) => loginMethod === 'phone' ? setPhone(e.target.value) : setEmail(e.target.value)}
-                    required
-                  />
-                  {loginMethod === 'phone' && (
-                    <p className="text-xs text-muted-foreground">Include country code (e.g., +91)</p>
-                  )}
-                </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Send Code'}
-                </Button>
-              </form>
-              ) : step === 'otp' ? (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="otp">Verification Code</Label>
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                     <Input
-                      id="otp"
+                      id="fullName"
                       type="text"
-                      placeholder="Enter 6-digit code"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      required
+                      placeholder="John Doe"
+                      className="pl-9"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={isSignUp}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Verify Code'}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full"
-                    onClick={() => setStep(loginMethod)}
-                  >
-                    Back
-                  </Button>
-                </form>
-              ) : step === 'magic-link' ? (
-                <div className="space-y-6 text-center mt-4">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-                    <Mail className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-semibold">Check your email</h3>
-                    <p className="text-sm text-gray-500">
-                      We sent a magic link to <strong>{email}</strong>.<br />
-                      Click the link in the email to sign in securely.
-                    </p>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setStep('email')}
-                  >
-                    Back to Login
-                  </Button>
                 </div>
-              ) : null}
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    className="pl-9"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="pl-9"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full mt-6" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : isSignUp ? (
+                  'Create Account'
+                ) : (
+                  'Sign In'
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-4 text-center text-sm">
+              <button
+                type="button"
+                className="text-blue-600 hover:underline"
+                onClick={() => { setIsSignUp(!isSignUp); setPassword(''); }}
+              >
+                {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              </button>
+            </div>
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -197,8 +184,8 @@ export function LoginPage() {
 
             <Button
               variant="ghost"
-              className="w-full"
-              onClick={() => setLoginMethod('google')}
+              className="w-full text-slate-500"
+              onClick={() => { setLoginMethod('google'); setPassword(''); }}
             >
               Back to Google Sign In
             </Button>

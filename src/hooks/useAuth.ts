@@ -130,5 +130,39 @@ export function useAuth() {
     }
   };
 
-  return { user, profile, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp, signOut };
+  const signInWithEmailPassword = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      setUser(data.session?.user ?? null);
+      if (data.session?.user) {
+        setIsLoading(true);
+        await fetchProfile(data.session.user.id);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign in');
+      throw error;
+    }
+  };
+
+  const signUpWithEmailPassword = async (email: string, password: string, fullName: string) => {
+    try {
+      const { error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+      if (error) throw error;
+      toast.success('Account created! Please sign in.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to sign up');
+      throw error;
+    }
+  };
+
+  return { user, profile, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp, signOut, signInWithEmailPassword, signUpWithEmailPassword };
 }
