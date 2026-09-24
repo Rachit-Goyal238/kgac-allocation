@@ -81,7 +81,7 @@ export function UserManagement() {
   };
 
   const handleApprove = (id: string, role: any, deptId: string | null) => {
-    updateProfile.mutate({ id, status: 'active', roles: [role], department_id: deptId, entity_selected: true });
+    updateProfile.mutate({ id, status: 'active', roles: [role], department_id: deptId });
   };
 
   return (
