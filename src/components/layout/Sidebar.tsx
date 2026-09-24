@@ -223,6 +223,9 @@ export function Sidebar({ onClose }: SidebarProps) {
               {profile?.full_name || 'User'}
             </p>
             <div className="flex flex-wrap gap-1 mt-1">
+              <Badge variant="outline" className="text-[9px] font-bold uppercase border-indigo-200 bg-indigo-50 text-indigo-700">
+                {profile?.entity || 'None'}
+              </Badge>
               {(profile?.roles && profile.roles.length > 0) ? (
                 [...profile.roles].sort((a, b) => {
                   const hierarchy = ['super_admin', 'admin', 'manager', 'client_head', 'planner', 'finance', 'hr', 'employee', 'audit_executive', 'backend_staff'];
