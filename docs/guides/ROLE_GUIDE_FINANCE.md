@@ -37,7 +37,21 @@ As a **Finance Specialist**, you safeguard the commercial health and billing int
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Conducting Audit Margins Reconciliation
+### 3.1 Authentication, Registration & Onboarding
+Finance team members access billing and margin models via:
+- **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
+- **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
+- **Create Account (New Finance Staff):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `finance` role by an Administrator.
+- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Conducting Audit Margins Reconciliation
 1. Navigate to **Audit Margins** (`/reconciliation`).
 2. Filter by Client Engagement and Audit Month.
 3. Review the financial breakdown:

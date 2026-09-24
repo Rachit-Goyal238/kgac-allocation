@@ -36,7 +36,21 @@ As a **Client Head**, you own the strategic and operational relationship between
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Managing Client Accounts & Contracts
+### 3.1 Authentication, Registration & Onboarding
+Client Heads access enterprise accounts via:
+- **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
+- **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
+- **Create Account (New Client Leads):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `client_head` role by an Administrator.
+- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Managing Client Accounts & Contracts
 1. Navigate to **Clients** (`/admin/clients`).
 2. To register a new enterprise client:
    - Click **Add Client**.

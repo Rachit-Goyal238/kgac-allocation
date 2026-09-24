@@ -34,9 +34,23 @@ As an **Audit Executive**, you are the primary on-site lead for KGAC/KPL field e
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Reviewing Scheduled Engagements on Dashboard
-1. Log in to the platform with your credentials.
-2. Review the **Upcoming Audits** module on the Dashboard (`/dashboard`).
+### 3.1 Authentication, Registration & Onboarding
+Field team leads can authenticate using multiple convenient methods:
+- **Sign In with Google:** Click **"Sign in with Google"** on the landing page and authenticate with your company email.
+- **Username & Password:** Click **"Username & Password"**, enter your base username (without domain) and password, and click **Sign In**.
+- **Create Account (New Leads):** Click **"Don't have an account? Sign up"**, fill in Full Name, Username, and Password, then click **"Create Account"**.
+- **Account Pending Approval:** If newly registered, your account enters pending status until an Administrator assigns your role, entity (**KGAC** or **KPL**), and department.
+- **Entity Confirmation:** Confirm **KGAC** or **KPL** on the first prompt to ensure store records route to the correct balance sheet.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Reviewing Scheduled Engagements on Dashboard
+1. Review the **Upcoming Audits** module on the Dashboard (`/dashboard`).
 3. Note:
    - Client Name and Store Location ID.
    - Start Date and Expected Completion Date.

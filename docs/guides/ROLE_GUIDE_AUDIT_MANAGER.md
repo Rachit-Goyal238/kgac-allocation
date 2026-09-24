@@ -40,7 +40,21 @@ As an **Audit Manager**, you hold operational responsibility for planning, execu
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Managing the Department Calendar & Allocations
+### 3.1 Authentication, Registration & Onboarding
+Audit Managers can log in through the primary platform methods:
+- **Sign In with Google:** Instant SSO using your authorized `@kgac.in` Google account.
+- **Username & Password:** Direct credentials login (type your base username without domain).
+- **Create Account (New Managers):** Register via **"Don't have an account? Sign up"**. Newly registered accounts enter **Account Pending Approval** until authorized by a Super Admin or Platform Administrator.
+- **Entity Selection:** Confirm your operating entity (**KGAC** or **KPL**) on first login.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Managing the Department Calendar & Allocations
 1. Open **Calendar** (`/calendar`).
 2. Use the Department dropdown to filter to your department (e.g., *Audit*).
 3. Review row-by-row staffing across the current week.

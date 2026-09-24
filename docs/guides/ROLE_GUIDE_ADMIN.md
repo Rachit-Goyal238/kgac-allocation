@@ -40,7 +40,9 @@ As a **System Administrator**, you maintain the structural foundation of the KGA
 ## 3. Step-by-Step Operating Procedures
 
 ### 3.1 Reviewing & Approving Pending User Accounts
-When a new employee registers on the login page, their account is held in `Pending Approval` status.
+When a new employee registers on the login page or signs in via Google for the first time, their account enters `Pending Approval` status, displaying the pending screen to the user.
+
+![SS01D: Account Pending Approval Screen Seen by User](../screenshots/SS01D_account_pending_approval.png)
 
 1. Navigate to **Users & Roles** (`/admin/users`).
 2. Switch to the **Pending Approvals** tab.

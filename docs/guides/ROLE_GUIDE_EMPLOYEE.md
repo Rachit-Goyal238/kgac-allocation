@@ -36,15 +36,49 @@ Upon logging in, employees have access to the following core platform modules:
 
 ## 3. Step-by-Step Daily Workflows
 
-### 3.1 Logging In & Entity Verification
-1. Navigate to the login portal: `https://kgac-allocation.vercel.app` (or your internal intranet URL).
-2. Enter your assigned **Username** (e.g., `rahul.sharma`) and **Password**.
-   > [!NOTE]
-   > You do not need to type `@kgac-users.com`. Just enter your base username.
-3. If this is your first login or your entity has not been locked, you will see the **Entity Selection Modal**. Select your contractual entity (**KGAC** or **KPL**) and click **Confirm**.
+### 3.1 Logging In, Registration & Account Approval
 
-![SS01: Login Screen](../screenshots/SS01_login_page.png)
-![SS02: Entity Selection](../screenshots/SS02_entity_selector.png)
+The platform provides flexible authentication methods depending on how your credentials were issued:
+
+#### Option A: Sign In with Google (OAuth SSO)
+1. On the landing page, click **"Sign in with Google"**.
+2. Authenticate using your authorized company Google account (e.g., `rahul.sharma@kgac.in`).
+3. If your account is newly registered, you will be redirected to the **Account Pending Approval** screen awaiting administrative approval.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+
+#### Option B: Sign In with Username & Password
+1. Click **"Username & Password"** on the landing page.
+2. Enter your assigned **Username** (e.g., `rahul.sharma`).
+   > [!NOTE]
+   > Do not append `@kgac-users.com`. Just enter your base username.
+3. Enter your **Password** and click **Sign In**.
+
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+
+#### Option C: Self-Registration (Create User / Sign Up)
+If you are a new field auditor joining the organization:
+1. On the Username & Password screen, click **"Don't have an account? Sign up"**.
+2. Enter your **Full Name**, desired **Username**, and a secure **Password** (min. 6 characters).
+3. Click **"Create Account"**.
+4. The system switches back to the sign-in form. Log in with your new credentials.
+
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+
+#### Account Pending Approval State
+Newly registered accounts are held in pending status until verified by an Administrator:
+- The screen displays a yellow clock icon and the notice: *"Your account is awaiting admin approval. You'll receive access once approved."*
+- An Administrator will review your account in `/admin/users`, assign your `employee` role, department, entity (**KGAC** or **KPL**), and zone.
+- Once approved, simply refresh your browser or log in again to enter your dashboard.
+
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+#### Entity Selection (KGAC vs KPL)
+Upon your first approved login, if prompted:
+1. Select your contractual employment entity: **KGAC** or **KPL**.
+2. Click **Confirm Selection**.
+
+![SS02: Entity Selection Dialog](../screenshots/SS02_entity_selector.png)
 
 ---
 

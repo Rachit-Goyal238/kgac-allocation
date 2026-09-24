@@ -37,7 +37,21 @@ Super Administrators possess unrestricted access across the entire platform, inc
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Operating the Super Admin Command Center
+### 3.1 Authentication, Access Elevation & Session Security
+Super Administrators access the platform with top-tier security credentials:
+- **Sign In with Google:** Authenticate using your primary corporate Google identity with 2-Factor Authentication enabled.
+- **Username & Password:** Direct administrative login.
+- **Create Account (New Super Admins):** When a new platform executive registers via **"Don't have an account? Sign up"**, their account initially sits in **Account Pending Approval**. An existing Super Administrator must elevate their permissions via **Role Alignment** (`/admin/roles`).
+- **Entity Scope:** Super Admins hold dual-entity authority over both **KGAC** and **KPL**.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Operating the Super Admin Command Center
 1. Navigate to **Command Center** (`/admin/command-center`).
 2. Review real-time operational telemetry:
    - **Active Sessions:** Current authenticated users across KGAC and KPL.

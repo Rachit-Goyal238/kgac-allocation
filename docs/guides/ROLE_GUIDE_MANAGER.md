@@ -40,7 +40,21 @@ As a **Department Manager**, you hold operational oversight over your assigned d
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Managing Department Workload on Calendar
+### 3.1 Authentication, Registration & Onboarding
+Department Managers access the system via:
+- **Sign In with Google:** Click **"Sign in with Google"** for single sign-on with your company email.
+- **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
+- **Create Account (New Managers):** Register via **"Don't have an account? Sign up"**. Newly created accounts are held in **Account Pending Approval** until authorized by an Administrator.
+- **Entity Confirmation:** Confirm your operating company (**KGAC** or **KPL**).
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Managing Department Workload on Calendar
 1. Navigate to **Calendar** (`/calendar`).
 2. Filter the view by your Department name.
 3. Review team rows for:

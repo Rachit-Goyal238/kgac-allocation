@@ -37,7 +37,21 @@ As a member of **Human Resources (HR)**, you are the custodian of workforce comp
 
 ## 3. Step-by-Step Operating Procedures
 
-### 3.1 Generating Attendance & Payroll Reports (CSV & Excel)
+### 3.1 Authentication, Registration & Onboarding
+HR team members access attendance governance via:
+- **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
+- **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
+- **Create Account (New HR Staff):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `hr` role by an Administrator.
+- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+---
+
+### 3.2 Generating Attendance & Payroll Reports (CSV & Excel)
 HR is responsible for generating monthly attendance data for the finance/payroll department.
 
 1. Navigate to **Man-Days** (`/man-days`) or **Dashboard** (`/dashboard`).

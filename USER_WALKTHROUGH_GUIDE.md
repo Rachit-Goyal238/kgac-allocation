@@ -84,28 +84,124 @@ The platform defines 11 specific roles. Each role is tailored to exact operation
 
 ---
 
-## 3. Universal Onboarding: Login, Registration & Profile
+## 3. Universal Onboarding: Login, Registration & Access Approval
 
-### 3.1 Logging In
-1. Open the platform URL in Google Chrome or Microsoft Edge.
-2. Enter your assigned **Username** (e.g., `rahul.sharma`) and **Password**.
+The KGAC platform provides multiple secure authentication pathways depending on your organizational setup.
+
+```mermaid
+graph TD
+    Start([Visit Login Portal]) --> AuthChoice{Choose Sign-In Method}
+    AuthChoice -->|Google SSO| GoogleOAuth[Click 'Sign in with Google']
+    AuthChoice -->|Credentials| UserPass[Click 'Username & Password']
+    AuthChoice -->|New User| SignUp[Click 'Don't have an account? Sign up']
+    
+    SignUp --> CreateAcc[Enter Full Name, Username & Password]
+    CreateAcc --> UserPass
+    
+    GoogleOAuth --> StatusCheck{Account Status}
+    UserPass --> StatusCheck
+    
+    StatusCheck -->|Status: Pending| PendingScreen[Account Pending Approval Screen]
+    StatusCheck -->|Status: Active, Entity Missing| EntityModal[Entity Selector: KGAC or KPL]
+    StatusCheck -->|Status: Active, Configured| AppHome[Personal Dashboard & Allocation Calendar]
+    
+    PendingScreen --> AdminReview[Admin assigns Role, Dept & Entity in /admin/users]
+    AdminReview --> AppHome
+    EntityModal --> AppHome
+```
+
+---
+
+### 3.1 Method 1: Sign in with Google (Recommended Single Sign-On)
+If your organization uses Google Workspace:
+1. Navigate to the login portal: `https://kgac-allocation.vercel.app` (or your company intranet link).
+2. On the main landing screen, click the **"Sign in with Google"** button.
+3. A Google authentication popup will appear. Select your corporate Google email account (e.g., `firstname.lastname@kgac.in`).
+4. If this is your first time logging in, your account will be provisioned in the directory and will route to the **Account Pending Approval** screen awaiting administrative assignment.
+5. If your account is already active, you will be directed straight to the platform.
+
+![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
+
+---
+
+### 3.2 Method 2: Sign in with Username & Password
+If you have been provisioned with standard platform credentials:
+1. On the main login page, click **"Username & Password"** below the divider.
+2. The view switches to the credential sign-in form.
+3. Enter your assigned **Username** (e.g., `rahul.sharma` or `employee_id`).
    > [!NOTE]
-   > Do not enter `@kgac-users.com`. Just type your assigned username.
-3. Click **Sign In**.
+   > You do not need to append `@kgac-users.com` or any email domain. Enter only your base username.
+4. Enter your **Password**.
+5. Click **Sign In**.
 
-![SS01: Login Screen](../screenshots/SS01_login_page.png)
+![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
 
-### 3.2 Entity Confirmation
-New or unaligned users will be prompted with the **Entity Selector Modal**:
-- Select **KGAC** or **KPL**.
-- Click **Confirm Selection**.
+---
+
+### 3.3 Method 3: Self-Registration (Create User / Sign Up Page)
+If you are a new team member who does not yet have credentials:
+1. On the main login screen, click **"Username & Password"**.
+2. Below the form, click the link: **"Don't have an account? Sign up"**.
+3. The form title updates to **"Create a new account"**.
+4. Fill in the required fields:
+   - **Full Name:** Enter your official legal name (e.g., `Ananya Patel`).
+   - **Username:** Choose your unique company username (e.g., `ananya.patel` or `emp1045`).
+   - **Password:** Enter a secure password (minimum 6 characters).
+5. Click the primary button: **"Create Account"**.
+6. Upon successful registration, the form will automatically toggle back to the Sign In screen with your username preserved. Enter your password and click **Sign In**.
+
+![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+
+---
+
+### 3.4 Account Pending Approval State & Administrator Verification
+To safeguard organizational data and audit integrity, newly created accounts cannot access client schedules, internal assets, or audit records until verified by an Administrator.
+
+1. When a new user logs in for the first time after self-registering or via Google SSO, the system displays the **Account Pending Approval** screen:
+   - Displays a prominent **Yellow Clock Icon**.
+   - Heading: **"Account Pending Approval"**.
+   - Notice: *"Your account is awaiting admin approval. You'll receive access once approved."*
+   - Includes a **"Sign Out"** button.
+
+![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
+
+2. **Administrator Verification Workflow:**
+   - An authorized Administrator or Super Administrator navigates to **Users & Roles** (`/admin/users`) -> **Pending Approvals** tab.
+   - The admin inspects the user's name and email, and assigns:
+     - **Functional Role:** (e.g., `employee`, `audit_executive`, `manager`, `planner`, `hr`, etc.)
+     - **Department:** (e.g., *Audit*, *Operations*, *Finance*)
+     - **Contractual Entity:** (**KGAC** or **KPL**)
+     - **Operational Zone:** (North, South, East, West)
+   - The admin clicks **Approve User**.
+3. Once approved, the user refreshes their browser or logs in again to access their role-specific dashboard.
+
+---
+
+### 3.5 Entity Confirmation (KGAC vs KPL)
+When logging in for the first time with an active account, if your corporate entity has not been locked:
+1. The **Entity Selector Modal** will appear over the screen.
+2. Select your designated operational legal entity:
+   - **KGAC (K.G. Audit & Consulting)**
+   - **KPL (K.G. Professional Logistics / Services)**
+3. Click **Confirm Selection**.
+4. Your choice is permanently associated with your profile, ensuring your logged hours, billing rates, and audit assignments flow to the correct company ledger.
 
 ![SS02: Entity Selector Dialog](../screenshots/SS02_entity_selector.png)
 
-### 3.3 Profile Management & Password Security
-- Navigate to **My Profile** in the bottom-left sidebar.
-- Inspect registered email, assigned entity badge, and functional roles.
-- Update passwords using the secure password reset form.
+---
+
+### 3.6 Profile Management & Password Security
+1. Click **My Profile** in the bottom-left navigation bar.
+2. View your profile summary:
+   - Full Name, registered Email, assigned Department, and Zone.
+   - Corporate Entity badge (**KGAC** or **KPL**).
+   - Functional Roles assigned to your account.
+3. **Changing Your Password:**
+   - Enter your current password.
+   - Enter your new password (minimum 8 characters with a mix of letters and numbers).
+   - Confirm your new password and click **Update Password**.
+4. **Signing Out:**
+   - To end your session, click the red **Sign out** button at the bottom of the sidebar.
 
 ![SS03: Profile Settings](../screenshots/SS03_profile_settings.png)
 
