@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 
 interface PendingApprovalsProps {
   profiles: Profile[];
-  onApprove: (id: string, role: UserRole, deptId: string) => void;
+  onApprove: (id: string, role: UserRole, deptId: string | null) => void;
   onReject: (id: string) => void;
 }
 
@@ -31,7 +31,7 @@ export function PendingApprovals({ profiles, onApprove, onReject }: PendingAppro
               <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700" onClick={() => onReject(profile.id)}>
                 Reject
               </Button>
-              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => onApprove(profile.id, 'audit_executive', profile.department_id || 'engineering')}>
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => onApprove(profile.id, 'employee', profile.department_id)}>
                 Approve
               </Button>
             </div>

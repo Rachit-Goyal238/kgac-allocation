@@ -60,7 +60,7 @@ export function UserManagement() {
     updateProfile.mutate({ id, department_id: newDept });
   };
 
-  const handleApprove = (id: string, role: any, deptId: string) => {
+  const handleApprove = (id: string, role: any, deptId: string | null) => {
     updateProfile.mutate({ id, status: 'active', roles: [role], department_id: deptId });
   };
 
