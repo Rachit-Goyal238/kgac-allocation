@@ -20,15 +20,14 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
       const { data: allocations, error: allocError } = await query;
       if (allocError) throw allocError;
 
-      // Also fetch external vendor assignments from audit_teams
-      const { data: vendorTeams, error: vendorError } = await supabase
+      // Fetch ALL assignments from audit_teams (both vendor and internal)
+      const { data: auditTeams, error: teamError } = await supabase
         .from('audit_teams')
         .select(`
-          id, vendor_id, role,
+          id, vendor_id, user_id, role,
           audit:audits(id, audit_date, project_id, project:projects(name))
-        `)
-        .not('vendor_id', 'is', null);
-      if (vendorError) throw vendorError;
+        `);
+      if (teamError) throw teamError;
 
       let totalManDays = 0;
       let internalManDays = 0;
@@ -37,9 +36,9 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
       const monthMap: Record<string, any> = {};
 
       allocations?.forEach(a => {
+        if (a.audit_id) return; // Skip allocations tied to audits (counted below)
+
         const manDays = a.hours / WORK_HOURS_PER_DAY;
-        // Since V3 doesn't put vendors in profiles, all allocations here are internal
-        const isInternal = true; 
         
         totalManDays += manDays;
         internalManDays += manDays;
@@ -59,8 +58,8 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         monthMap[month].internal += manDays;
       });
 
-      // Add vendor man-days (1 vendor assignment = 1 man-day, excluding assets)
-      vendorTeams?.forEach(t => {
+      // Add team man-days (1 assignment = 1 man-day, excluding assets)
+      auditTeams?.forEach(t => {
         if (t.role === 'asset') return; // Do not count physical assets as man-days!
         
         const audit = t.audit as any;
@@ -71,21 +70,33 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         if (auditDate < dateRange.start || auditDate > dateRange.end) return;
 
         totalManDays += 1;
-        externalManDays += 1;
+        if (t.vendor_id) {
+          externalManDays += 1;
+        } else if (t.user_id) {
+          internalManDays += 1;
+        }
 
         const projId = audit.project_id || 'unassigned_vendor';
         if (!projectMap[projId]) {
-          projectMap[projId] = { project_id: projId, project_name: audit.project?.name || 'Vendor Audit', total: 0, internal: 0, external: 0 };
+          projectMap[projId] = { project_id: projId, project_name: audit.project?.name || 'Audit Project', total: 0, internal: 0, external: 0 };
         }
         projectMap[projId].total += 1;
-        projectMap[projId].external += 1;
+        if (t.vendor_id) {
+          projectMap[projId].external += 1;
+        } else if (t.user_id) {
+          projectMap[projId].internal += 1;
+        }
 
         const month = auditDate.toLocaleString('default', { month: 'short', year: 'numeric' });
         if (!monthMap[month]) {
           monthMap[month] = { month, total: 0, internal: 0, external: 0 };
         }
         monthMap[month].total += 1;
-        monthMap[month].external += 1;
+        if (t.vendor_id) {
+          monthMap[month].external += 1;
+        } else if (t.user_id) {
+          monthMap[month].internal += 1;
+        }
       });
 
       return {
