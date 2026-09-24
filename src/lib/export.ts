@@ -20,13 +20,21 @@ export function exportToCSV(data: Record<string, any>[], filename: string) {
 
 export async function exportToExcel(
   data: Record<string, any>[],
-  columns: { header: string; key: string; width: number }[],
-  filename: string
+  columns?: { header: string; key: string; width: number }[],
+  filename: string = 'export.xlsx'
 ) {
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet('Export');
 
-  sheet.columns = columns;
+  const resolvedColumns = (columns && columns.length > 0)
+    ? columns
+    : Object.keys(data[0] || {}).map(key => ({
+        header: key,
+        key: key,
+        width: Math.max(16, key.length + 6)
+      }));
+
+  sheet.columns = resolvedColumns;
   
   // Style header row
   const headerRow = sheet.getRow(1);
@@ -42,7 +50,7 @@ export async function exportToExcel(
   // Add auto filter
   sheet.autoFilter = {
     from: { row: 1, column: 1 },
-    to: { row: 1, column: columns.length }
+    to: { row: 1, column: resolvedColumns.length }
   };
 
   // Add data

@@ -5,7 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { useBillingMetrics } from '@/hooks/useBillingMetrics';
-import Papa from 'papaparse';
+import { exportToCSV, exportToExcel } from '@/lib/export';
+import { format } from 'date-fns';
 
 export function BillingPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
@@ -34,11 +35,7 @@ export function BillingPage() {
             onChange={(start, end) => setDateRange({ start, end })} 
           />
           <ExportButton 
-            onExport={(format) => {
-              if (format !== 'csv') {
-                alert('Only CSV export is supported right now.');
-                return;
-              }
+            onExport={async (exportFormat) => {
               const exportData = externalResources.map(r => ({
                 'Audit': r.audit_name,
                 'Date': r.audit_date,
@@ -48,16 +45,22 @@ export function BillingPage() {
                 'Amount (INR)': r.amount
               }));
               
-              const csv = Papa.unparse(exportData);
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', `audit_expenses_${dateRange.start.toISOString().split('T')[0]}.csv`);
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }}
+              const filename = `audit_expenses_${format(dateRange.start, 'yyyy-MM-dd')}`;
+
+              if (exportFormat === 'csv') {
+                exportToCSV(exportData, `${filename}.csv`);
+              } else {
+                const columns = [
+                  { header: 'Audit', key: 'Audit', width: 26 },
+                  { header: 'Date', key: 'Date', width: 14 },
+                  { header: 'Resource Type', key: 'Resource Type', width: 18 },
+                  { header: 'Resource Name', key: 'Resource Name', width: 24 },
+                  { header: 'Role', key: 'Role', width: 18 },
+                  { header: 'Amount (INR)', key: 'Amount (INR)', width: 16 }
+                ];
+                await exportToExcel(exportData, columns, `${filename}.xlsx`);
+              }
+            }} 
           />
         </div>
       </div>

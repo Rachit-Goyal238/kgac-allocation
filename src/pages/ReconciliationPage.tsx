@@ -7,7 +7,7 @@ import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { subMonths, addMonths, format } from 'date-fns';
 import { Loader2, TrendingUp, TrendingDown, DollarSign, Building } from 'lucide-react';
-import Papa from 'papaparse';
+import { exportToCSV, exportToExcel } from '@/lib/export';
 
 export function ReconciliationPage() {
   const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
@@ -117,27 +117,39 @@ export function ReconciliationPage() {
             onChange={(start, end) => setDateRange({ start: start || dateRange.start, end: end || dateRange.end })} 
           />
           <ExportButton 
-            onExport={(exportFormat) => {
-              if (exportFormat !== 'csv' || !marginData) return;
-              const csv = Papa.unparse(marginData.map(d => ({
+            onExport={async (exportFormat) => {
+              if (!marginData || marginData.length === 0) return;
+              
+              const exportRows = marginData.map(d => ({
                 'Date': d.date,
                 'Client': d.client,
                 'Store': d.store,
                 'Status': d.status,
                 'Internal Staff': d.internalCount,
-                'Billing Revenue': d.billing,
-                'Team Cost': d.teamCost,
-                'Gross Margin': d.grossMargin,
+                'Billing Revenue (INR)': d.billing,
+                'Team Cost (INR)': d.teamCost,
+                'Gross Margin (INR)': d.grossMargin,
                 'Margin %': d.marginPercent.toFixed(1) + '%'
-              })));
-              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', `audit_margins_${format(dateRange.start, 'yyyy-MM-dd')}.csv`);
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
+              }));
+
+              const filename = `audit_margins_${format(dateRange.start, 'yyyy-MM-dd')}`;
+
+              if (exportFormat === 'csv') {
+                exportToCSV(exportRows, `${filename}.csv`);
+              } else {
+                const columns = [
+                  { header: 'Date', key: 'Date', width: 14 },
+                  { header: 'Client', key: 'Client', width: 22 },
+                  { header: 'Store', key: 'Store', width: 24 },
+                  { header: 'Status', key: 'Status', width: 14 },
+                  { header: 'Internal Staff', key: 'Internal Staff', width: 16 },
+                  { header: 'Billing Revenue (INR)', key: 'Billing Revenue (INR)', width: 22 },
+                  { header: 'Team Cost (INR)', key: 'Team Cost (INR)', width: 18 },
+                  { header: 'Gross Margin (INR)', key: 'Gross Margin (INR)', width: 20 },
+                  { header: 'Margin %', key: 'Margin %', width: 14 }
+                ];
+                await exportToExcel(exportRows, columns, `${filename}.xlsx`);
+              }
             }}
           />
         </div>

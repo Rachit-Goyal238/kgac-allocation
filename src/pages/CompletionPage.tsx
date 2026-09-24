@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
+import { ExportButton } from '@/components/shared/ExportButton';
+import { exportToCSV, exportToExcel } from '@/lib/export';
 import { format } from 'date-fns';
 import { CheckCircle2, Clock, AlertTriangle, XCircle, ListTodo, TrendingUp } from 'lucide-react';
 
@@ -101,6 +103,37 @@ export function CompletionPage() {
             startDate={dateRange.start}
             endDate={dateRange.end}
             onChange={(start, end) => setDateRange({ start, end })}
+          />
+          <ExportButton
+            onExport={async (exportFormat) => {
+              if (!projects || projects.length === 0) return;
+              const exportRows = projects.map((p: any) => ({
+                'Project Name': p.name,
+                'Total Tasks': p.total,
+                'Completed': p.completed,
+                'In Progress': p.inProgress,
+                'Not Started': p.notStarted,
+                'Blocked': p.blocked,
+                'Completion %': p.total > 0 ? `${((p.completed / p.total) * 100).toFixed(1)}%` : '0%'
+              }));
+
+              const filename = `timesheet_completion_${format(dateRange.start, 'yyyy-MM-dd')}`;
+
+              if (exportFormat === 'csv') {
+                exportToCSV(exportRows, `${filename}.csv`);
+              } else {
+                const columns = [
+                  { header: 'Project Name', key: 'Project Name', width: 28 },
+                  { header: 'Total Tasks', key: 'Total Tasks', width: 14 },
+                  { header: 'Completed', key: 'Completed', width: 14 },
+                  { header: 'In Progress', key: 'In Progress', width: 14 },
+                  { header: 'Not Started', key: 'Not Started', width: 14 },
+                  { header: 'Blocked', key: 'Blocked', width: 14 },
+                  { header: 'Completion %', key: 'Completion %', width: 16 }
+                ];
+                await exportToExcel(exportRows, columns, `${filename}.xlsx`);
+              }
+            }}
           />
         </div>
       </div>
