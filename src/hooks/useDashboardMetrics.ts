@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { DashboardMetrics, IdleDayEntry, OverAllocationEntry, Profile, Allocation } from '@/lib/types';
 import { eachDayOfInterval, parseISO, format, getISOWeek, getYear } from 'date-fns';
+import { APP_LAUNCH_DATE } from '@/lib/constants';
 
 export function useDashboardMetrics(startDate: string, endDate: string, departmentId?: string, zone?: string) {
   return useQuery({
@@ -31,7 +32,8 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
       if (allocError) throw allocError;
 
       // Calculate all days and working days (Mon-Sat)
-      const days = eachDayOfInterval({ start: parseISO(startDate), end: parseISO(endDate) });
+      const rawDays = eachDayOfInterval({ start: parseISO(startDate), end: parseISO(endDate) });
+      const days = rawDays.filter(d => format(d, 'yyyy-MM-dd') >= APP_LAUNCH_DATE);
       const allDays = days.map(d => format(d, 'yyyy-MM-dd'));
       const workingDays = days.filter(d => d.getDay() !== 0).map(d => format(d, 'yyyy-MM-dd'));
 
@@ -85,6 +87,11 @@ export function useDashboardMetrics(startDate: string, endDate: string, departme
         const weeklyStats: Record<string, { capacity: number, hours: number }> = {};
 
         allDays.forEach(d => {
+          // Skip calculating metrics for dates before the app existed or before the user joined
+          const userJoinDate = p.created_at ? p.created_at.split('T')[0] : APP_LAUNCH_DATE;
+          const effectiveStartDate = userJoinDate > APP_LAUNCH_DATE ? userJoinDate : APP_LAUNCH_DATE;
+          if (d < effectiveStartDate) return;
+
           const { hours, status } = userAllocs[p.id][d];
           const dateObj = parseISO(d);
           const isWeekend = dateObj.getDay() === 0;
