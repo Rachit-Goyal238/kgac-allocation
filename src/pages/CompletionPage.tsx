@@ -5,8 +5,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { format } from 'date-fns';
+import { CheckCircle2, Clock, AlertTriangle, XCircle, ListTodo, TrendingUp } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280'];
+
+// Circular progress ring for completion %
+function ProgressRing({ pct }: { pct: number }) {
+  const r = 28;
+  const circ = 2 * Math.PI * r;
+  const fill = (pct / 100) * circ;
+  return (
+    <svg width={72} height={72} className="rotate-[-90deg]">
+      <circle cx={36} cy={36} r={r} strokeWidth={6} stroke="#e2e8f0" fill="none" />
+      <circle
+        cx={36} cy={36} r={r} strokeWidth={6} fill="none"
+        stroke="#10b981"
+        strokeDasharray={`${fill} ${circ}`}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dasharray 0.6s ease' }}
+      />
+    </svg>
+  );
+}
 
 export function CompletionPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
@@ -35,6 +55,7 @@ export function CompletionPage() {
   const blocked = allocations.filter(a => a.task_status === 'blocked').length;
   const pendingReview = allocations.filter(a => a.task_status === 'pending_review').length;
   const notStarted = allocations.filter(a => a.task_status === 'not_started').length;
+  const completionPct = total > 0 ? (completed / total) * 100 : 0;
 
   const pieData = [
     { name: 'Completed', value: completed },
@@ -64,29 +85,96 @@ export function CompletionPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Timesheet Completion & Status</h1>
-        <div className="flex gap-4">
-          <input 
-            type="text" 
-            placeholder="Filter by Zone..." 
-            className="border rounded p-2 text-sm max-w-[150px]"
-            value={zoneFilter} 
-            onChange={e => setZoneFilter(e.target.value)} 
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Timesheet Completion</h1>
+          <p className="text-sm text-slate-500 mt-0.5">Track task progress and surface anomalies across the team.</p>
+        </div>
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Filter by Zone..."
+            className="border rounded-lg px-3 py-2 text-sm bg-white shadow-sm w-36"
+            value={zoneFilter}
+            onChange={e => setZoneFilter(e.target.value)}
           />
-          <DateRangePicker 
-            startDate={dateRange.start} 
-            endDate={dateRange.end} 
-            onChange={(start, end) => setDateRange({ start, end })} 
+          <DateRangePicker
+            startDate={dateRange.start}
+            endDate={dateRange.end}
+            onChange={(start, end) => setDateRange({ start, end })}
           />
         </div>
       </div>
 
+      {/* Stat cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card><CardHeader><CardTitle>Total Tasks</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{total}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Completed %</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{total > 0 ? ((completed/total)*100).toFixed(1) : 0}%</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>In Progress</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{inProgress}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Blocked</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{blocked}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Pending Review</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{pendingReview}</p></CardContent></Card>
+        {/* Total Tasks */}
+        <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="absolute top-0 left-0 h-full w-1 rounded-l-xl bg-slate-400" />
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Total Tasks</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">{total}</p>
+            </div>
+            <span className="rounded-lg bg-slate-100 p-2">
+              <ListTodo className="h-5 w-5 text-slate-500" />
+            </span>
+          </div>
+        </div>
+
+        {/* Completed % — special ring card */}
+        <div className="relative overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-sm">
+          <div className="absolute top-0 left-0 h-full w-1 rounded-l-xl bg-emerald-500" />
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-emerald-600">Completed</p>
+              <p className="mt-2 text-3xl font-bold text-emerald-700">{completionPct.toFixed(1)}%</p>
+              <p className="text-xs text-emerald-600 mt-1">{completed}/{total} tasks</p>
+            </div>
+            <ProgressRing pct={completionPct} />
+          </div>
+        </div>
+
+        {/* In Progress */}
+        <div className="relative overflow-hidden rounded-xl border border-blue-200 bg-blue-50/60 p-5 shadow-sm">
+          <div className="absolute top-0 left-0 h-full w-1 rounded-l-xl bg-blue-500" />
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-blue-600">In Progress</p>
+              <p className="mt-2 text-3xl font-bold text-blue-700">{inProgress}</p>
+            </div>
+            <span className="rounded-lg bg-blue-100 p-2">
+              <Clock className="h-5 w-5 text-blue-500" />
+            </span>
+          </div>
+        </div>
+
+        {/* Blocked */}
+        <div className="relative overflow-hidden rounded-xl border border-red-200 bg-red-50/60 p-5 shadow-sm">
+          <div className="absolute top-0 left-0 h-full w-1 rounded-l-xl bg-red-500" />
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-red-600">Blocked</p>
+              <p className="mt-2 text-3xl font-bold text-red-700">{blocked}</p>
+            </div>
+            <span className="rounded-lg bg-red-100 p-2">
+              <XCircle className="h-5 w-5 text-red-500" />
+            </span>
+          </div>
+        </div>
+
+        {/* Pending Review */}
+        <div className="relative overflow-hidden rounded-xl border border-amber-200 bg-amber-50/60 p-5 shadow-sm">
+          <div className="absolute top-0 left-0 h-full w-1 rounded-l-xl bg-amber-500" />
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-amber-600">Pending Review</p>
+              <p className="mt-2 text-3xl font-bold text-amber-700">{pendingReview}</p>
+            </div>
+            <span className="rounded-lg bg-amber-100 p-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
