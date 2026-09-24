@@ -226,6 +226,8 @@
   body {
     @apply antialiased tracking-tight;
     background-color: #fafafa; /* zinc-50 */
+    background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
+    background-size: 24px 24px;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tighter;
