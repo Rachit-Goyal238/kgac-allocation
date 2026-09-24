@@ -39,7 +39,7 @@ export function AllocationGrid() {
   const dates = data?.gridRows[0]?.cells.map(c => c.date) || [];
 
   return (
-    <div className="flex flex-col h-full bg-white relative">
+    <div className="flex flex-col h-full bg-white relative rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5">
       <GridToolbar 
         filters={filters} 
         onFiltersChange={setFilters} 
@@ -77,7 +77,7 @@ export function AllocationGrid() {
             {data?.gridRows.map(row => (
               <tr key={row.user.id} className="border-b group hover:bg-slate-50">
                 <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-4 py-3 border-r flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold overflow-hidden shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-100 font-bold overflow-hidden shrink-0 shadow-sm">
                     {row.user.avatar_url ? (
                       <img src={row.user.avatar_url} alt={row.user.full_name} className="w-full h-full object-cover" />
                     ) : (

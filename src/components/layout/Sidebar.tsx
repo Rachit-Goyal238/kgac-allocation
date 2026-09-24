@@ -53,7 +53,7 @@ export function Sidebar({ onClose }: SidebarProps) {
   const isClientHead = hasRole(roles, 'client_head');
 
   return (
-    <div className="flex h-full flex-col border-r bg-white">
+    <div className="flex h-full flex-col border-r border-slate-200/60 bg-white/95 backdrop-blur-sm">
       <div className="flex h-16 items-center px-6 gap-3">
         <img src="/logo.png" alt="KGAC Logo" className="h-8 w-auto object-contain" />
         <h2 className="text-lg font-bold tracking-tight text-gray-900">

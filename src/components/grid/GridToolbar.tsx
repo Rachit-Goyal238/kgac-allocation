@@ -40,7 +40,7 @@ export function GridToolbar({ filters, onFiltersChange, onExport }: GridToolbarP
   const currentStart = parseISO(filters.dateRange?.start || new Date().toISOString());
 
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white border-b sticky top-0 z-20">
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-white/70 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-10 ring-1 ring-slate-900/5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] rounded-t-xl mx-0">
       <div className="flex items-center gap-2">
         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => {
           const { start, end } = getPreviousWeekRange(currentStart);

@@ -44,7 +44,7 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-4 shadow-sm md:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200/50 bg-white/70 px-4 backdrop-blur-md shadow-[0_2px_20px_-4px_rgba(0,0,0,0.05)] md:px-6">
       <div className="flex items-center">
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetTrigger asChild>
