@@ -8,15 +8,15 @@ DROP POLICY IF EXISTS "Allow authenticated users to delete vendor rates" ON publ
 
 CREATE POLICY "Allow admins to insert vendor rates" 
 ON public.vendor_rates FOR INSERT 
-WITH CHECK (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+WITH CHECK (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 CREATE POLICY "Allow admins to update vendor rates" 
 ON public.vendor_rates FOR UPDATE 
-USING (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 CREATE POLICY "Allow admins to delete vendor rates" 
 ON public.vendor_rates FOR DELETE 
-USING (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 -- internal_assets: Only admins/super_admins can modify, anyone can select
 DROP POLICY IF EXISTS "Allow authenticated users to insert internal assets" ON public.internal_assets;
@@ -25,15 +25,15 @@ DROP POLICY IF EXISTS "Allow authenticated users to delete internal assets" ON p
 
 CREATE POLICY "Allow admins to insert internal assets" 
 ON public.internal_assets FOR INSERT 
-WITH CHECK (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+WITH CHECK (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 CREATE POLICY "Allow admins to update internal assets" 
 ON public.internal_assets FOR UPDATE 
-USING (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 CREATE POLICY "Allow admins to delete internal assets" 
 ON public.internal_assets FOR DELETE 
-USING (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 -- asset_requests: Users can insert their own, managers/admins can update/delete
 DROP POLICY IF EXISTS "Allow authenticated users to insert asset requests" ON public.asset_requests;
@@ -46,8 +46,8 @@ WITH CHECK (auth.role() = 'authenticated' AND user_id = auth.uid());
 
 CREATE POLICY "Allow admins to update asset requests" 
 ON public.asset_requests FOR UPDATE 
-USING (auth.role() = 'authenticated' AND (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND has_any_role(ARRAY['admin', 'super_admin']));
 
 CREATE POLICY "Allow users to delete their own pending asset requests" 
 ON public.asset_requests FOR DELETE 
-USING (auth.role() = 'authenticated' AND (user_id = auth.uid() AND status = 'pending') OR (get_auth_role() = 'admin' OR get_auth_role() = 'super_admin'));
+USING (auth.role() = 'authenticated' AND ((user_id = auth.uid() AND status = 'pending') OR has_any_role(ARRAY['admin', 'super_admin'])));
