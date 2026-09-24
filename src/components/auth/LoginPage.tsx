@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Loader2, Mail, Lock, User } from 'lucide-react';
+import { Loader2, KeyRound, Lock, User } from 'lucide-react';
 
 export function LoginPage() {
-  const { user, isLoading, signInWithGoogle, signInWithEmailPassword, signUpWithEmailPassword } = useAuthContext();
+  const { user, isLoading, signInWithGoogle, signInWithUsername, signUpWithUsername } = useAuthContext();
   
-  const [loginMethod, setLoginMethod] = useState<'google' | 'email'>('google');
+  const [loginMethod, setLoginMethod] = useState<'google' | 'username'>('google');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,20 +28,20 @@ export function LoginPage() {
     return <Navigate to="/" replace />;
   }
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handleUsernameSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!username || !password) return;
     if (isSignUp && !fullName) return;
     
     setIsSubmitting(true);
     try {
       if (isSignUp) {
-        await signUpWithEmailPassword(email, password, fullName);
+        await signUpWithUsername(username, password, fullName);
         // Automatically switch to sign in after successful sign up
         setIsSignUp(false);
         setPassword('');
       } else {
-        await signInWithEmailPassword(email, password);
+        await signInWithUsername(username, password);
       }
     } catch (error) {
       // Error is handled in the hook
@@ -90,17 +90,17 @@ export function LoginPage() {
             </div>
 
             <Button
-              onClick={() => { setLoginMethod('email'); setIsSignUp(false); }}
+              onClick={() => { setLoginMethod('username'); setIsSignUp(false); }}
               className="w-full py-6 text-lg font-medium text-slate-700 hover:text-slate-900 bg-slate-50 border border-slate-200"
               variant="secondary"
             >
-              <Mail className="mr-2 h-5 w-5" />
-              Email & Password
+              <KeyRound className="mr-2 h-5 w-5" />
+              Username & Password
             </Button>
           </div>
         ) : (
           <div className="space-y-4">
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <form onSubmit={handleUsernameSubmit} className="space-y-4">
               {isSignUp && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
@@ -120,16 +120,16 @@ export function LoginPage() {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
+                    id="username"
+                    type="text"
+                    placeholder="johndoe123"
                     className="pl-9"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                 </div>

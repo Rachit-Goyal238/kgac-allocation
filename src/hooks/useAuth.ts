@@ -130,9 +130,11 @@ export function useAuth() {
     }
   };
 
-  const signInWithEmailPassword = async (email: string, password: string) => {
+  const signInWithUsername = async (username: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      // Supabase requires an email format, so we append a hidden local domain to the username
+      const authEmail = `${username.trim().toLowerCase()}@kgac.local`;
+      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
       if (error) throw error;
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
@@ -145,14 +147,16 @@ export function useAuth() {
     }
   };
 
-  const signUpWithEmailPassword = async (email: string, password: string, fullName: string) => {
+  const signUpWithUsername = async (username: string, password: string, fullName: string) => {
     try {
+      const authEmail = `${username.trim().toLowerCase()}@kgac.local`;
       const { error } = await supabase.auth.signUp({ 
-        email, 
+        email: authEmail, 
         password,
         options: {
           data: {
             full_name: fullName,
+            is_username_user: true
           }
         }
       });
@@ -164,5 +168,5 @@ export function useAuth() {
     }
   };
 
-  return { user, profile, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp, signOut, signInWithEmailPassword, signUpWithEmailPassword };
+  return { user, profile, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp, signOut, signInWithUsername, signUpWithUsername };
 }
