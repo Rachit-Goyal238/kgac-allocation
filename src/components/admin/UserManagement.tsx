@@ -12,6 +12,10 @@ import { PendingApprovals } from '@/components/admin/PendingApprovals';
 import { CSVUploader } from '@/components/admin/CSVUploader';
 import { ROLE_LABELS } from '@/lib/constants';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
+import { Trash2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export function UserManagement() {
   const [search, setSearch] = useState('');
@@ -21,6 +25,22 @@ export function UserManagement() {
   const { data: profiles, isLoading: profilesLoading } = useProfiles();
   const { data: departments = [], isLoading: deptsLoading } = useDepartments();
   const updateProfile = useUpdateProfile();
+  const queryClient = useQueryClient();
+
+  const deleteUser = useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase.rpc('delete_user_by_admin', { target_user_id: userId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('User permanently deleted');
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error('Failed to delete user');
+    }
+  });
 
   // Removed legacy profile edit dialog since all users are internal and vendors are managed in Planner
   
@@ -222,10 +242,23 @@ export function UserManagement() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className={profile.status === 'active' ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'}
+                        className={profile.status === 'active' ? 'text-amber-600 hover:text-amber-700 hover:bg-amber-50' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50'}
                         onClick={() => handleStatusChange(profile.id, profile.status === 'active' ? 'inactive' : 'active')}
                       >
                         {profile.status === 'active' ? 'Deactivate' : 'Activate'}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 px-2"
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to completely erase ${profile.full_name || profile.email} from the database? This cannot be undone.`)) {
+                            deleteUser.mutate(profile.id);
+                          }
+                        }}
+                        disabled={deleteUser.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
