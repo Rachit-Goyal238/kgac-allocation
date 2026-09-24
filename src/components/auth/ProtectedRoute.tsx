@@ -28,6 +28,23 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
     return <Navigate to="/login" replace />;
   }
 
+  if (!profile) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-lg">
+          <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Session Expired</h2>
+          <p className="mb-8 text-gray-600">
+            Your account profile could not be found. It may have been deleted by an administrator. Please sign out and try logging in again.
+          </p>
+          <Button onClick={signOut} className="w-full bg-red-600 hover:bg-red-700">
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   if (profile && !profile.entity_selected) {
     return <EntitySelector />;
   }
@@ -90,9 +107,14 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
           <p className="mb-8 text-gray-600">
             You do not have permission to view this page.
           </p>
-          <Button onClick={() => window.history.back()} variant="outline" className="w-full">
-            Go Back
-          </Button>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => window.history.back()} variant="outline" className="w-full">
+              Go Back
+            </Button>
+            <Button onClick={signOut} variant="ghost" className="w-full text-gray-500">
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
     );
