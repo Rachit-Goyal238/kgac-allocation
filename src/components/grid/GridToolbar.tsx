@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { GridFilters } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Download, Calendar as CalendarIcon } from 'lucide-react';
@@ -14,17 +14,6 @@ interface GridToolbarProps {
 }
 
 export function GridToolbar({ filters, onFiltersChange, onExport }: GridToolbarProps) {
-  const [searchValue, setSearchValue] = useState(filters.searchQuery || '');
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchValue !== filters.searchQuery) {
-        onFiltersChange({ ...filters, searchQuery: searchValue });
-      }
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [searchValue, filters, onFiltersChange]);
-
   const handleDateChange = (start: Date, end: Date) => {
     onFiltersChange({
       ...filters,
@@ -71,8 +60,8 @@ export function GridToolbar({ filters, onFiltersChange, onExport }: GridToolbarP
           type="text" 
           placeholder="Search employees..." 
           className="border rounded px-3 py-1.5 text-sm flex-grow sm:w-64"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
+          value={filters.searchQuery || ''}
+          onChange={(e) => onFiltersChange({ ...filters, searchQuery: e.target.value })}
         />
       </div>
       

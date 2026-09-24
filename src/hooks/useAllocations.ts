@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Allocation, GridFilters, GridRow, Profile } from '@/lib/types';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -20,6 +20,7 @@ export function useAllocationsQuery(filters: GridFilters) {
   
   return useQuery({
     queryKey: ['allocations', filters, profile?.id],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       if (!profile) return { allocations: [], profiles: [], gridRows: [] };
       

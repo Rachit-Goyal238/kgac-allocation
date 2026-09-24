@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useDeferredValue } from 'react';
 import { useAllocationsQuery } from '@/hooks/useAllocations';
 import { useRealtimeAllocations } from '@/hooks/useRealtime';
 
@@ -26,7 +26,8 @@ export function AllocationGrid() {
     };
   });
 
-  const { data, isLoading } = useAllocationsQuery(filters);
+  const deferredFilters = useDeferredValue(filters);
+  const { data, isLoading } = useAllocationsQuery(deferredFilters);
   
   useRealtimeAllocations();
   useOfflineQueue();
