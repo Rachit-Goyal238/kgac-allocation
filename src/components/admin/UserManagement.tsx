@@ -169,7 +169,7 @@ export function UserManagement() {
                     </DropdownMenu>
                   </TableCell>
                   <TableCell>
-                    <Select value={profile.entity || 'none'} onValueChange={(v) => updateProfile.mutate({ id: profile.id, entity: (v === 'none' ? null : v) as any })}>
+                    <Select value={profile.entity || 'none'} onValueChange={(v) => updateProfile.mutate({ id: profile.id, entity: (v === 'none' ? null : v) as any, entity_selected: v !== 'none' })}>
                       <SelectTrigger className="w-[90px] h-8 text-xs"><SelectValue placeholder="Entity" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">None</SelectItem>
