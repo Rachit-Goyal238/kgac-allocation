@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { format, differenceInCalendarDays } from 'date-fns';
 import { AssetImportTool } from '@/components/admin/AssetImportTool';
 import { MyHeldAssets } from '@/components/assets/MyHeldAssets';
+import { AssetHistoryReport } from '@/components/assets/AssetHistoryReport';
 
 export function AssetsPage() {
   const { profile } = useAuthContext();
@@ -68,6 +69,7 @@ export function AssetsPage() {
           </TabsTrigger>
           <TabsTrigger value="my-requests">My Requests</TabsTrigger>
           {isManagerOrAdmin && <TabsTrigger value="approvals">Approvals</TabsTrigger>}
+          {isManagerOrAdmin && <TabsTrigger value="history">History & Reports</TabsTrigger>}
           {isManagerOrAdmin && <TabsTrigger value="manage">Manage Assets</TabsTrigger>}
         </TabsList>
 
@@ -83,6 +85,11 @@ export function AssetsPage() {
         {isManagerOrAdmin && (
           <TabsContent value="approvals" className="mt-0">
             <AssetApprovals />
+          </TabsContent>
+        )}
+        {isManagerOrAdmin && (
+          <TabsContent value="history" className="mt-0">
+            <AssetHistoryReport />
           </TabsContent>
         )}
         {isManagerOrAdmin && (
