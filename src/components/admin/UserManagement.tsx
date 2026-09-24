@@ -39,12 +39,20 @@ export function UserManagement() {
 
   const handleRoleToggle = (id: string, currentRoles: string[] | undefined, role: string) => {
     let newRoles = [...(currentRoles || [])];
+    
+    if (role === 'pending' && !newRoles.includes('pending')) {
+      updateProfile.mutate({ id, roles: ['pending'], status: 'pending' });
+      return;
+    }
+    
     if (newRoles.includes(role)) {
       newRoles = newRoles.filter(r => r !== role);
       if (newRoles.length === 0) newRoles = ['employee'];
     } else {
       newRoles.push(role);
+      newRoles = newRoles.filter(r => r !== 'pending');
     }
+    
     updateProfile.mutate({ id, roles: newRoles as any });
   };
 
