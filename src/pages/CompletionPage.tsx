@@ -15,10 +15,16 @@ export function CompletionPage() {
 
   useEffect(() => {
     const fetchAllocations = async () => {
-      let q = supabase.from('allocations').select('*, projects(name), profiles!inner(full_name, zone)').gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd')).lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+      let q = supabase.from('allocations').select('*, projects(name), profiles!inner(full_name, zone)')
+        .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
+        .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
       if (zoneFilter) q = q.ilike('profiles.zone', `%${zoneFilter}%`);
-      const { data } = await q;
-      if (data) setAllocations(data);
+      const { data, error } = await q;
+      if (error) {
+        console.error('Failed to fetch allocations:', error);
+      } else if (data) {
+        setAllocations(data);
+      }
     };
     fetchAllocations();
   }, [dateRange, zoneFilter]);

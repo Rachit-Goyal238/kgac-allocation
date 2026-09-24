@@ -29,6 +29,7 @@ export function useAuth() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
+        setIsLoading(true);
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
@@ -89,6 +90,7 @@ export function useAuth() {
       if (error) throw error;
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
+        setIsLoading(true);
         await fetchProfile(data.session.user.id);
       }
     } catch (error: any) {

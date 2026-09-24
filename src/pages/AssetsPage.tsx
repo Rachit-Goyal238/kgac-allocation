@@ -109,6 +109,9 @@ function MyAssetRequests({ userId }: { userId?: string }) {
       if (!userId || !assetId || !startDate) return;
       await supabase.from('asset_requests').insert([{ user_id: userId, asset_id: assetId, start_date: startDate, end_date: endDate || null, status: 'pending' }]);
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Action failed');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['asset_requests', userId] });
       toast.success('Request submitted');
@@ -189,6 +192,9 @@ function AssetApprovals() {
       await supabase.from('asset_requests').update({ status: 'approved' }).eq('id', id);
       await supabase.from('internal_assets').update({ status: 'in_use', assigned_to: userId }).eq('id', assetId);
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Action failed');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['asset_requests_all'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
@@ -200,6 +206,9 @@ function AssetApprovals() {
   const rejectRequest = useMutation({
     mutationFn: async (id: string) => {
       await supabase.from('asset_requests').update({ status: 'rejected' }).eq('id', id);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Action failed');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['asset_requests_all'] });
@@ -241,6 +250,9 @@ function ManageAssets() {
     mutationFn: async () => {
       await supabase.from('internal_assets').insert([{ ...newAsset, status: 'available' }]);
     },
+    onError: (error: any) => {
+      toast.error(error.message || 'Action failed');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
@@ -255,6 +267,9 @@ function ManageAssets() {
       await supabase.from('internal_assets').update({ status: 'available', assigned_to: null }).eq('id', id);
       // also mark any ongoing requests as completed
       await supabase.from('asset_requests').update({ status: 'returned' }).eq('asset_id', id).eq('status', 'approved');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Action failed');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });

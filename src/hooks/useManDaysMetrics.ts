@@ -17,16 +17,18 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         query = query.ilike('profiles.zone', `%${zoneFilter}%`);
       }
       
-      const { data: allocations } = await query;
+      const { data: allocations, error: allocError } = await query;
+      if (allocError) throw allocError;
 
       // Also fetch external vendor assignments from audit_teams
-      const { data: vendorTeams } = await supabase
+      const { data: vendorTeams, error: vendorError } = await supabase
         .from('audit_teams')
         .select(`
           id, vendor_id, role,
           audit:audits(id, audit_date, project_id, project:projects(name))
         `)
         .not('vendor_id', 'is', null);
+      if (vendorError) throw vendorError;
 
       let totalManDays = 0;
       let internalManDays = 0;

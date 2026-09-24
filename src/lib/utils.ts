@@ -105,13 +105,19 @@ export function isOverAllocated(allocation: Allocation | null): boolean {
 export function hasRole(userRoles: UserRole[] | undefined, requiredRole: UserRole): boolean {
   if (!userRoles || !Array.isArray(userRoles)) return false;
   if (userRoles.includes('super_admin')) return true;
+  
+  // Admin implicitly has manager permissions
+  if (userRoles.includes('admin') && requiredRole === 'manager') return true;
+  // Everyone implicitly has employee permissions (if needed)
+  if (requiredRole === 'employee') return true;
+  
   return userRoles.includes(requiredRole);
 }
 
 export function hasAnyRole(userRoles: UserRole[] | undefined, requiredRoles: UserRole[]): boolean {
   if (!userRoles || !Array.isArray(userRoles)) return false;
   if (userRoles.includes('super_admin')) return true;
-  return requiredRoles.some(role => userRoles.includes(role));
+  return requiredRoles.some(role => hasRole(userRoles, role));
 }
 
 // ─── Misc ────────────────────────────────────────────────────────────────────

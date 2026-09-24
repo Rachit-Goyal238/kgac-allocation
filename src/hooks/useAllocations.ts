@@ -172,7 +172,8 @@ export function useSaveDayAllocations() {
          throw new Error('Cannot overwrite a leave day from the grid.');
       }
 
-      await supabase.from('allocations').delete().eq('user_id', userId).eq('allocation_date', date);
+      const { error: deleteError } = await supabase.from('allocations').delete().eq('user_id', userId).eq('allocation_date', date);
+      if (deleteError) throw deleteError;
       
       if (allocations.length > 0) {
         const toInsert = allocations.map((a: any) => {

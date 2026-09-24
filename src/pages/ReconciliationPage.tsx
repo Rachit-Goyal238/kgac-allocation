@@ -13,7 +13,7 @@ export function ReconciliationPage() {
   const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
   const [zoneFilter, setZoneFilter] = useState('');
 
-  const { data: marginData, isLoading } = useQuery({
+  const { data: marginData, isLoading, isError } = useQuery({
     queryKey: ['auditMargins', dateRange, zoneFilter],
     queryFn: async () => {
       const startStr = format(dateRange.start, 'yyyy-MM-dd');
@@ -92,6 +92,9 @@ export function ReconciliationPage() {
   }, { revenue: 0, cost: 0, margin: 0 }) || { revenue: 0, cost: 0, margin: 0 };
 
   const overallMarginPercent = totals.revenue > 0 ? (totals.margin / totals.revenue) * 100 : 0;
+
+  if (isLoading) return <div className="p-8 flex justify-center text-slate-500">Loading reconciliation data...</div>;
+  if (isError) return <div className="p-8 flex justify-center text-red-500">Failed to load reconciliation data. Please try again.</div>;
 
   return (
     <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-auto">
@@ -196,9 +199,11 @@ export function ReconciliationPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {marginData?.map((audit) => (
+                {marginData?.map((audit) => {
+                  const auditDate = audit.date ? new Date(audit.date) : null;
+                  return (
                   <TableRow key={audit.id}>
-                    <TableCell className="whitespace-nowrap">{format(new Date(audit.date), 'MMM d, yyyy')}</TableCell>
+                    <TableCell className="whitespace-nowrap">{auditDate && !isNaN(auditDate.getTime()) ? format(auditDate, 'MMM d, yyyy') : 'N/A'}</TableCell>
                     <TableCell>
                       <div className="font-medium text-slate-900">{audit.client}</div>
                       <div className="text-xs text-slate-500">{audit.store}</div>
@@ -211,7 +216,8 @@ export function ReconciliationPage() {
                       <div className="text-xs text-slate-500">{audit.marginPercent.toFixed(1)}%</div>
                     </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
                 {marginData?.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">

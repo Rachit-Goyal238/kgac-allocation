@@ -12,9 +12,10 @@ export function ManDaysPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(new Date().getFullYear(), new Date().getMonth(), 1), end: new Date() });
   const [zoneFilter, setZoneFilter] = useState('');
   const [showBreakdown, setShowBreakdown] = useState(false);
-  const { data, isLoading } = useManDaysMetrics(dateRange, zoneFilter);
+  const { data, isLoading, isError } = useManDaysMetrics(dateRange, zoneFilter);
 
-  if (isLoading || !data) return <div className="p-8">Loading man-days data...</div>;
+  if (isLoading) return <div className="p-8 flex justify-center text-slate-500">Loading man-days data...</div>;
+  if (isError || !data) return <div className="p-8 flex justify-center text-red-500">Failed to load data. Please try again.</div>;
 
   const { totalManDays, internalManDays, externalManDays, byProject, byMonth } = data;
 

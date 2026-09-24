@@ -75,8 +75,8 @@ export function AllocationGrid() {
           </thead>
           <tbody>
             {data?.gridRows.map(row => (
-              <tr key={row.user.id} className="border-b hover:bg-slate-50">
-                <td className="sticky left-0 z-10 bg-white px-4 py-3 border-r flex items-center gap-3">
+              <tr key={row.user.id} className="border-b group hover:bg-slate-50">
+                <td className="sticky left-0 z-10 bg-white group-hover:bg-slate-50 px-4 py-3 border-r flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold overflow-hidden shrink-0">
                     {row.user.avatar_url ? (
                       <img src={row.user.avatar_url} alt={row.user.full_name} className="w-full h-full object-cover" />

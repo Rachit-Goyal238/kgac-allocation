@@ -36,6 +36,9 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     if (!profile) return false;
     if (profile.roles?.some(r => ['super_admin', 'admin', 'manager', 'audit_manager', 'planner'].includes(r))) return true;
     
+    // Regular employees can only edit their own allocations
+    if (profile.id !== userId) return false;
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const cellDate = parseISO(date);

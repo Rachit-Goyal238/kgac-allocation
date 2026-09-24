@@ -75,6 +75,7 @@ export interface Allocation {
   task_status: TaskStatus;
   notes: string | null;
   last_edited_by: string | null;
+  audit_id?: string;
   updated_at: string;
   created_at: string;
 }
@@ -332,6 +333,7 @@ export interface InternalAsset {
   name: string;
   type: string;
   status: 'available' | 'in_use' | 'maintenance';
+  serial_number?: string;
   assigned_to: string | null;
   notes: string | null;
   created_at: string;
@@ -343,7 +345,7 @@ export interface AssetRequest {
   user_id: string;
   start_date: string;
   end_date: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'returned';
   manager_id: string | null;
   created_at: string;
   updated_at: string;

@@ -45,8 +45,21 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
     );
   }
 
-  if (profile && !profile.entity_selected) {
-    return <EntitySelector />;
+  if (profile?.status === 'inactive') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-lg">
+          <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-red-500" />
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Account Deactivated</h2>
+          <p className="mb-8 text-gray-600">
+            Your account has been deactivated by an administrator. Please contact IT or HR for assistance.
+          </p>
+          <Button onClick={signOut} variant="outline" className="w-full">
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (profile?.status === 'pending') {
@@ -66,21 +79,8 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
     );
   }
 
-  if (profile?.status === 'inactive') {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-lg">
-          <AlertTriangle className="mx-auto mb-4 h-16 w-16 text-red-500" />
-          <h2 className="mb-2 text-2xl font-bold text-gray-900">Account Deactivated</h2>
-          <p className="mb-8 text-gray-600">
-            Your account has been deactivated by an administrator. Please contact IT or HR for assistance.
-          </p>
-          <Button onClick={signOut} variant="outline" className="w-full">
-            Sign Out
-          </Button>
-        </div>
-      </div>
-    );
+  if (profile && !profile.entity_selected) {
+    return <EntitySelector />;
   }
 
   const hasAccess = () => {
