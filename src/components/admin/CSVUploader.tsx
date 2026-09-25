@@ -23,13 +23,11 @@ export function CSVUploader() {
       complete: (result) => {
         const validated = result.data.map((row: any, index: number) => {
           const rowData = row as any;
-          const email = rowData.Email || rowData.email;
+          const employee_id = rowData['Employee ID'] || rowData.employee_id;
           const name = rowData.Name || rowData.full_name;
-          const role = (rowData.Role || rowData.role || '').toLowerCase();
           const errors = [];
           
-          if (!email) errors.push('Email is required');
-          else if (!/^\S+@\S+\.\S+$/.test(email)) errors.push('Invalid email format');
+          if (!employee_id) errors.push('Employee ID is required');
           if (!name) errors.push('Name is required');
           
           return {
@@ -53,13 +51,11 @@ export function CSVUploader() {
       const profiles = validRows.map(r => {
         const rowData = r.data as any;
         return {
-          email: rowData.Email || rowData.email,
+          employee_id: rowData['Employee ID'] || rowData.employee_id,
           full_name: rowData.Name || rowData.full_name,
-          roles: [(rowData.Role || rowData.role || 'employee').toLowerCase() as UserRole],
-          department_id: rowData.Department || rowData.department_id || 'engineering',
-          entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase() as any,
-          zone: rowData.Zone || rowData.zone || null,
-          status: 'active' as const
+          role: (rowData.Role || rowData.role || 'employee').toLowerCase(),
+          department_id: rowData.Department || rowData.department_id || null,
+          entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase()
         };
       });
       await bulkInsert(profiles);
@@ -121,7 +117,7 @@ export function CSVUploader() {
                     {r.isValid ? <Check className="h-4 w-4 text-emerald-600" /> : <X className="h-4 w-4 text-red-600" />}
                   </div>
                   <div>
-                    <div className="font-medium">{(r.data as any).Name || (r.data as any).full_name || 'Missing Name'} ({(r.data as any).Email || (r.data as any).email || 'Missing Email'})</div>
+                    <div className="font-medium">{(r.data as any).Name || (r.data as any).full_name || 'Missing Name'} ({(r.data as any)['Employee ID'] || (r.data as any).employee_id || 'Missing ID'})</div>
                     {!r.isValid && (
                       <div className="text-red-600 text-xs mt-1">
                         {r.errors.join(', ')}

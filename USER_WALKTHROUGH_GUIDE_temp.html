@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KGAC Master Guide</title>
+  <style>
+    
+@page {
+    size: A4;
+    margin: 18mm 15mm 20mm 15mm;
+    @bottom-right {
+        content: "Page " counter(page);
+    }
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+    line-height: 1.6;
+    font-size: 13px;
+    background: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+}
+
+h1 {
+    font-size: 24px;
+    color: #0f172a;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 18px;
+    color: #1e3a8a;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 5px;
+    margin-top: 28px;
+}
+
+h3 {
+    font-size: 15px;
+    color: #334155;
+    margin-top: 20px;
+}
+
+h4 {
+    font-size: 13.5px;
+    color: #475569;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 0.8em;
+}
+
+strong {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 18px 0;
+    font-size: 12px;
+    page-break-inside: auto;
+}
+
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+}
+
+tr:nth-child(even) {
+    background-color: #f8fafc;
+}
+
+ul, ol {
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-left: 24px;
+}
+
+li {
+    margin-bottom: 4px;
+}
+
+blockquote {
+    margin: 14px 0;
+    padding: 10px 16px;
+    border-left: 4px solid #3b82f6;
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-radius: 0 6px 6px 0;
+    page-break-inside: avoid;
+}
+
+blockquote p {
+    margin: 0;
+}
+
+.alert-note {
+    border-left-color: #3b82f6;
+    background-color: #eff6ff;
+    color: #1e40af;
+}
+
+.alert-tip {
+    border-left-color: #10b981;
+    background-color: #f0fdf4;
+    color: #065f46;
+}
+
+.alert-important {
+    border-left-color: #8b5cf6;
+    background-color: #f5f3ff;
+    color: #5b21b6;
+}
+
+.alert-warning {
+    border-left-color: #f59e0b;
+    background-color: #fffbeb;
+    color: #92400e;
+}
+
+code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    background-color: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+}
+
+pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 14px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    overflow-x: auto;
+    page-break-inside: avoid;
+}
+
+pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+    border: none;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    margin: 12px 0;
+    display: block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    page-break-inside: avoid;
+}
+
+.caption {
+    font-size: 11px;
+    color: #64748b;
+    text-align: center;
+    margin-top: -6px;
+    margin-bottom: 14px;
+    font-style: italic;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.badge-green { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.badge-blue { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-amber { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-red { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.badge-purple { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+.badge-gray { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+
+.header-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    padding: 24px 20px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+.header-banner h1 {
+    color: #ffffff;
+    border-bottom: none;
+    margin: 0;
+    font-size: 22px;
+}
+.header-banner p {
+    color: #94a3b8;
+    margin: 6px 0 0 0;
+    font-size: 12.5px;
+}
+
+.footer-meta {
+    margin-top: 30px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 11px;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+}
+
+.page-break {
+    page-break-before: always;
+}
+
+.screenshot-placeholder {
+    border: 2px dashed #94a3b8;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    text-align: center;
+    page-break-inside: avoid;
+}
+.screenshot-placeholder .placeholder-badge {
+    font-weight: 700;
+    font-size: 12px;
+    color: #1e3a8a;
+    background-color: #dbeafe;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+.screenshot-placeholder .placeholder-desc {
+    font-size: 11px;
+    color: #64748b;
+    font-family: monospace;
+}
+.screenshot-container {
+    margin: 14px 0;
+    page-break-inside: avoid;
+    text-align: center;
+}
+
+    .mermaid {
+        text-align: center;
+        margin: 10px 0;
+        page-break-inside: avoid;
+    }
+    .mermaid svg {
+        max-height: 450px !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: 100% !important;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  </script>
+</head>
+<body>
+  <h1>Kumar Aggarwal Gaurav and Co. Team Allocation &amp; Operations Platform</h1>
+<h1>Master User Walkthrough Guide &amp; Operating Manual</h1>
+<blockquote class="alert-note"><strong>NOTE:</strong> This master manual serves as the definitive reference document for all operations across **Kumar Aggarwal Gaurav and Co.** and **KGAC Pvt Ltd.**. It documents all 11 user roles, system navigation, daily workflows, equipment lifecycle management, financial reconciliations, and universal data exports.</blockquote>
+
+<hr />
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-platform-architecture--multi-entity-framework">Platform Architecture &amp; Multi-Entity Framework</a></li>
+<li><a href="#2-master-roles--permissions-matrix">Master Roles &amp; Permissions Matrix</a></li>
+<li><a href="#3-universal-onboarding-login-registration--profile">Universal Onboarding: Login, Registration &amp; Profile</a></li>
+<li><a href="#4-internal-asset-lifecycle--hardware-custody-protocol">Internal Asset Lifecycle &amp; Hardware Custody Protocol</a></li>
+<li><a href="#5-role-by-role-operating-guides">Role-by-Role Operating Guides</a><br />
+   - <a href="#51-employee--field-auditor">5.1 Employee / Field Auditor</a><br />
+   - <a href="#52-audit-executive-field-team-lead">5.2 Audit Executive (Field Team Lead)</a><br />
+   - <a href="#53-audit-manager">5.3 Audit Manager</a><br />
+   - <a href="#54-operations--department-manager">5.4 Operations / Department Manager</a><br />
+   - <a href="#55-audit-planner--scheduler">5.5 Audit Planner &amp; Scheduler</a><br />
+   - <a href="#56-backend-staff--data-verification">5.6 Backend Staff &amp; Data Verification</a><br />
+   - <a href="#57-client-head--account-lead">5.7 Client Head &amp; Account Lead</a><br />
+   - <a href="#58-human-resources-hr">5.8 Human Resources (HR)</a><br />
+   - <a href="#59-finance-specialist-margins--billing">5.9 Finance Specialist (Margins &amp; Billing)</a><br />
+   - <a href="#510-system-administrator">5.10 System Administrator</a><br />
+   - <a href="#511-super-administrator-platform-owner">5.11 Super Administrator (Platform Owner)</a></li>
+<li><a href="#6-universal-data-export-guide-csv--excel">Universal Data Export Guide (CSV &amp; Excel)</a></li>
+<li><a href="#7-troubleshooting--frequently-asked-questions">Troubleshooting &amp; Frequently Asked Questions</a></li>
+</ol>
+<hr />
+<h2>1. Platform Architecture &amp; Multi-Entity Framework</h2>
+<p>The Kumar Aggarwal Gaurav and Co. Platform is an enterprise resource planning and workforce management system engineered for high-volume retail audit operations, inventory verification, and team scheduling.</p>
+<p><div class="mermaid">
+graph TD
+    User([User Enters System]) --> Auth[Authentication & Entity Validation]
+    Auth --> RoleRouter{Assigned Role}
+    
+    RoleRouter -->|Employee / Exec| FieldOps[Calendar Logging & Field Audits]
+    RoleRouter -->|Audit / Dept Manager| MgmtOps[Planner, Approvals, Completion]
+    RoleRouter -->|Planner| PlanOps[CSV Import, Team Builder, Conflict Check]
+    RoleRouter -->|Client Head| ClientOps[Client Directory & Store Tracking]
+    RoleRouter -->|HR| HROps[Attendance 11-Col Export, Idle Audit]
+    RoleRouter -->|Finance| FinOps[Margins, Expense Billing, Man-Days]
+    RoleRouter -->|Admin / Super Admin| SysOps[Users, Rates, Audit Log, Command Center]
+    
+    FieldOps --> AssetHub[Internal Assets: Checkout & Return]
+    MgmtOps --> AssetHub
+    PlanOps --> AssetHub
+    SysOps --> AssetHub
+</div></p>
+<h3>Supported Entities</h3>
+<ul>
+<li><strong>Kumar Aggarwal Gaurav and Co.:</strong> Primarily handles domestic corporate statutory audits, inventory counts, and consulting engagements.</li>
+<li><strong>KGAC Pvt Ltd.:</strong> Manages enterprise retail store audits, third-party logistics counts, and contracted workforce operations.</li>
+</ul>
+<p>Upon first login, team members confirm their assigned entity. All time allocations, billing rates, and client contracts track back to the correct balance sheet.</p>
+<hr />
+<h2>2. Master Roles &amp; Permissions Matrix</h2>
+<p>The platform defines 11 specific roles. Each role is tailored to exact operational responsibilities:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Module / Feature</th>
+<th style="text-align: center;">Employee</th>
+<th style="text-align: center;">Audit Exec</th>
+<th style="text-align: center;">Audit Mgr</th>
+<th style="text-align: center;">Dept Mgr</th>
+<th style="text-align: center;">Planner</th>
+<th style="text-align: center;">Backend</th>
+<th style="text-align: center;">Client Head</th>
+<th style="text-align: center;">HR</th>
+<th style="text-align: center;">Finance</th>
+<th style="text-align: center;">Admin</th>
+<th style="text-align: center;">Super Admin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Personal Timesheet Grid</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Department Calendar Oversight</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Upcoming Audits Dashboard</strong></td>
+<td style="text-align: center;">Own</td>
+<td style="text-align: center;">Lead</td>
+<td style="text-align: center;">All</td>
+<td style="text-align: center;">Dept</td>
+<td style="text-align: center;">All</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">Client</td>
+<td style="text-align: center;">All</td>
+<td style="text-align: center;">All</td>
+<td style="text-align: center;">All</td>
+<td style="text-align: center;">All</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Asset Borrow &amp; Return</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Asset Return Confirmation</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Leave Application</strong></td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Leave Approvals</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Audit Planner &amp; Team Builder</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Client CSV Import</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Timesheet Completion Tracker</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Attendance 11-Col Export</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">Dept</td>
+<td style="text-align: center;">Dept</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Audit Margins &amp; Billing</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Vendor Contractor Rates</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>User &amp; Role Provisioning</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">View</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Audit Trail Inspection</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Command Center Telemetry</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>3. Universal Onboarding: Login, Registration &amp; Access Approval</h2>
+<p>The Kumar Aggarwal Gaurav and Co. platform provides multiple secure authentication pathways depending on your organizational setup.</p>
+<p><div class="mermaid">
+graph TD
+    Start([Visit Login Portal]) --> AuthChoice{Choose Sign-In Method}
+    AuthChoice -->|Google SSO| GoogleOAuth[Click 'Sign in with Google']
+    AuthChoice -->|Credentials| UserPass[Click 'Username & Password']
+    AuthChoice -->|New User| SignUp[Click 'Don't have an account? Sign up']
+    
+    SignUp --> CreateAcc[Enter Full Name, Username & Password]
+    CreateAcc --> UserPass
+    
+    GoogleOAuth --> StatusCheck{Account Status}
+    UserPass --> StatusCheck
+    
+    StatusCheck -->|Status: Pending| PendingScreen[Account Pending Approval Screen]
+    StatusCheck -->|Status: Active, Entity Missing| EntityModal[Entity Selector: Kumar Aggarwal Gaurav and Co. or KGAC Pvt Ltd.]
+    StatusCheck -->|Status: Active, Configured| AppHome[Personal Dashboard & Allocation Calendar]
+    
+    PendingScreen --> AdminReview[Admin assigns Role, Dept & Entity in /admin/users]
+    AdminReview --> AppHome
+    EntityModal --> AppHome
+</div></p>
+<hr />
+<h3>3.1 Method 1: Sign in with Google (Recommended Single Sign-On)</h3>
+<p>If your organization uses Google Workspace:<br />
+1. Navigate to the login portal: <code>https://kgac-allocation.vercel.app</code> (or your company intranet link).<br />
+2. On the main landing screen, click the <strong>"Sign in with Google"</strong> button.<br />
+3. A Google authentication popup will appear. Select your corporate Google email account (e.g., <code>firstname.lastname@kgac.in</code>).<br />
+4. If this is your first time logging in, your account will be provisioned in the directory and will route to the <strong>Account Pending Approval</strong> screen awaiting administrative assignment.<br />
+5. If your account is already active, you will be directed straight to the platform.</p>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS01A_login_google.png" alt="SS01A: Initial Login Screen with Google SSO" /><div class="caption">SS01A: Initial Login Screen with Google SSO</div></div>
+
+<hr />
+<h3>3.2 Method 2: Sign in with Username &amp; Password</h3>
+<p>If you have been provisioned with standard platform credentials:<br />
+1. On the main login page, click <strong>"Username &amp; Password"</strong> below the divider.<br />
+2. The view switches to the credential sign-in form.<br />
+3. Enter your assigned <strong>Username</strong> (e.g., <code>rahul.sharma</code> or <code>employee_id</code>).<br />
+<br />
+<blockquote class="alert-note"><strong>NOTE:</strong> You do not need to append `@kgac-users.com` or any email domain. Enter only your base username.</blockquote></p>
+<ol start="4">
+<li>Enter your <strong>Password</strong>.</li>
+<li>Click <strong>Sign In</strong>.</li>
+</ol>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS01B_login_username.png" alt="SS01B: Username and Password Sign In Form" /><div class="caption">SS01B: Username and Password Sign In Form</div></div>
+
+<hr />
+<h3>3.3 Method 3: Self-Registration (Create User / Sign Up Page)</h3>
+<p>If you are a new team member who does not yet have credentials:<br />
+1. On the main login screen, click <strong>"Username &amp; Password"</strong>.<br />
+2. Below the form, click the link: <strong>"Don't have an account? Sign up"</strong>.<br />
+3. The form title updates to <strong>"Create a new account"</strong>.<br />
+4. Fill in the required fields:<br />
+   - <strong>Full Name:</strong> Enter your official legal name (e.g., <code>Ananya Patel</code>).<br />
+   - <strong>Username:</strong> Choose your unique company username (e.g., <code>ananya.patel</code> or <code>emp1045</code>).<br />
+   - <strong>Password:</strong> Enter a secure password (minimum 6 characters).<br />
+5. Click the primary button: <strong>"Create Account"</strong>.<br />
+6. Upon successful registration, the form will automatically toggle back to the Sign In screen with your username preserved. Enter your password and click <strong>Sign In</strong>.</p>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS01C_create_account.png" alt="SS01C: Create User / Sign Up Form" /><div class="caption">SS01C: Create User / Sign Up Form</div></div>
+
+<hr />
+<h3>3.4 Account Pending Approval State &amp; Administrator Verification</h3>
+<p>To safeguard organizational data and audit integrity, newly created accounts cannot access client schedules, internal assets, or audit records until verified by an Administrator.</p>
+<ol>
+<li>When a new user logs in for the first time after self-registering or via Google SSO, the system displays the <strong>Account Pending Approval</strong> screen:<br />
+   - Displays a prominent <strong>Yellow Clock Icon</strong>.<br />
+   - Heading: <strong>"Account Pending Approval"</strong>.<br />
+   - Notice: <em>"Your account is awaiting admin approval. You'll receive access once approved."</em><br />
+   - Includes a <strong>"Sign Out"</strong> button.</li>
+</ol>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS01D_account_pending_approval.png" alt="SS01D: Account Pending Approval Screen" /><div class="caption">SS01D: Account Pending Approval Screen</div></div>
+
+<ol start="2">
+<li><strong>Administrator Verification Workflow:</strong><br />
+   - An authorized Administrator or Super Administrator navigates to <strong>Users &amp; Roles</strong> (<code>/admin/users</code>) -&gt; <strong>Pending Approvals</strong> tab.<br />
+   - The admin inspects the user's name and email, and assigns:<ul>
+<li><strong>Functional Role:</strong> (e.g., <code>employee</code>, <code>audit_executive</code>, <code>manager</code>, <code>planner</code>, <code>hr</code>, etc.)</li>
+<li><strong>Department:</strong> (e.g., <em>Audit</em>, <em>Operations</em>, <em>Finance</em>)</li>
+<li><strong>Contractual Entity:</strong> (<strong>Kumar Aggarwal Gaurav and Co.</strong> or <strong>KGAC Pvt Ltd.</strong>)</li>
+<li><strong>Operational Zone:</strong> (North, South, East, West)</li>
+<li>The admin clicks <strong>Approve User</strong>.</li>
+</ul>
+</li>
+<li>Once approved, the user refreshes their browser or logs in again to access their role-specific dashboard.</li>
+</ol>
+<hr />
+<h3>3.5 Entity Confirmation (Kumar Aggarwal Gaurav and Co. vs KGAC Pvt Ltd.)</h3>
+<p>When logging in for the first time with an active account, if your corporate entity has not been locked:<br />
+1. The <strong>Entity Selector Modal</strong> will appear over the screen.<br />
+2. Select your designated operational legal entity:<br />
+   - <strong>Kumar Aggarwal Gaurav and Co. (K.G. Audit &amp; Consulting)</strong><br />
+   - <strong>KGAC Pvt Ltd. (K.G. Professional Logistics / Services)</strong><br />
+3. Click <strong>Confirm Selection</strong>.<br />
+4. Your choice is permanently associated with your profile, ensuring your logged hours, billing rates, and audit assignments flow to the correct company ledger.</p>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS02_entity_selector.png" alt="SS02: Entity Selector Dialog" /><div class="caption">SS02: Entity Selector Dialog</div></div>
+
+<hr />
+<h3>3.6 Profile Management &amp; Password Security</h3>
+<ol>
+<li>Click <strong>My Profile</strong> in the bottom-left navigation bar.</li>
+<li>View your profile summary:<br />
+   - Full Name, registered Email, assigned Department, and Zone.<br />
+   - Corporate Entity badge (<strong>Kumar Aggarwal Gaurav and Co.</strong> or <strong>KGAC Pvt Ltd.</strong>).<br />
+   - Functional Roles assigned to your account.</li>
+<li><strong>Changing Your Password:</strong><br />
+   - Enter your current password.<br />
+   - Enter your new password (minimum 8 characters with a mix of letters and numbers).<br />
+   - Confirm your new password and click <strong>Update Password</strong>.</li>
+<li><strong>Signing Out:</strong><br />
+   - To end your session, click the red <strong>Sign out</strong> button at the bottom of the sidebar.</li>
+</ol>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS03_profile_settings.png" alt="SS03: Profile Settings" /><div class="caption">SS03: Profile Settings</div></div>
+
+<hr />
+<h2>4. Internal Asset Lifecycle &amp; Hardware Custody Protocol</h2>
+<p>Field hardware custody follows a strict 4-step governance workflow:</p>
+<p><div class="mermaid">
+sequenceDiagram
+    participant Auditor
+    participant Manager
+    participant System
+
+    Auditor->>System: 1. Submit Equipment Request
+    Manager->>System: 2. Approve Request
+    Note over Auditor,System: Equipment in use
+    Auditor->>System: 3. Return Hardware
+    System-->>Auditor: Dashboard displays Awaiting Confirmation
+    Manager->>System: 4. Physical Inspection
+    System-->>Auditor: Liability cleared
+</div></p>
+<h3>Dashboard Asset Banners</h3>
+<ol>
+<li><strong>Overdue Return Warning Banner (Amber/Red):</strong> Appears when the expected return date has passed and the asset has not been marked as returned.</li>
+<li><strong>Awaiting Return Confirmation Banner (Blue):</strong> Appears once the employee marks the asset returned, remaining active until the manager verifies the item.</li>
+</ol>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS05_asset_overdue_banner.png" alt="SS05: Overdue Asset Banner" /><div class="caption">SS05: Overdue Asset Banner</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS06_asset_awaiting_confirmation_banner.png" alt="SS06: Awaiting Return Confirmation Banner" /><div class="caption">SS06: Awaiting Return Confirmation Banner</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS10_my_held_assets_tab.png" alt="SS10: My Held Assets Tab" /><div class="caption">SS10: My Held Assets Tab</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS18_asset_return_approvals.png" alt="SS18: Manager Confirm Return Action" /><div class="caption">SS18: Manager Confirm Return Action</div></div>
+
+<hr />
+<h2>5. Role-by-Role Operating Guides</h2>
+<h3>5.1 Employee / Field Auditor</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>employee</code></li>
+<li><strong>Primary Modules:</strong> <code>/calendar</code>, <code>/dashboard</code>, <code>/assets</code>, <code>/profile</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Open Dashboard daily to check assigned store locations under <strong>Upcoming Audits</strong>.<br />
+  2. Open Calendar and log 8 hours daily against the assigned client project code.<br />
+  3. Submit leave requests (<code>pto</code> or <code>sick</code>) prior to absences.<br />
+  4. Borrow required field scanners in Internal Assets, and click <strong>Mark as Returned</strong> in <em>My Held Assets</em> immediately upon physical handover to the manager.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS07_allocation_calendar.png" alt="SS07: Allocation Calendar Grid" /><div class="caption">SS07: Allocation Calendar Grid</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS08_log_hours_modal.png" alt="SS08: Log Hours Popover" /><div class="caption">SS08: Log Hours Popover</div></div>
+
+<hr />
+<h3>5.2 Audit Executive (Field Team Lead)</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>audit_executive</code></li>
+<li><strong>Primary Modules:</strong> <code>/calendar</code>, <code>/dashboard</code>, <code>/assets</code>, <code>/profile</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Review upcoming store teams on the dashboard 48 hours prior to audit launch.<br />
+  2. Lead on-site audit associates, ensuring all staff clock in on time.<br />
+  3. Keep the Audit Manager updated about any roadblocks or changes to the plan.<br />
+  4. Ensure on-site hardware is kept secure and return requests are submitted promptly post-audit.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS12_audit_executive_calendar.png" alt="SS12: Audit Executive Calendar" /><div class="caption">SS12: Audit Executive Calendar</div></div>
+
+<hr />
+<h3>5.3 Audit Manager</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>audit_manager</code></li>
+<li><strong>Primary Modules:</strong> <code>/calendar</code>, <code>/planner</code>, <code>/dashboard</code>, <code>/assets</code>, <code>/reconciliation</code>, <code>/completion</code>, <code>/billing</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Coordinate with planners to ensure store staffing targets are met.<br />
+  2. Review and approve pending leave requests in <strong>Leave Approvals</strong>.<br />
+  3. Inspect physical condition of returned hardware and click <strong>Confirm Return</strong> in Internal Assets.<br />
+  4. Monitor weekly task progress in <strong>Completion</strong> to track completed and blocked tasks.<br />
+  5. Analyze audit profitability (revenue vs labor/travel costs) in <strong>Audit Margins</strong>.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS18_asset_return_approvals.png" alt="SS18: Asset Return Approvals" /><div class="caption">SS18: Asset Return Approvals</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS19_leave_approvals_tab.png" alt="SS19: Leave Approvals Queue" /><div class="caption">SS19: Leave Approvals Queue</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS28_audit_margins_reconciliation.png" alt="SS28: Audit Margins Reconciliation" /><div class="caption">SS28: Audit Margins Reconciliation</div></div>
+
+<hr />
+<h3>5.4 Operations / Department Manager</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>manager</code></li>
+<li><strong>Primary Modules:</strong> <code>/calendar</code>, <code>/planner</code>, <code>/dashboard</code>, <code>/assets</code>, <code>/completion</code>, <code>/admin/projects</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Supervise weekly department allocations, using <strong>Copy Previous Week</strong> and <strong>Apply to Week</strong> for fast planning.<br />
+  2. Resolve idle days highlighted in red on the interactive calendar.<br />
+  3. Authorize gear requisitions and confirm returns for all department personnel.<br />
+  4. Configure department project codes and assign team members in Project Admin.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS17_manager_dashboard.png" alt="SS17: Manager Dashboard" /><div class="caption">SS17: Manager Dashboard</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS20_timesheet_completion_tracker.png" alt="SS20: Timesheet Completion Tracker" /><div class="caption">SS20: Timesheet Completion Tracker</div></div>
+
+<hr />
+<h3>5.5 Audit Planner &amp; Scheduler</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>planner</code></li>
+<li><strong>Primary Modules:</strong> <code>/planner</code>, <code>/calendar</code>, <code>/dashboard</code>, <code>/assets</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Ingest multi-store client schedules via <strong>CSV Import</strong>.<br />
+  2. Build audit teams using the <strong>Team Builder Modal</strong>, assigning Audit Executives and Field Auditors.<br />
+  3. Obey system conflict detection (flags double-booked auditors or auditors on approved leave in red).<br />
+  4. Allocate external vendor contractors when internal capacity is exhausted.<br />
+  5. Publish finalized rosters to push schedules to field calendars and dashboards.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS14_audit_planner_view.png" alt="SS14: Audit Planner View" /><div class="caption">SS14: Audit Planner View</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS15_audit_import_csv.png" alt="SS15: CSV Import Tool Dialog" /><div class="caption">SS15: CSV Import Tool Dialog</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS16_planner_team_builder.png" alt="SS16: Planner Team Builder Interface" /><div class="caption">SS16: Planner Team Builder Interface</div></div>
+
+<hr />
+<h3>5.6 Backend Staff &amp; Data Verification</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>backend_staff</code></li>
+<li><strong>Primary Modules:</strong> <code>/calendar</code>, <code>/dashboard</code>, <code>/assets</code>, <code>/profile</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Perform backoffice store count verification, discrepancy indexing, and document audit.<br />
+  2. Log 8 hours daily on the Calendar under dedicated backend or client support project codes.<br />
+  3. Check out test hardware when configuring scanners or testing barcodes.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS24_backend_calendar_verification.png" alt="SS24: Backend Calendar Verification" /><div class="caption">SS24: Backend Calendar Verification</div></div>
+
+<hr />
+<h3>5.7 Client Head &amp; Account Lead</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>client_head</code></li>
+<li><strong>Primary Modules:</strong> <code>/admin/clients</code>, <code>/planner</code>, <code>/calendar</code>, <code>/dashboard</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Maintain client master accounts, store network directories, and contract parameters in Client Admin.<br />
+  2. Monitor execution progress of client store audits across regions in the Audit Planner.<br />
+  3. Export client-specific progress summaries for stakeholder governance meetings.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS22_client_management_view.png" alt="SS22: Client Management View" /><div class="caption">SS22: Client Management View</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS23_client_store_audit_status.png" alt="SS23: Client Store Audit Status" /><div class="caption">SS23: Client Store Audit Status</div></div>
+
+<hr />
+<h3>5.8 Human Resources (HR)</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>hr</code></li>
+<li><strong>Primary Modules:</strong> <code>/man-days</code>, <code>/dashboard</code>, <code>/admin/users</code>, <code>/admin/departments</code>, <code>/assets</code>, <code>/calendar</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Audit company-wide idle days weekly on the Dashboard to ensure full labor utilization.<br />
+  2. Oversee employee master records and department assignments in User Admin.<br />
+  3. Export official monthly attendance files in <strong>CSV</strong> and <strong>Excel</strong> with the full 11 payroll columns.<br />
+  4. Audit central asset registries to ensure departing employees hold 0 unreturned assets.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS26_idle_days_report.png" alt="SS26: Idle Days Report Table" /><div class="caption">SS26: Idle Days Report Table</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS27_attendance_export_dialog.png" alt="SS27: Attendance Export Dialog" /><div class="caption">SS27: Attendance Export Dialog</div></div>
+
+<hr />
+<h3>5.9 Finance Specialist (Margins &amp; Billing)</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>finance</code></li>
+<li><strong>Primary Modules:</strong> <code>/reconciliation</code>, <code>/billing</code>, <code>/man-days</code>, <code>/calendar</code>, <code>/dashboard</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Reconcile audit margins in <strong>Reconciliation</strong>, verifying that audit fee revenue exceeds total direct labor and contractor costs.<br />
+  2. Review and approve field expense claims in <strong>Expense Billing</strong> and designate items as client-reimbursable.<br />
+  3. Cross-reference incoming vendor agency invoices with billable contractor days in <strong>Man-Days</strong>.<br />
+  4. Export financial summaries in CSV and Excel for accounting journal entries.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS28_audit_margins_reconciliation.png" alt="SS28: Audit Margins Reconciliation" /><div class="caption">SS28: Audit Margins Reconciliation</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS29_expense_billing_dashboard.png" alt="SS29: Expense Billing Dashboard" /><div class="caption">SS29: Expense Billing Dashboard</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS30_man_days_summary.png" alt="SS30: Man-Days Contractor Summary" /><div class="caption">SS30: Man-Days Contractor Summary</div></div>
+
+<hr />
+<h3>5.10 System Administrator</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>admin</code></li>
+<li><strong>Primary Modules:</strong> <code>/admin/users</code>, <code>/admin/departments</code>, <code>/admin/projects</code>, <code>/admin/vendors</code>, <code>/admin/clients</code>, <code>/admin/settings</code>, <code>/assets</code>.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Review new user registrations in <strong>Pending Approvals</strong>, assigning roles, departments, entities, and zones.<br />
+  2. Maintain department hierarchies and configure Department Managers.<br />
+  3. Configure external vendor agencies and negotiate daily contractor rate cards.<br />
+  4. Perform bulk equipment uploads using the Asset CSV Import Tool, and execute emergency asset reclaims.<br />
+  5. Configure company public holidays and core system settings.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS31_user_management_panel.png" alt="SS31: User Management Panel" /><div class="caption">SS31: User Management Panel</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS32_department_manager_panel.png" alt="SS32: Department Manager Panel" /><div class="caption">SS32: Department Manager Panel</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS33_vendor_rates_manager.png" alt="SS33: Vendor Rates Manager" /><div class="caption">SS33: Vendor Rates Manager</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS34_asset_bulk_import_reclaim.png" alt="SS34: Asset Bulk Import & Reclaim" /><div class="caption">SS34: Asset Bulk Import & Reclaim</div></div>
+
+<hr />
+<h3>5.11 Super Administrator (Platform Owner)</h3>
+<ul>
+<li><strong>Role Code:</strong> <code>super_admin</code></li>
+<li><strong>Primary Modules:</strong> <code>/admin/command-center</code>, <code>/admin/audit-log</code>, <code>/admin/database</code>, <code>/admin/roles</code>, plus unrestricted access to all platform routes.</li>
+<li><strong>Core Workflow:</strong><br />
+  1. Monitor platform health, database latency, and concurrent user sessions in the <strong>Command Center</strong>.<br />
+  2. Perform security forensic reviews of all system events and data changes in the <strong>Audit Log Viewer</strong>.<br />
+  3. Execute database maintenance routines (cache flush, table optimization, historical data archiving) in <strong>Database Maintenance</strong>.<br />
+  4. Authorize high-privilege administrative elevations in <strong>Role Alignment</strong>.</li>
+</ul>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS35_command_center.png" alt="SS35: Super Admin Command Center" /><div class="caption">SS35: Super Admin Command Center</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS36_audit_log_viewer.png" alt="SS36: Audit Log Viewer" /><div class="caption">SS36: Audit Log Viewer</div></div>
+<div class="screenshot-container"><img src="file:///C:/Users/Rachit Goyal/.gemini/antigravity/scratch/team-allocation-calendar/docs/screenshots/SS37_database_maintenance.png" alt="SS37: Database Maintenance Tools" /><div class="caption">SS37: Database Maintenance Tools</div></div>
+
+<hr />
+<h2>6. Universal Data Export Guide (CSV &amp; Excel)</h2>
+<p>All tabular data across the Kumar Aggarwal Gaurav and Co. platform supports one-click export in both <strong>CSV</strong> and <strong>Excel (.xlsx)</strong> formats.</p>
+<h3>Export Catalog &amp; Column Schemas</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Module</th>
+<th style="text-align: left;">Export Trigger</th>
+<th style="text-align: center;">Formats</th>
+<th style="text-align: left;">Included Columns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Attendance / Payroll</strong></td>
+<td style="text-align: left;">Man-Days / Dashboard</td>
+<td style="text-align: center;">CSV, Excel</td>
+<td style="text-align: left;"><code>Employee ID</code>, <code>Name</code>, <code>Email</code>, <code>Department</code>, <code>Entity</code>, <code>Total Days</code>, <code>Working Days</code>, <code>Allocated Days</code>, <code>Idle Days</code>, <code>PTO Days</code>, <code>Sick Days</code> (11 Columns)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Asset History</strong></td>
+<td style="text-align: left;">Internal Assets -&gt; Reports</td>
+<td style="text-align: center;">CSV, Excel</td>
+<td style="text-align: left;"><code>Asset ID</code>, <code>Code</code>, <code>Name</code>, <code>Category</code>, <code>Entity</code>, <code>Borrower Name</code>, <code>Borrow Date</code>, <code>Expected Return</code>, <code>Actual Return</code>, <code>Confirmed By</code>, <code>Status</code>, <code>Overdue Days</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Timesheet Completion</strong></td>
+<td style="text-align: left;">Completion Page</td>
+<td style="text-align: center;">CSV, Excel</td>
+<td style="text-align: left;"><code>Project Name</code>, <code>Total Tasks</code>, <code>Completed</code>, <code>In Progress</code>, <code>Not Started</code>, <code>Blocked</code>, <code>Completion %</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Audit Margins</strong></td>
+<td style="text-align: left;">Reconciliation Page</td>
+<td style="text-align: center;">CSV, Excel</td>
+<td style="text-align: left;"><code>Audit ID</code>, <code>Client Name</code>, <code>Store Code</code>, <code>Entity</code>, <code>Contract Revenue</code>, <code>Labor Cost</code>, <code>Contractor Cost</code>, <code>Expenses</code>, <code>Gross Margin (₹)</code>, <code>Margin %</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>System Audit Log</strong></td>
+<td style="text-align: left;">Super Admin Audit Log</td>
+<td style="text-align: center;">CSV, Excel</td>
+<td style="text-align: left;"><code>Timestamp</code>, <code>Actor Username</code>, <code>Action Type</code>, <code>Target Entity</code>, <code>Target Record ID</code>, <code>Changes (Previous vs New JSON Diff)</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>7. Troubleshooting &amp; Frequently Asked Questions</h2>
+<h3>Q1: Why does my Calendar cell show a red "IDLE" label?</h3>
+<p><strong>A:</strong> A weekday has been left with 0 logged hours. Click on the cell, select your project code, enter 8 hours, and click Save.</p>
+<h3>Q2: Why does my Dashboard have an amber banner saying "Equipment Overdue"?</h3>
+<p><strong>A:</strong> The scheduled return date for company hardware in your custody has passed. Hand the item back to your manager and click <strong>"Mark as Returned"</strong> in the <em>My Held Assets</em> tab.</p>
+<h3>Q3: Why does my Dashboard have a blue banner saying "Awaiting Return Confirmation"?</h3>
+<p><strong>A:</strong> You clicked "Mark as Returned". The blue banner remains until your Department Manager physically inspects the device and clicks <strong>Confirm Return</strong> in the system.</p>
+<h3>Q4: Why am I getting a "Double-Booked" conflict when scheduling an auditor?</h3>
+<p><strong>A:</strong> The auditor is already allocated to another store audit during the same date range. You must pick an alternate auditor or adjust the audit dates.</p>
+<h3>Q5: Can an auditor belong to both Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd.?</h3>
+<p><strong>A:</strong> Every employee has a primary legal entity for timesheet and payroll purposes. However, Administrators can allocate personnel across projects owned by either entity when cross-charging is authorized.</p>
+  <div class="footer-meta">
+    <span>KGAC Operations & Allocation Platform</span>
+    <span>Internal Operating Manual</span>
+  </div>
+</body>
+</html>

@@ -86,78 +86,71 @@ The platform defines 11 specific roles. Each role is tailored to exact operation
 
 ## 3. Universal Onboarding: Login, Registration & Access Approval
 
-The Kumar Aggarwal Gaurav and Co. platform provides multiple secure authentication pathways depending on your organizational setup.
+The platform strictly uses an Employee ID-based authentication flow driven by HR payroll data.
 
 ```mermaid
 graph TD
-    Start([Visit Login Portal]) --> AuthChoice{Choose Sign-In Method}
-    AuthChoice -->|Google SSO| GoogleOAuth[Click 'Sign in with Google']
-    AuthChoice -->|Credentials| UserPass[Click 'Username & Password']
-    AuthChoice -->|New User| SignUp[Click 'Don't have an account? Sign up']
+    Start([Visit Login Portal]) --> AuthChoice{Action}
+    AuthChoice -->|Existing Account| UserPass[Enter Employee ID & Password]
+    AuthChoice -->|First Time| Claim[Click 'Claim your account']
+    AuthChoice -->|Forgot Password| Reset[Click 'Forgot Password?']
     
-    SignUp --> CreateAcc[Enter Full Name, Username & Password]
+    Claim --> CreateAcc[Enter Employee ID, Personal Email, Password]
     CreateAcc --> UserPass
     
-    GoogleOAuth --> StatusCheck{Account Status}
-    UserPass --> StatusCheck
+    UserPass --> StatusCheck{Account Status}
     
     StatusCheck -->|Status: Pending| PendingScreen[Account Pending Approval Screen]
     StatusCheck -->|Status: Active, Entity Missing| EntityModal[Entity Selector: Kumar Aggarwal Gaurav and Co. or KGAC Pvt Ltd.]
     StatusCheck -->|Status: Active, Configured| AppHome[Personal Dashboard & Allocation Calendar]
     
-    PendingScreen --> AdminReview[Admin assigns Role, Dept & Entity in /admin/users]
+    PendingScreen --> AdminReview[Admin assigns Role in /admin/users]
     AdminReview --> AppHome
     EntityModal --> AppHome
 ```
 
 ---
 
-### 3.1 Method 1: Sign in with Google (Recommended Single Sign-On)
-If your organization uses Google Workspace:
-1. Navigate to the login portal: `https://kgac-allocation.vercel.app` (or your company intranet link).
-2. On the main landing screen, click the **"Sign in with Google"** button.
-3. A Google authentication popup will appear. Select your corporate Google email account (e.g., `firstname.lastname@kgac.in`).
-4. If this is your first time logging in, your account will be provisioned in the directory and will route to the **Account Pending Approval** screen awaiting administrative assignment.
-5. If your account is already active, you will be directed straight to the platform.
+### 3.1 First-Time Setup (Claiming your Account)
+Before you can log in, you must claim the account that HR has provisioned for you.
+1. Navigate to the login portal.
+2. Click the link at the bottom: **"First time here? Claim your account"**.
+3. Fill in the required fields:
+   - **Employee ID:** Enter your unique HR-provided ID (e.g., `KGAC-105`).
+   - **Personal Email:** Enter your Gmail or Outlook email (used securely for password resets).
+   - **Create Password:** Enter a secure password (minimum 6 characters).
+4. Click **"Claim Account"**.
+5. Once claimed, you will be redirected to the main login screen.
 
-![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
-
----
-
-### 3.2 Method 2: Sign in with Username & Password
-If you have been provisioned with standard platform credentials:
-1. On the main login page, click **"Username & Password"** below the divider.
-2. The view switches to the credential sign-in form.
-3. Enter your assigned **Username** (e.g., `rahul.sharma` or `employee_id`).
-   > [!NOTE]
-   > You do not need to append `@kgac-users.com` or any email domain. Enter only your base username.
-4. Enter your **Password**.
-5. Click **Sign In**.
-
-![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
+![SS01_claim_account](../screenshots/SS01_claim_account.png)
 
 ---
 
-### 3.3 Method 3: Self-Registration (Create User / Sign Up Page)
-If you are a new team member who does not yet have credentials:
-1. On the main login screen, click **"Username & Password"**.
-2. Below the form, click the link: **"Don't have an account? Sign up"**.
-3. The form title updates to **"Create a new account"**.
-4. Fill in the required fields:
-   - **Full Name:** Enter your official legal name (e.g., `Ananya Patel`).
-   - **Username:** Choose your unique company username (e.g., `ananya.patel` or `emp1045`).
-   - **Password:** Enter a secure password (minimum 6 characters).
-5. Click the primary button: **"Create Account"**.
-6. Upon successful registration, the form will automatically toggle back to the Sign In screen with your username preserved. Enter your password and click **Sign In**.
+### 3.2 Routine Login (Employee ID)
+For day-to-day access:
+1. On the main login page, enter your assigned **Employee ID** (e.g., `KGAC-105`).
+2. Enter your **Password**.
+3. Click **Sign In**.
 
-![SS01C: Create User / Sign Up Form](../screenshots/SS01C_create_account.png)
+![SS02_login](../screenshots/SS02_login.png)
+
+---
+
+### 3.3 Forgot Password
+If you forget your password:
+1. Click **"Forgot Password?"** on the login screen.
+2. Enter your **Employee ID**.
+3. Click **"Send Reset Link"**.
+4. A secure reset link will be sent to the personal email address you provided during setup.
+
+![SS03_forgot_password](../screenshots/SS03_forgot_password.png)
 
 ---
 
 ### 3.4 Account Pending Approval State & Administrator Verification
-To safeguard organizational data and audit integrity, newly created accounts cannot access client schedules, internal assets, or audit records until verified by an Administrator.
+To safeguard organizational data and audit integrity, some newly created accounts may not access client schedules until verified by an Administrator (if not pre-verified via CSV import).
 
-1. When a new user logs in for the first time after self-registering or via Google SSO, the system displays the **Account Pending Approval** screen:
+1. The system displays the **Account Pending Approval** screen:
    - Displays a prominent **Yellow Clock Icon**.
    - Heading: **"Account Pending Approval"**.
    - Notice: *"Your account is awaiting admin approval. You'll receive access once approved."*

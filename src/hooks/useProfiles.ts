@@ -54,15 +54,16 @@ export function useBulkInsertProfiles() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (profiles: Partial<Profile>[]) => {
-      const { error } = await supabase.from('profiles').insert(profiles);
+    mutationFn: async (profiles: any[]) => {
+      // Use the new secure RPC to insert placeholder auth users and profiles
+      const { error } = await supabase.rpc('bulk_import_employees', { employees: profiles });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profiles'] });
       toast.success('Users imported successfully');
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast.error(`Import failed: ${error.message}`);
     }
   });

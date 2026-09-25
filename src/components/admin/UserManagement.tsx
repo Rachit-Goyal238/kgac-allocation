@@ -131,6 +131,7 @@ export function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>User</TableHead>
+              <TableHead>Emp ID</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Entity</TableHead>
               <TableHead>Department</TableHead>
@@ -157,9 +158,12 @@ export function UserManagement() {
                       </div>
                       <div>
                         <div className="font-medium">{profile.full_name}</div>
-                        <div className="text-xs text-muted-foreground">{profile.email}</div>
+                        <div className="text-xs text-muted-foreground">{profile.personal_email || profile.email}</div>
                       </div>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm font-medium">{profile.employee_id || '-'}</span>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

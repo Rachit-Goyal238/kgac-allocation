@@ -56,49 +56,6 @@ export function useAuth() {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin + '/auth/callback',
-          queryParams: {
-            prompt: 'select_account',
-          },
-        },
-      });
-      if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in');
-    }
-  };
-
-  const signInWithPhone = async (phone: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({ phone });
-      if (error) throw error;
-      toast.success('OTP sent to ' + phone);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to send OTP');
-      throw error;
-    }
-  };
-
-  const verifyOtp = async (phone: string, token: string) => {
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
-      if (error) throw error;
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        setIsLoading(true);
-        await fetchProfile(data.session.user.id);
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to verify OTP');
-      throw error;
-    }
-  };
-
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -110,32 +67,19 @@ export function useAuth() {
     }
   };
 
-  const signInWithEmail = async (email: string) => {
+  const signIn = async (employeeId: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithOtp({ email });
-      if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message);
-      throw error;
-    }
-  };
+      // 1. Fetch real email using RPC
+      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_employee_id', {
+        p_employee_id: employeeId.trim()
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      if (!email) throw new Error('Employee ID not found or account not claimed yet.');
 
-  const verifyEmailOtp = async (email: string, token: string) => {
-    try {
-      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+      // 2. Sign in with standard password auth
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message);
-      throw error;
-    }
-  };
-
-  const signInWithUsername = async (username: string, password: string) => {
-    try {
-      // Supabase requires an email format, so we append a hidden domain to the username
-      const authEmail = `${username.trim().toLowerCase()}@kgac-users.com`;
-      const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
-      if (error) throw error;
+      
       setUser(data.session?.user ?? null);
       if (data.session?.user) {
         setIsLoading(true);
@@ -147,26 +91,44 @@ export function useAuth() {
     }
   };
 
-  const signUpWithUsername = async (username: string, password: string, fullName: string) => {
+  const claimAccount = async (employeeId: string, personalEmail: string, password: string) => {
     try {
-      const authEmail = `${username.trim().toLowerCase()}@kgac-users.com`;
-      const { error } = await supabase.auth.signUp({ 
-        email: authEmail, 
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            is_username_user: true
-          }
-        }
+      const { error } = await supabase.rpc('claim_employee_account', {
+        p_employee_id: employeeId.trim(),
+        p_personal_email: personalEmail.trim().toLowerCase(),
+        p_password: password
       });
+      
       if (error) throw error;
-      toast.success('Account created! Please sign in.');
+      
+      toast.success('Account claimed successfully! Please sign in.');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to sign up');
+      toast.error(error.message || 'Failed to claim account');
+      throw error;
+    }
+  };
+  
+  const resetPassword = async (employeeId: string) => {
+    try {
+      // 1. Fetch real email using RPC
+      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_employee_id', {
+        p_employee_id: employeeId.trim()
+      });
+      if (rpcError) throw new Error(rpcError.message);
+      if (!email) throw new Error('Employee ID not found or account not claimed yet.');
+
+      // 2. Trigger standard password reset
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/auth/reset-password',
+      });
+      
+      if (error) throw error;
+      toast.success('Password reset link sent to your personal email!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset password');
       throw error;
     }
   };
 
-  return { user, profile, isLoading, signInWithGoogle, signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp, signOut, signInWithUsername, signUpWithUsername };
+  return { user, profile, isLoading, signOut, signIn, claimAccount, resetPassword };
 }
