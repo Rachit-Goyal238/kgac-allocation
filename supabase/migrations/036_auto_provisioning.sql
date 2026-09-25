@@ -90,7 +90,7 @@ BEGIN
     SET employee_id = emp.employee_id,
         username = v_username,
         personal_email = emp.personal_email,
-        role = COALESCE(emp.role, 'employee'),
+        roles = ARRAY[COALESCE(emp.role, 'employee')],
         department_id = emp.department_id,
         entity = COALESCE(emp.entity, 'KGAC'),
         status = 'active'
@@ -124,7 +124,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM profiles 
     WHERE id = auth.uid() 
-    AND (role = 'admin' OR role = 'super_admin')
+    AND ('admin' = ANY(roles) OR 'super_admin' = ANY(roles))
   ) THEN
     RAISE EXCEPTION 'Unauthorized: Only admins can reset passwords.';
   END IF;
