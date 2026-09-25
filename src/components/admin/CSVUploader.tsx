@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { UploadCloud, Download, Check, X, Loader2, Copy } from 'lucide-react';
 import { SAMPLE_CSV_CONTENT } from '@/lib/constants';
 import { CSVValidationResult } from '@/lib/types';
-import { useBulkInsertProfiles } from '@/hooks/useProfiles';
+import { useBulkInsertProfiles, useDepartments } from '@/hooks/useProfiles';
 import { toast } from 'sonner';
 
 export function CSVUploader() {
@@ -14,6 +14,7 @@ export function CSVUploader() {
   const [results, setResults] = useState<CSVValidationResult[]>([]);
   const [generatedCredentials, setGeneratedCredentials] = useState<any[] | null>(null);
   const { mutateAsync: bulkInsert, isPending } = useBulkInsertProfiles();
+  const { data: departments } = useDepartments();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -29,11 +30,21 @@ export function CSVUploader() {
           const firstName = rowData['First Name'] || rowData.first_name;
           const lastName = rowData['Last Name'] || rowData.last_name;
           const personalEmail = rowData['Personal Email'] || rowData.personal_email;
+          const deptName = rowData.Department || rowData.department_id;
           const errors = [];
           
           if (!employee_id) errors.push('Employee ID is required');
           if (!firstName) errors.push('First Name is required');
           if (!lastName) errors.push('Last Name is required');
+          
+          if (deptName && departments) {
+            const matchedDept = departments.find(d => d.name.toLowerCase() === deptName.toLowerCase());
+            if (!matchedDept) {
+              // It might be a raw UUID, check that too
+              const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deptName);
+              if (!isUuid) errors.push(`Department '${deptName}' not found`);
+            }
+          }
           
           return {
             row: index + 1,
@@ -45,7 +56,7 @@ export function CSVUploader() {
         setResults(validated);
       }
     });
-  }, []);
+  }, [departments]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'text/csv': ['.csv'] } });
 
@@ -55,21 +66,30 @@ export function CSVUploader() {
     try {
       const profiles = validRows.map(r => {
         const rowData = r.data as any;
+        const deptName = rowData.Department || rowData.department_id || null;
+        let deptId = deptName;
+        
+        if (deptName && departments) {
+          const matchedDept = departments.find(d => d.name.toLowerCase() === deptName.toLowerCase());
+          if (matchedDept) deptId = matchedDept.id;
+        }
+
         return {
           employee_id: rowData['Employee ID'] || rowData.employee_id,
           first_name: rowData['First Name'] || rowData.first_name,
           last_name: rowData['Last Name'] || rowData.last_name,
           personal_email: rowData['Personal Email'] || rowData.personal_email || null,
           role: (rowData.Role || rowData.role || 'employee').toLowerCase(),
-          department_id: rowData.Department || rowData.department_id || null,
+          department_id: deptId,
           entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase()
         };
       });
       
       const responseData = await bulkInsert(profiles);
       setGeneratedCredentials(responseData);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      toast.error(err.message || 'Import failed');
     }
   };
 
