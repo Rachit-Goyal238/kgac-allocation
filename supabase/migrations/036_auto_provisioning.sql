@@ -163,3 +163,4 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
+NOTIFY pgrst, 'reload schema';
