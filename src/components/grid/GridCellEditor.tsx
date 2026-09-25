@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Allocation, Project, TaskStatus } from '@/lib/types';
 import { useSaveDayAllocations } from '@/hooks/useAllocations';
 import { TASK_STATUS_LABELS } from '@/lib/constants';
@@ -80,7 +80,7 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
   const isBlockedByLeave = hasLeave && !isManagerOrAdmin;
 
   return (
-    <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 w-80 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
+    <div className="fixed inset-x-4 top-1/4 sm:inset-auto sm:absolute sm:top-14 sm:left-1/2 sm:-translate-x-1/2 z-50 sm:w-80 bg-white rounded-lg shadow-xl border p-4 flex flex-col gap-3 whitespace-normal">
       <div className="font-semibold text-sm">Edit Allocations ({date})</div>
       
       {isBlockedByLeave ? (
@@ -182,3 +182,4 @@ export function GridCellEditor({ date, userId, allocations, projects, onSave, on
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import React, { useState, useDeferredValue } from 'react';
+﻿import React, { useState, useDeferredValue } from 'react';
 import { useAllocationsQuery } from '@/hooks/useAllocations';
 import { useRealtimeAllocations } from '@/hooks/useRealtime';
 
@@ -53,7 +53,7 @@ export function AllocationGrid() {
         <table className="w-full text-sm text-left whitespace-nowrap">
           <thead className="bg-slate-50 sticky top-0 z-10">
             <tr>
-              <th className="sticky left-0 z-20 bg-slate-50 px-4 py-3 font-medium text-slate-600 border-b border-r w-64 min-w-[16rem]">
+              <th className="sticky left-0 z-20 bg-slate-50 px-4 py-3 font-medium text-slate-600 border-b border-r w-40 md:w-64 min-w-[10rem] md:min-w-[16rem]">
                 Employee
               </th>
               {dates.map(dateStr => {
@@ -89,7 +89,7 @@ export function AllocationGrid() {
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-slate-900 truncate">{row.user.full_name}</span>
                       </div>
-                    <span className="text-xs text-slate-500 truncate">{row.user.roles?.[0] || 'Audit Exec'}</span>
+                    <span className="text-xs text-slate-500 truncate hidden md:block">{row.user.roles?.[0] || 'Audit Exec'}</span>
                   </div>
                 </td>
                 {row.cells.map(cell => (
@@ -120,3 +120,5 @@ export function AllocationGrid() {
     </div>
   );
 }
+
+

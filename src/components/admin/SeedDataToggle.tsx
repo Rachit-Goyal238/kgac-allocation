@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Database, Trash2 } from 'lucide-react';
@@ -58,3 +58,4 @@ export function SeedDataToggle() {
     </Card>
   );
 }
+

@@ -1,4 +1,4 @@
-import { Profile, UserRole } from '@/lib/types';
+﻿import { Profile, UserRole } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -41,3 +41,4 @@ export function PendingApprovals({ profiles, onApprove, onReject }: PendingAppro
     </Card>
   );
 }
+

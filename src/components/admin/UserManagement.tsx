@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useProfiles, useUpdateProfile, useDepartments } from '@/hooks/useProfiles';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -127,7 +127,7 @@ export function UserManagement() {
 
       <PendingApprovals profiles={pendingProfiles} onApprove={handleApprove} onReject={(id) => handleStatusChange(id, 'inactive')} />
 
-      <div className="rounded-md border bg-card">
+      <div className="rounded-md border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -279,3 +279,5 @@ export function UserManagement() {
     </div>
   );
 }
+
+
