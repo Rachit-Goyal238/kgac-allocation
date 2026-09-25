@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION public.bulk_import_employees(employees jsonb)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-AS $$$
+AS $$
 DECLARE
   emp record;
   new_uid uuid;
@@ -49,7 +49,7 @@ BEGIN
     WHERE id = new_uid;
   END LOOP;
 END;
-$$$;
+$$;
 
 -- RPC for Employee Claiming Account
 CREATE OR REPLACE FUNCTION public.claim_employee_account(
@@ -60,7 +60,7 @@ CREATE OR REPLACE FUNCTION public.claim_employee_account(
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
-AS $$$
+AS $$
 DECLARE
   v_uid uuid;
 BEGIN
@@ -95,14 +95,14 @@ BEGIN
 
   RETURN true;
 END;
-$$$;
+$$;
 
 -- RPC for Getting Email by Employee ID during Login
 CREATE OR REPLACE FUNCTION public.get_email_by_employee_id(p_employee_id text)
 RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
-AS $$$
+AS $$
 DECLARE
   v_email text;
 BEGIN
@@ -112,4 +112,4 @@ BEGIN
   END IF;
   RETURN v_email;
 END;
-$$$;
+$$;
