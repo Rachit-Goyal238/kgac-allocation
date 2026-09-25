@@ -33,12 +33,21 @@ BEGIN
   base_username := upper(substring(regexp_replace(p_first, '[^a-zA-Z]', '', 'g') from 1 for 3)) || 
                    upper(substring(regexp_replace(p_last, '[^a-zA-Z]', '', 'g') from 1 for 3));
                    
+  IF length(base_username) = 0 THEN
+    base_username := 'EMP';
+  END IF;
+                   
   -- append 3 random numbers (100-999)
   final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
   
   -- ensure uniqueness just in case
   WHILE EXISTS (SELECT 1 FROM profiles WHERE username = final_username) LOOP
-    final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
+    IF counter > 10 THEN
+      final_username := base_username || floor(random() * (99999-10000+1) + 10000)::int::text;
+    ELSE
+      final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
+    END IF;
+    counter := counter + 1;
   END LOOP;
   
   RETURN final_username;
@@ -71,23 +80,33 @@ BEGIN
     v_password := public.generate_random_password();
     new_uid := gen_random_uuid();
 
-    -- Create the auth.users record
-    INSERT INTO auth.users (
-      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, 
-      created_at, updated_at, raw_user_meta_data, confirmation_token, recovery_token, email_change_token_new, email_change
-    ) VALUES (
-      '00000000-0000-0000-0000-000000000000',
-      new_uid,
-      'authenticated',
-      'authenticated',
-      COALESCE(emp.personal_email, v_username || '@kgac-users.com'),
-      crypt(v_password, gen_salt('bf')),
-      now(),
-      now(),
-      now(),
-      jsonb_build_object('full_name', emp.first_name || ' ' || emp.last_name, 'employee_id', emp.employee_id, 'username', v_username),
-      '', '', '', ''
-    );
+    -- Prevent duplicate personal emails from crashing auth.users
+    DECLARE
+      v_auth_email text;
+    BEGIN
+      v_auth_email := COALESCE(emp.personal_email, v_username || '@kgac-users.com');
+      IF EXISTS (SELECT 1 FROM auth.users WHERE email = v_auth_email) THEN
+        v_auth_email := v_username || '@kgac-users.com';
+      END IF;
+
+      -- Create the auth.users record
+      INSERT INTO auth.users (
+        instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, 
+        created_at, updated_at, raw_user_meta_data, confirmation_token, recovery_token, email_change_token_new, email_change
+      ) VALUES (
+        '00000000-0000-0000-0000-000000000000',
+        new_uid,
+        'authenticated',
+        'authenticated',
+        v_auth_email,
+        crypt(v_password, gen_salt('bf')),
+        now(),
+        now(),
+        now(),
+        jsonb_build_object('full_name', emp.first_name || ' ' || emp.last_name, 'employee_id', emp.employee_id, 'username', v_username),
+        '', '', '', ''
+      );
+    END;
 
     -- the insert above triggers handle_new_user, which creates a row in profiles.
     -- update that row with the imported data.
@@ -165,5 +184,6 @@ GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authentica
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
+
 
 

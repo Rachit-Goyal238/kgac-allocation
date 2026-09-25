@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { UserRole } from '@/lib/types';
@@ -108,7 +108,7 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
             You do not have permission to view this page.
           </p>
           <div className="flex flex-col gap-3">
-            <Button onClick={() => window.history.back()} variant="outline" className="w-full">
+            <Button onClick={() => window.location.href = '/'} variant="outline" className="w-full">
               Go Back
             </Button>
             <Button onClick={signOut} variant="ghost" className="w-full text-gray-500">
@@ -122,3 +122,4 @@ export function ProtectedRoute({ children, requiredRole, allowedRoles }: Protect
 
   return <>{children || <Outlet />}</>;
 }
+

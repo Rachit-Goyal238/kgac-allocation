@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
@@ -17,6 +17,10 @@ export function CSVUploader() {
   const { data: departments } = useDepartments();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (!departments) {
+      toast.error('Please wait a moment for departments to load before uploading.');
+      return;
+    }
     const file = acceptedFiles[0];
     if (!file) return;
 
@@ -226,3 +230,5 @@ export function CSVUploader() {
     </Dialog>
   );
 }
+
+
