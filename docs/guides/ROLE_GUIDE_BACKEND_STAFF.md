@@ -4,7 +4,7 @@
 > [!NOTE]
 > **Role Designation:** `backend_staff` (Backend Operations / Data Entry / Audit Support Staff)  
 > **Primary Purpose:** Backoffice operations, audit data verification, inventory data processing, internal support, and daily timesheet reporting.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
@@ -39,7 +39,7 @@ Backend operations team members access the platform via:
 - **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New Staff):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `backend_staff` role by an Administrator.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

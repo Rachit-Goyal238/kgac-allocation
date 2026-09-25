@@ -4,19 +4,19 @@
 > [!NOTE]
 > **Role Designation:** `finance` (Finance Specialist / Billing & Margins Analyst)  
 > **Primary Purpose:** Audit engagement profitability analysis, margin reconciliation, contractor cost verification, expense billing, and client invoicing readiness.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As a **Finance Specialist**, you safeguard the commercial health and billing integrity of KGAC and KPL. You reconcile project revenues against labor expenses, contractor day-rates, and field incidentals to ensure healthy profit margins and prompt client billing.
+As a **Finance Specialist**, you safeguard the commercial health and billing integrity of Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd.. You reconcile project revenues against labor expenses, contractor day-rates, and field incidentals to ensure healthy profit margins and prompt client billing.
 
 ### Summary of Responsibilities
 1. **Audit Margins & Reconciliation:** Calculate exact profitability per audit by comparing client billing fees against auditor labor hours and contractor rates.
 2. **Expense Billing Governance:** Review and approve reimbursable audit expenses (hotel, fuel, flight, daily per-diem allowances).
 3. **Contractor Cost Auditing:** Validate vendor agency invoices against billable man-days recorded in the system.
-4. **Entity Revenue Allocation:** Ensure billing records, client contracts, and vendor payments route cleanly to the correct company balance sheet (**KGAC** or **KPL**).
+4. **Entity Revenue Allocation:** Ensure billing records, client contracts, and vendor payments route cleanly to the correct company balance sheet (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
 5. **Commercial Data Exports:** Export margin models and billing registers in CSV and Excel formats.
 
 ---
@@ -42,7 +42,7 @@ Finance team members access billing and margin models via:
 - **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New Finance Staff):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `finance` role by an Administrator.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

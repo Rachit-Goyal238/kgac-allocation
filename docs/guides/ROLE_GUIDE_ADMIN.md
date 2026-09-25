@@ -4,16 +4,16 @@
 > [!NOTE]
 > **Role Designation:** `admin` (System Administrator)  
 > **Primary Purpose:** User onboarding and role assignment, entity alignment, department governance, vendor day-rates, client directories, system settings, and asset inventory administration.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As a **System Administrator**, you maintain the structural foundation of the KGAC platform. You manage user access rights, organizational departments, client contracts, vendor commercial terms, and inventory registries across both business entities.
+As a **System Administrator**, you maintain the structural foundation of the Kumar Aggarwal Gaurav and Co. platform. You manage user access rights, organizational departments, client contracts, vendor commercial terms, and inventory registries across both business entities.
 
 ### Summary of Responsibilities
-1. **User Provisioning & Role Elevation:** Approve new sign-ups, assign functional roles, link users to departments, and assign company entities (**KGAC** or **KPL**).
+1. **User Provisioning & Role Elevation:** Approve new sign-ups, assign functional roles, link users to departments, and assign company entities (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
 2. **Department Structure & Leadership:** Maintain department listings and designate Department Managers.
 3. **Vendor Agency & Contractor Pricing:** Manage external vendor profiles and configure day-rates for external audit contractors.
 4. **Client Network Administration:** Maintain client accounts, store directories, and audit scopes.
@@ -50,7 +50,7 @@ When a new employee registers on the login page or signs in via Google for the f
    - Verify the user's Full Name, Username, and Email.
    - Select their **Role** (e.g., `employee`, `audit_executive`, `manager`, `planner`, `hr`, `finance`).
    - Select their **Department** (e.g., *Audit*, *Operations*, *Finance*).
-   - Assign their primary legal entity: **KGAC** or **KPL**.
+   - Assign their primary legal entity: **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**.
    - Assign their operational **Zone** (North, South, East, West).
 4. Click **Approve User**.
 5. The user is immediately granted active login access to the platform with permissions matching their assigned role.

@@ -4,13 +4,13 @@
 > [!NOTE]
 > **Role Designation:** `hr` (Human Resources Specialist / People Operations Lead)  
 > **Primary Purpose:** Organization-wide attendance governance, payroll reporting, leave management oversight, idle day monitoring, and hardware custody compliance.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As a member of **Human Resources (HR)**, you are the custodian of workforce compliance, employee attendance accuracy, and leave governance. You verify that all employees across KGAC and KPL fulfill their working day requirements and generate official attendance records for monthly payroll.
+As a member of **Human Resources (HR)**, you are the custodian of workforce compliance, employee attendance accuracy, and leave governance. You verify that all employees across Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd. fulfill their working day requirements and generate official attendance records for monthly payroll.
 
 ### Summary of Responsibilities
 1. **Attendance & Payroll Exports:** Generate and audit official attendance reports in both **CSV** and **Excel** formats with full 11-column payroll metrics.
@@ -42,7 +42,7 @@ HR team members access attendance governance via:
 - **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New HR Staff):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `hr` role by an Administrator.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
@@ -56,14 +56,14 @@ HR is responsible for generating monthly attendance data for the finance/payroll
 
 1. Navigate to **Man-Days** (`/man-days`) or **Dashboard** (`/dashboard`).
 2. Select the target **Date Range** (e.g., 1st to 30th of the current month).
-3. Choose the target entity: **KGAC**, **KPL**, or **All Entities**.
+3. Choose the target entity: **Kumar Aggarwal Gaurav and Co.**, **KGAC Pvt Ltd.**, or **All Entities**.
 4. Click **Export** and select either **Export as Excel (.xlsx)** or **Export as CSV**.
 5. The generated report contains 11 comprehensive payroll columns:
    - `Employee ID`
    - `Employee Name`
    - `Email Address`
    - `Department`
-   - `Legal Entity` (KGAC / KPL)
+   - `Legal Entity` (Kumar Aggarwal Gaurav and Co. / KGAC Pvt Ltd.)
    - `Total Calendar Days`
    - `Total Working Days` (excludes weekends & company holidays)
    - `Allocated Days` (days with logged billable/internal hours)
@@ -115,5 +115,5 @@ HR is responsible for generating monthly attendance data for the finance/payroll
 
 - [ ] **Mid-Month Check (15th):** Run an interim Idle Days report to warn employees with missing timesheets.
 - [ ] **Payroll Cutoff (28th):** Download the official 11-column Attendance Excel report for payroll processing.
-- [ ] **Entity Separation:** Verify that KGAC staff and KPL staff are categorized under their proper respective legal entity.
+- [ ] **Entity Separation:** Verify that Kumar Aggarwal Gaurav and Co. staff and KGAC Pvt Ltd. staff are categorized under their proper respective legal entity.
 - [ ] **Offboarding Clearance:** Verify that exiting employees hold 0 assets in *My Held Assets* before issuing final clearance.

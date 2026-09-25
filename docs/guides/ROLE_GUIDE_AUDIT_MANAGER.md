@@ -4,7 +4,7 @@
 > [!NOTE]
 > **Role Designation:** `audit_manager` (Audit Engagement Lead / Audit Project Manager)  
 > **Primary Purpose:** Audit engagement delivery, team planning oversight, leave & equipment approvals, audit margins analysis, and timesheet completion verification.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
@@ -45,7 +45,7 @@ Audit Managers can log in through the primary platform methods:
 - **Sign In with Google:** Instant SSO using your authorized `@kgac.in` Google account.
 - **Username & Password:** Direct credentials login (type your base username without domain).
 - **Create Account (New Managers):** Register via **"Don't have an account? Sign up"**. Newly registered accounts enter **Account Pending Approval** until authorized by a Super Admin or Platform Administrator.
-- **Entity Selection:** Confirm your operating entity (**KGAC** or **KPL**) on first login.
+- **Entity Selection:** Confirm your operating entity (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**) on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

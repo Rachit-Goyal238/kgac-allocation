@@ -4,13 +4,13 @@
 > [!NOTE]
 > **Role Designation:** `audit_executive` (Senior Field Auditor / On-Site Team Lead)  
 > **Primary Purpose:** Field leadership, on-site auditor coordination, audit accuracy verification, and operational sync with Audit Managers and Planners.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As an **Audit Executive**, you are the primary on-site lead for KGAC/KPL field engagements. You lead audit associates and assistants during store inventory counts, asset verifications, and compliance inspections.
+As an **Audit Executive**, you are the primary on-site lead for Kumar Aggarwal Gaurav and Co./KGAC Pvt Ltd. field engagements. You lead audit associates and assistants during store inventory counts, asset verifications, and compliance inspections.
 
 ### Summary of Responsibilities
 1. **On-Site Team Leadership:** Coordinate field teams at client locations, ensuring all auditors are present, equipped, and working according to client standards.
@@ -39,8 +39,8 @@ Field team leads can authenticate using multiple convenient methods:
 - **Sign In with Google:** Click **"Sign in with Google"** on the landing page and authenticate with your company email.
 - **Username & Password:** Click **"Username & Password"**, enter your base username (without domain) and password, and click **Sign In**.
 - **Create Account (New Leads):** Click **"Don't have an account? Sign up"**, fill in Full Name, Username, and Password, then click **"Create Account"**.
-- **Account Pending Approval:** If newly registered, your account enters pending status until an Administrator assigns your role, entity (**KGAC** or **KPL**), and department.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on the first prompt to ensure store records route to the correct balance sheet.
+- **Account Pending Approval:** If newly registered, your account enters pending status until an Administrator assigns your role, entity (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**), and department.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on the first prompt to ensure store records route to the correct balance sheet.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

@@ -4,7 +4,7 @@
 > [!NOTE]
 > **Role Designation:** `planner` (Audit Planner & Resource Scheduler)  
 > **Primary Purpose:** Client audit schedule intake, auditor team construction, double-booking prevention, vendor contractor allocation, and schedule publishing.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
@@ -40,7 +40,7 @@ Audit Planners access the scheduling engine via:
 - **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New Planners):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `planner` role by an Administrator.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

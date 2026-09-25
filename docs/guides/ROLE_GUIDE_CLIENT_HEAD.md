@@ -4,13 +4,13 @@
 > [!NOTE]
 > **Role Designation:** `client_head` (Client Lead / Account Director)  
 > **Primary Purpose:** Client relationship management, client store master directory oversight, audit SLA compliance, and cross-account delivery tracking.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As a **Client Head**, you own the strategic and operational relationship between KGAC/KPL and major enterprise clients (e.g., nationwide retail chains, telecom providers, consumer goods brands). You oversee client directory data, store coverage, and audit execution SLAs.
+As a **Client Head**, you own the strategic and operational relationship between Kumar Aggarwal Gaurav and Co./KGAC Pvt Ltd. and major enterprise clients (e.g., nationwide retail chains, telecom providers, consumer goods brands). You oversee client directory data, store coverage, and audit execution SLAs.
 
 ### Summary of Responsibilities
 1. **Client Master Management:** Configure enterprise client accounts, key points of contact, and contract terms in Client Admin.
@@ -41,7 +41,7 @@ Client Heads access enterprise accounts via:
 - **Sign In with Google:** Click **"Sign in with Google"** with your authorized company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New Client Leads):** Register via **"Don't have an account? Sign up"**. Newly registered accounts display **Account Pending Approval** until assigned the `client_head` role by an Administrator.
-- **Entity Confirmation:** Confirm **KGAC** or **KPL** on first login.
+- **Entity Confirmation:** Confirm **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.** on first login.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
@@ -56,7 +56,7 @@ Client Heads access enterprise accounts via:
    - Click **Add Client**.
    - Enter **Client Name**, **Company Code**, and **Industry Sector**.
    - Input primary client contact details (Email, Phone, Designation).
-   - Designate contractual entity (**KGAC** or **KPL**).
+   - Designate contractual entity (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
 3. To update an existing client:
    - Click **Edit** on the client card.
    - Modify billing addresses, active store counts, or status (Active / Inactive).
@@ -92,4 +92,4 @@ Client Heads access enterprise accounts via:
 
 - [ ] **Store Directory Accuracy:** Ensure client store addresses, store manager contacts, and store codes are updated before schedule import.
 - [ ] **Weekly SLA Review:** Review the Audit Planner every Monday to ensure 100% of upcoming stores for the month are accounted for.
-- [ ] **Billing Entity Verification:** Verify that new client contracts are assigned to the correct billing entity (KGAC vs KPL).
+- [ ] **Billing Entity Verification:** Verify that new client contracts are assigned to the correct billing entity (Kumar Aggarwal Gaurav and Co. vs KGAC Pvt Ltd.).

@@ -4,7 +4,7 @@
 > [!NOTE]
 > **Role Designation:** `employee` (Field Auditor / Audit Associate / Assistant)  
 > **Primary Purpose:** Field audit execution, accurate daily hours allocation, equipment requisition & return, and personal leave management.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
@@ -17,7 +17,7 @@ As an **Employee / Field Auditor**, your primary daily responsibility is ensurin
 2. **Upcoming Audits Readiness:** Review your assigned audit dates and store locations on your dashboard.
 3. **Internal Asset Lifecycle:** Request field equipment in advance, maintain proper custody, and immediately mark equipment as returned upon physical handback to your manager.
 4. **Attendance & Leave Requests:** Submit PTO, sick leave, or comp-off requests through the platform prior to absence.
-5. **Profile & Security:** Keep your contact details, assigned entity (KGAC/KPL), and credentials up to date.
+5. **Profile & Security:** Keep your contact details, assigned entity (Kumar Aggarwal Gaurav and Co./KGAC Pvt Ltd.), and credentials up to date.
 
 ---
 
@@ -68,14 +68,14 @@ If you are a new field auditor joining the organization:
 #### Account Pending Approval State
 Newly registered accounts are held in pending status until verified by an Administrator:
 - The screen displays a yellow clock icon and the notice: *"Your account is awaiting admin approval. You'll receive access once approved."*
-- An Administrator will review your account in `/admin/users`, assign your `employee` role, department, entity (**KGAC** or **KPL**), and zone.
+- An Administrator will review your account in `/admin/users`, assign your `employee` role, department, entity (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**), and zone.
 - Once approved, simply refresh your browser or log in again to enter your dashboard.
 
 ![SS01D: Account Pending Approval Screen](../screenshots/SS01D_account_pending_approval.png)
 
-#### Entity Selection (KGAC vs KPL)
+#### Entity Selection (Kumar Aggarwal Gaurav and Co. vs KGAC Pvt Ltd.)
 Upon your first approved login, if prompted:
-1. Select your contractual employment entity: **KGAC** or **KPL**.
+1. Select your contractual employment entity: **Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**.
 2. Click **Confirm Selection**.
 
 ![SS02: Entity Selection Dialog](../screenshots/SS02_entity_selector.png)
@@ -159,7 +159,7 @@ Field audits require equipment such as barcode scanners, handheld terminals, or 
 
 ### 3.6 Profile & Password Management
 1. Click **My Profile** in the bottom left sidebar navigation.
-2. View your assigned username, registered email, and assigned entity badge (**KGAC** or **KPL**).
+2. View your assigned username, registered email, and assigned entity badge (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
 3. To update your password:
    - Enter your current password.
    - Enter your new secure password (minimum 8 characters).

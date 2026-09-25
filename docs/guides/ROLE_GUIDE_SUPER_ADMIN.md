@@ -4,13 +4,13 @@
 > [!NOTE]
 > **Role Designation:** `super_admin` (Super Administrator / Platform Owner)  
 > **Primary Purpose:** Enterprise platform governance, command center telemetry, security audit trail inspection, database maintenance, and security role alignment.  
-> **Supported Entities:** KGAC & KPL (Global Platform Scope)
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd. (Global Platform Scope)
 
 ---
 
 ## 1. Role Scope & Key Responsibilities
 
-As the **Super Administrator**, you hold the highest echelon of security clearance and administrative authority within the KGAC platform. You oversee system integrity, operational telemetry, database hygiene, and security audit logs across both KGAC and KPL entities.
+As the **Super Administrator**, you hold the highest echelon of security clearance and administrative authority within the Kumar Aggarwal Gaurav and Co. platform. You oversee system integrity, operational telemetry, database hygiene, and security audit logs across both Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd. entities.
 
 ### Summary of Responsibilities
 1. **Executive Command Center:** Monitor platform health, active user concurrency, data throughput, and high-level operations.
@@ -42,7 +42,7 @@ Super Administrators access the platform with top-tier security credentials:
 - **Sign In with Google:** Authenticate using your primary corporate Google identity with 2-Factor Authentication enabled.
 - **Username & Password:** Direct administrative login.
 - **Create Account (New Super Admins):** When a new platform executive registers via **"Don't have an account? Sign up"**, their account initially sits in **Account Pending Approval**. An existing Super Administrator must elevate their permissions via **Role Alignment** (`/admin/roles`).
-- **Entity Scope:** Super Admins hold dual-entity authority over both **KGAC** and **KPL**.
+- **Entity Scope:** Super Admins hold dual-entity authority over both **Kumar Aggarwal Gaurav and Co.** and **KGAC Pvt Ltd.**.
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)
@@ -54,7 +54,7 @@ Super Administrators access the platform with top-tier security credentials:
 ### 3.2 Operating the Super Admin Command Center
 1. Navigate to **Command Center** (`/admin/command-center`).
 2. Review real-time operational telemetry:
-   - **Active Sessions:** Current authenticated users across KGAC and KPL.
+   - **Active Sessions:** Current authenticated users across Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd..
    - **System Latency:** API response times and Supabase database connection pool health.
    - **Timesheet Compliance Rate:** Organization-wide percentage of allocated vs idle hours for the active week.
    - **Equipment Utilization Rate:** Active equipment in field vs available inventory.

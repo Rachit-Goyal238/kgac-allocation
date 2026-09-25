@@ -4,7 +4,7 @@
 > [!NOTE]
 > **Role Designation:** `manager` (Operations Manager / Department Head)  
 > **Primary Purpose:** Cross-functional team supervision, capacity management, leave administration, department asset governance, and operational reporting.  
-> **Supported Entities:** KGAC & KPL
+> **Supported Entities:** Kumar Aggarwal Gaurav and Co. & KGAC Pvt Ltd.
 
 ---
 
@@ -45,7 +45,7 @@ Department Managers access the system via:
 - **Sign In with Google:** Click **"Sign in with Google"** for single sign-on with your company email.
 - **Username & Password:** Click **"Username & Password"**, enter username (without domain) and password.
 - **Create Account (New Managers):** Register via **"Don't have an account? Sign up"**. Newly created accounts are held in **Account Pending Approval** until authorized by an Administrator.
-- **Entity Confirmation:** Confirm your operating company (**KGAC** or **KPL**).
+- **Entity Confirmation:** Confirm your operating company (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
 
 ![SS01A: Initial Login Screen with Google SSO](../screenshots/SS01A_login_google.png)
 ![SS01B: Username and Password Sign In Form](../screenshots/SS01B_login_username.png)

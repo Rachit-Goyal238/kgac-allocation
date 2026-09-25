@@ -1,8 +1,8 @@
-# KGAC Team Allocation & Operations Platform
+# Kumar Aggarwal Gaurav and Co. Team Allocation & Operations Platform
 # Master User Walkthrough Guide & Operating Manual
 
 > [!NOTE]
-> This master manual serves as the definitive reference document for all operations across **KGAC** and **KPL**. It documents all 11 user roles, system navigation, daily workflows, equipment lifecycle management, financial reconciliations, and universal data exports.
+> This master manual serves as the definitive reference document for all operations across **Kumar Aggarwal Gaurav and Co.** and **KGAC Pvt Ltd.**. It documents all 11 user roles, system navigation, daily workflows, equipment lifecycle management, financial reconciliations, and universal data exports.
 
 ---
 
@@ -30,7 +30,7 @@
 
 ## 1. Platform Architecture & Multi-Entity Framework
 
-The KGAC Platform is an enterprise resource planning and workforce management system engineered for high-volume retail audit operations, inventory verification, and team scheduling.
+The Kumar Aggarwal Gaurav and Co. Platform is an enterprise resource planning and workforce management system engineered for high-volume retail audit operations, inventory verification, and team scheduling.
 
 ```mermaid
 graph TD
@@ -52,8 +52,8 @@ graph TD
 ```
 
 ### Supported Entities
-- **KGAC:** Primarily handles domestic corporate statutory audits, inventory counts, and consulting engagements.
-- **KPL:** Manages enterprise retail store audits, third-party logistics counts, and contracted workforce operations.
+- **Kumar Aggarwal Gaurav and Co.:** Primarily handles domestic corporate statutory audits, inventory counts, and consulting engagements.
+- **KGAC Pvt Ltd.:** Manages enterprise retail store audits, third-party logistics counts, and contracted workforce operations.
 
 Upon first login, team members confirm their assigned entity. All time allocations, billing rates, and client contracts track back to the correct balance sheet.
 
@@ -86,7 +86,7 @@ The platform defines 11 specific roles. Each role is tailored to exact operation
 
 ## 3. Universal Onboarding: Login, Registration & Access Approval
 
-The KGAC platform provides multiple secure authentication pathways depending on your organizational setup.
+The Kumar Aggarwal Gaurav and Co. platform provides multiple secure authentication pathways depending on your organizational setup.
 
 ```mermaid
 graph TD
@@ -102,7 +102,7 @@ graph TD
     UserPass --> StatusCheck
     
     StatusCheck -->|Status: Pending| PendingScreen[Account Pending Approval Screen]
-    StatusCheck -->|Status: Active, Entity Missing| EntityModal[Entity Selector: KGAC or KPL]
+    StatusCheck -->|Status: Active, Entity Missing| EntityModal[Entity Selector: Kumar Aggarwal Gaurav and Co. or KGAC Pvt Ltd.]
     StatusCheck -->|Status: Active, Configured| AppHome[Personal Dashboard & Allocation Calendar]
     
     PendingScreen --> AdminReview[Admin assigns Role, Dept & Entity in /admin/users]
@@ -170,19 +170,19 @@ To safeguard organizational data and audit integrity, newly created accounts can
    - The admin inspects the user's name and email, and assigns:
      - **Functional Role:** (e.g., `employee`, `audit_executive`, `manager`, `planner`, `hr`, etc.)
      - **Department:** (e.g., *Audit*, *Operations*, *Finance*)
-     - **Contractual Entity:** (**KGAC** or **KPL**)
+     - **Contractual Entity:** (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**)
      - **Operational Zone:** (North, South, East, West)
    - The admin clicks **Approve User**.
 3. Once approved, the user refreshes their browser or logs in again to access their role-specific dashboard.
 
 ---
 
-### 3.5 Entity Confirmation (KGAC vs KPL)
+### 3.5 Entity Confirmation (Kumar Aggarwal Gaurav and Co. vs KGAC Pvt Ltd.)
 When logging in for the first time with an active account, if your corporate entity has not been locked:
 1. The **Entity Selector Modal** will appear over the screen.
 2. Select your designated operational legal entity:
-   - **KGAC (K.G. Audit & Consulting)**
-   - **KPL (K.G. Professional Logistics / Services)**
+   - **Kumar Aggarwal Gaurav and Co. (K.G. Audit & Consulting)**
+   - **KGAC Pvt Ltd. (K.G. Professional Logistics / Services)**
 3. Click **Confirm Selection**.
 4. Your choice is permanently associated with your profile, ensuring your logged hours, billing rates, and audit assignments flow to the correct company ledger.
 
@@ -194,7 +194,7 @@ When logging in for the first time with an active account, if your corporate ent
 1. Click **My Profile** in the bottom-left navigation bar.
 2. View your profile summary:
    - Full Name, registered Email, assigned Department, and Zone.
-   - Corporate Entity badge (**KGAC** or **KPL**).
+   - Corporate Entity badge (**Kumar Aggarwal Gaurav and Co.** or **KGAC Pvt Ltd.**).
    - Functional Roles assigned to your account.
 3. **Changing Your Password:**
    - Enter your current password.
@@ -400,7 +400,7 @@ sequenceDiagram
 
 ## 6. Universal Data Export Guide (CSV & Excel)
 
-All tabular data across the KGAC platform supports one-click export in both **CSV** and **Excel (.xlsx)** formats.
+All tabular data across the Kumar Aggarwal Gaurav and Co. platform supports one-click export in both **CSV** and **Excel (.xlsx)** formats.
 
 ### Export Catalog & Column Schemas
 
@@ -428,5 +428,5 @@ All tabular data across the KGAC platform supports one-click export in both **CS
 ### Q4: Why am I getting a "Double-Booked" conflict when scheduling an auditor?
 **A:** The auditor is already allocated to another store audit during the same date range. You must pick an alternate auditor or adjust the audit dates.
 
-### Q5: Can an auditor belong to both KGAC and KPL?
+### Q5: Can an auditor belong to both Kumar Aggarwal Gaurav and Co. and KGAC Pvt Ltd.?
 **A:** Every employee has a primary legal entity for timesheet and payroll purposes. However, Administrators can allocate personnel across projects owned by either entity when cross-charging is authorized.
