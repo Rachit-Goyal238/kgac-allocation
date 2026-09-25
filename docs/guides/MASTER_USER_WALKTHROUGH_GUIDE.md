@@ -86,17 +86,13 @@ The platform defines 11 specific roles. Each role is tailored to exact operation
 
 ## 3. Universal Onboarding: Login, Registration & Access Approval
 
-The platform strictly uses an Employee ID-based authentication flow driven by HR payroll data.
+The platform strictly uses an Admin Auto-Provisioning flow. Employees do not create their own accounts.
 
 ```mermaid
 graph TD
     Start([Visit Login Portal]) --> AuthChoice{Action}
-    AuthChoice -->|Existing Account| UserPass[Enter Employee ID & Password]
-    AuthChoice -->|First Time| Claim[Click 'Claim your account']
+    AuthChoice -->|Login| UserPass[Enter Username & Password]
     AuthChoice -->|Forgot Password| Reset[Click 'Forgot Password?']
-    
-    Claim --> CreateAcc[Enter Employee ID, Personal Email, Password]
-    CreateAcc --> UserPass
     
     UserPass --> StatusCheck{Account Status}
     
@@ -111,43 +107,56 @@ graph TD
 
 ---
 
-### 3.1 First-Time Setup (Claiming your Account)
-Before you can log in, you must claim the account that HR has provisioned for you.
-1. Navigate to the login portal.
-2. Click the link at the bottom: **"First time here? Claim your account"**.
-3. Fill in the required fields:
-   - **Employee ID:** Enter your unique HR-provided ID (e.g., `KGAC-105`).
-   - **Personal Email:** Enter your Gmail or Outlook email (used securely for password resets).
-   - **Create Password:** Enter a secure password (minimum 6 characters).
-4. Click **"Claim Account"**.
-5. Once claimed, you will be redirected to the main login screen.
-
-![SS01_claim_account](../screenshots/SS01_claim_account.png)
+### 3.1 First-Time Access (Admin Provisioning)
+Before you can log in, your HR or Admin team must provision your account in the system.
+1. The Admin team imports your details into the system.
+2. The system automatically generates a unique **Username** (e.g., `john.doe1`) and a **Temporary Password**.
+3. Your Admin will securely hand you these credentials.
 
 ---
 
-### 3.2 Routine Login (Employee ID)
+### 3.2 Routine Login
 For day-to-day access:
-1. On the main login page, enter your assigned **Employee ID** (e.g., `KGAC-105`).
+1. On the main login page, enter your assigned **Username** (e.g., `john.doe1`).
 2. Enter your **Password**.
 3. Click **Sign In**.
 
-![SS02_login](../screenshots/SS02_login.png)
+![SS01_login](../screenshots/SS01_login.png)
 
 ---
 
-### 3.3 Forgot Password
+### 3.3 Changing Your Password
+After your first login, you should change your temporary password:
+1. Click your avatar in the top right and select **"Profile"**.
+2. Scroll down to the **"Security"** section.
+3. Enter your new password and confirm it.
+4. Click **"Update Password"**.
+
+![SS02_change_password](../screenshots/SS02_change_password.png)
+
+---
+
+### 3.4 Forgot Password
 If you forget your password:
 1. Click **"Forgot Password?"** on the login screen.
-2. Enter your **Employee ID**.
+2. Enter your **Username**.
 3. Click **"Send Reset Link"**.
-4. A secure reset link will be sent to the personal email address you provided during setup.
+4. A secure reset link will be sent to the personal email address registered by HR.
 
 ![SS03_forgot_password](../screenshots/SS03_forgot_password.png)
 
 ---
 
-### 3.4 Account Pending Approval State & Administrator Verification
+### 3.5 Administrator Password Resets
+If an employee is locked out and cannot access their personal email, an Administrator can force a password reset:
+1. The Admin goes to the **Users** tab.
+2. The Admin clicks the **Key Icon** next to the employee's name.
+3. The Admin types a new secure password.
+4. The employee's old password is immediately invalidated.
+
+---
+
+### 3.6 Account Pending Approval State & Administrator Verification
 To safeguard organizational data and audit integrity, some newly created accounts may not access client schedules until verified by an Administrator (if not pre-verified via CSV import).
 
 1. The system displays the **Account Pending Approval** screen:

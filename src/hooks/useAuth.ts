@@ -67,14 +67,14 @@ export function useAuth() {
     }
   };
 
-  const signIn = async (employeeId: string, password: string) => {
+  const signIn = async (username: string, password: string) => {
     try {
-      // 1. Fetch real email using RPC
-      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_employee_id', {
-        p_employee_id: employeeId.trim()
+      // 1. Fetch email mapped to username using RPC
+      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_username', {
+        p_username: username.trim().toLowerCase()
       });
       if (rpcError) throw new Error(rpcError.message);
-      if (!email) throw new Error('Employee ID not found or account not claimed yet.');
+      if (!email) throw new Error('Username not found.');
 
       // 2. Sign in with standard password auth
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -90,32 +90,15 @@ export function useAuth() {
       throw error;
     }
   };
-
-  const claimAccount = async (employeeId: string, personalEmail: string, password: string) => {
-    try {
-      const { error } = await supabase.rpc('claim_employee_account', {
-        p_employee_id: employeeId.trim(),
-        p_personal_email: personalEmail.trim().toLowerCase(),
-        p_password: password
-      });
-      
-      if (error) throw error;
-      
-      toast.success('Account claimed successfully! Please sign in.');
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to claim account');
-      throw error;
-    }
-  };
   
-  const resetPassword = async (employeeId: string) => {
+  const resetPassword = async (username: string) => {
     try {
       // 1. Fetch real email using RPC
-      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_employee_id', {
-        p_employee_id: employeeId.trim()
+      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_username', {
+        p_username: username.trim().toLowerCase()
       });
       if (rpcError) throw new Error(rpcError.message);
-      if (!email) throw new Error('Employee ID not found or account not claimed yet.');
+      if (!email) throw new Error('Username not found.');
 
       // 2. Trigger standard password reset
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -123,12 +106,12 @@ export function useAuth() {
       });
       
       if (error) throw error;
-      toast.success('Password reset link sent to your personal email!');
+      toast.success('Password reset link sent to your registered email!');
     } catch (error: any) {
       toast.error(error.message || 'Failed to reset password');
       throw error;
     }
   };
 
-  return { user, profile, isLoading, signOut, signIn, claimAccount, resetPassword };
+  return { user, profile, isLoading, signOut, signIn, resetPassword };
 }

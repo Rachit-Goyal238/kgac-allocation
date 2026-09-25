@@ -80,11 +80,11 @@ export const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as c
 
 // 📅 CSV Template 📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅📅
 
-export const SAMPLE_CSV_CONTENT = `Name,Employee ID,Role,Department,Entity,Zone
-John Doe,KGAC-101,audit_executive,Engineering,KGAC,North
-Jane Smith,KGAC-102,audit_manager,Design,KPL,South
-Alice Brown,KGAC-103,employee,Engineering,KGAC,East
-Charlie Davis,KGAC-104,employee,Operations,KGAC,West`;
+export const SAMPLE_CSV_CONTENT = `Employee ID,First Name,Last Name,Personal Email,Role,Department,Entity,Zone
+KGAC-101,John,Doe,john.doe@gmail.com,audit_executive,Engineering,KGAC,North
+KGAC-102,Jane,Smith,jane.smith@outlook.com,audit_manager,Design,KPL,South
+KGAC-103,Alice,Brown,alice.b@gmail.com,employee,Engineering,KGAC,East
+KGAC-104,Charlie,Davis,charlie.d@yahoo.com,employee,Operations,KGAC,West`;
 
 // ─── Default Departments ─────────────────────────────────────────────────────
 

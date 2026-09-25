@@ -34,6 +34,7 @@ export interface Profile {
   id: string;
   email: string;
   employee_id?: string;
+  username?: string;
   personal_email?: string;
   full_name: string;
   avatar_url: string | null;

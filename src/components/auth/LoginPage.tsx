@@ -4,16 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Loader2, Lock, User, Mail } from 'lucide-react';
+import { Loader2, Lock, User } from 'lucide-react';
 
 export function LoginPage() {
-  const { user, isLoading, signIn, claimAccount, resetPassword } = useAuthContext();
+  const { user, isLoading, signIn, resetPassword } = useAuthContext();
   
-  const [view, setView] = useState<'login' | 'setup' | 'forgot'>('login');
+  const [view, setView] = useState<'login' | 'forgot'>('login');
   
-  const [employeeId, setEmployeeId] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [personalEmail, setPersonalEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (isLoading) {
@@ -30,20 +29,15 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!employeeId) return;
+    if (!username) return;
     
     setIsSubmitting(true);
     try {
-      if (view === 'setup') {
-        if (!personalEmail || !password) return;
-        await claimAccount(employeeId, personalEmail, password);
-        setView('login');
-        setPassword('');
-      } else if (view === 'login') {
+      if (view === 'login') {
         if (!password) return;
-        await signIn(employeeId, password);
+        await signIn(username, password);
       } else if (view === 'forgot') {
-        await resetPassword(employeeId);
+        await resetPassword(username);
         setView('login');
       }
     } catch (error) {
@@ -62,54 +56,34 @@ export function LoginPage() {
             KGAC Audit Allocation
           </h1>
           <p className="text-sm text-gray-500">
-            {view === 'setup' ? 'Claim your account' : view === 'forgot' ? 'Reset your password' : 'Sign in with your Employee ID'}
+            {view === 'forgot' ? 'Reset your password' : 'Sign in to your account'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="employeeId">Employee ID</Label>
+            <Label htmlFor="username">Username</Label>
             <div className="relative">
               <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
               <Input
-                id="employeeId"
+                id="username"
                 type="text"
-                placeholder="KGAC-105"
-                className="pl-9 uppercase"
-                value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value.toUpperCase())}
+                placeholder="john.doe"
+                className="pl-9"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
           </div>
 
-          {view === 'setup' && (
-            <div className="space-y-2">
-              <Label htmlFor="personalEmail">Personal Email (For Password Resets)</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                <Input
-                  id="personalEmail"
-                  type="email"
-                  placeholder="name@gmail.com"
-                  className="pl-9"
-                  value={personalEmail}
-                  onChange={(e) => setPersonalEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          )}
-
-          {(view === 'login' || view === 'setup') && (
+          {view === 'login' && (
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label htmlFor="password">{view === 'setup' ? 'Create Password' : 'Password'}</Label>
-                {view === 'login' && (
-                  <button type="button" onClick={() => setView('forgot')} className="text-xs text-blue-600 hover:underline">
-                    Forgot Password?
-                  </button>
-                )}
+                <Label htmlFor="password">Password</Label>
+                <button type="button" onClick={() => setView('forgot')} className="text-xs text-blue-600 hover:underline">
+                  Forgot Password?
+                </button>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -121,7 +95,6 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
                 />
               </div>
             </div>
@@ -130,8 +103,6 @@ export function LoginPage() {
           <Button type="submit" className="w-full mt-6" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : view === 'setup' ? (
-              'Claim Account'
             ) : view === 'forgot' ? (
               'Send Reset Link'
             ) : (
@@ -141,14 +112,7 @@ export function LoginPage() {
         </form>
 
         <div className="mt-6 text-center text-sm space-y-2">
-          {view === 'login' ? (
-            <p className="text-slate-500">
-              First time here?{' '}
-              <button type="button" className="text-blue-600 hover:underline font-medium" onClick={() => { setView('setup'); setPassword(''); setPersonalEmail(''); }}>
-                Claim your account
-              </button>
-            </p>
-          ) : (
+          {view === 'forgot' && (
             <button type="button" className="text-blue-600 hover:underline font-medium" onClick={() => { setView('login'); setPassword(''); }}>
               Back to Sign In
             </button>

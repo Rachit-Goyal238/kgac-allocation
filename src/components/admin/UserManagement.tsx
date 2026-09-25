@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Search, Loader2, Edit, ChevronDown } from 'lucide-react';
 import { PendingApprovals } from '@/components/admin/PendingApprovals';
 import { CSVUploader } from '@/components/admin/CSVUploader';
+import { AdminPasswordReset } from '@/components/admin/AdminPasswordReset';
 import { ROLE_LABELS } from '@/lib/constants';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { Trash2 } from 'lucide-react';
@@ -251,6 +252,7 @@ export function UserManagement() {
                       >
                         {profile.status === 'active' ? 'Deactivate' : 'Activate'}
                       </Button>
+                      <AdminPasswordReset userId={profile.id} userName={profile.full_name} />
                       <Button 
                         variant="ghost" 
                         size="sm" 
