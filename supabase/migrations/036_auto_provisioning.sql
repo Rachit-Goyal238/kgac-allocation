@@ -74,7 +74,7 @@ BEGIN
     -- Create the auth.users record
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, 
-      created_at, updated_at, raw_user_meta_data
+      created_at, updated_at, raw_user_meta_data, confirmation_token, recovery_token, email_change_token_new, email_change
     ) VALUES (
       '00000000-0000-0000-0000-000000000000',
       new_uid,
@@ -85,7 +85,8 @@ BEGIN
       now(),
       now(),
       now(),
-      jsonb_build_object('full_name', emp.first_name || ' ' || emp.last_name, 'employee_id', emp.employee_id, 'username', v_username)
+      jsonb_build_object('full_name', emp.first_name || ' ' || emp.last_name, 'employee_id', emp.employee_id, 'username', v_username),
+      '', '', '', ''
     );
 
     -- the insert above triggers handle_new_user, which creates a row in profiles.
@@ -164,3 +165,4 @@ GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authentica
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
+
