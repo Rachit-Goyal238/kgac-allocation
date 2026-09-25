@@ -31,7 +31,7 @@ As a **Department Manager**, you hold operational oversight over your assigned d
 | **Dashboard** | `/dashboard` | Department utilization charts, idle days table, and overdue asset alerts. |
 | **Internal Assets** | `/assets` | Borrow approvals, physical return confirmations, and department history exports. |
 | **Audit Margins** | `/reconciliation` | Margin reconciliation and project cost analysis. |
-| **Completion** | `/completion` | Team timesheet compliance tracker (Missing, Submitted, Mismatch). |
+| **Completion** | `/completion` | Team timesheet compliance tracker (Completed, In Progress, Blocked). |
 | **Expense Billing** | `/billing` | Review reimbursable project expenses and contractor billing. |
 | **Man-Days** | `/man-days` | Billable vs non-billable man-day breakdown. |
 | **Projects** | `/admin/projects` | Create projects, assign codes, colors, and configure team members. |
@@ -94,8 +94,8 @@ Department Managers access the system via:
 ### 3.4 Monitoring Idle Days & Timesheet Completion
 1. Review the **Idle Days Table** on the Dashboard (`/dashboard`).
 2. Team members with unallocated workdays will be listed alongside their idle hours.
-3. Navigate to **Completion** (`/completion`) to review the submission status of all department members before weekly payroll cutoff.
-4. Export the completion report in Excel or CSV to follow up on outstanding timesheets.
+3. Navigate to **Completion** (`/completion`) to review the status of all department members' assigned tasks before weekly payroll cutoff.
+4. Export the completion report in Excel or CSV to follow up on outstanding or blocked tasks.
 
 ![SS17: Manager Dashboard Overview](../screenshots/SS17_manager_dashboard.png)
 ![SS20: Timesheet Completion Tracker](../screenshots/SS20_timesheet_completion_tracker.png)

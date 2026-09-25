@@ -93,7 +93,7 @@ table {
     border-collapse: collapse;
     margin: 14px 0 18px 0;
     font-size: 12px;
-    page-break-inside: avoid;
+    page-break-inside: auto;
 }
 
 th, td {
@@ -344,6 +344,15 @@ def compile_md_to_pdf(md_path, pdf_path, title="KGAC Operations Guide"):
     with open(md_path, "r", encoding="utf-8") as f:
         raw_md = f.read()
 
+    mermaid_blocks = []
+    def mermaid_replacer(match):
+        code = match.group(1)
+        placeholder = f"MERMAID_BLOCK_{len(mermaid_blocks)}"
+        mermaid_blocks.append(code)
+        return placeholder
+
+    raw_md = re.sub(r'```mermaid\n(.*?)\n```', mermaid_replacer, raw_md, flags=re.DOTALL)
+
     base_dir = os.path.dirname(md_path)
     processed_md = preprocess_markdown(raw_md, base_dir)
 
@@ -351,6 +360,10 @@ def compile_md_to_pdf(md_path, pdf_path, title="KGAC Operations Guide"):
         processed_md,
         extensions=["tables", "fenced_code", "nl2br", "sane_lists"]
     )
+    
+    for i, code in enumerate(mermaid_blocks):
+        # Mermaid code might have < or > which shouldn't be HTML parsed, but putting it in a div is what mermaid expects.
+        html_body = html_body.replace(f"MERMAID_BLOCK_{i}", f'<div class="mermaid">\n{code}\n</div>')
 
     full_html = f"""<!DOCTYPE html>
 <html>
@@ -359,7 +372,22 @@ def compile_md_to_pdf(md_path, pdf_path, title="KGAC Operations Guide"):
   <title>{title}</title>
   <style>
     {CSS_STYLES}
+    .mermaid {{
+        text-align: center;
+        margin: 10px 0;
+        page-break-inside: avoid;
+    }}
+    .mermaid svg {{
+        max-height: 450px !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: 100% !important;
+    }}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({{ startOnLoad: true, theme: 'default' }});
+  </script>
 </head>
 <body>
   {html_body}
@@ -381,6 +409,7 @@ def compile_md_to_pdf(md_path, pdf_path, title="KGAC Operations Guide"):
         "--disable-gpu",
         "--no-sandbox",
         "--no-pdf-header-footer",
+        "--virtual-time-budget=5000",
         f"--print-to-pdf={pdf_path}",
         temp_html_path
     ]

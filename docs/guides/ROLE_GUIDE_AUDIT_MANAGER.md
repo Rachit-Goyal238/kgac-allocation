@@ -31,7 +31,7 @@ As an **Audit Manager**, you hold operational responsibility for planning, execu
 | **Dashboard** | `/dashboard` | Department utilization charts, idle days table, and overdue asset alerts. |
 | **Internal Assets** | `/assets` | Approve gear checkout, verify & confirm gear returns, export history reports. |
 | **Audit Margins** | `/reconciliation` | Financial margin analysis per audit (contract value vs labor costs). |
-| **Completion** | `/completion` | Timesheet submission tracking (Missing, Submitted, Mismatch). |
+| **Completion** | `/completion` | Timesheet submission tracking (Completed, In Progress, Blocked). |
 | **Expense Billing** | `/billing` | Review reimbursable audit expenses and contractor day-rates. |
 | **Man-Days** | `/man-days` | Billable vs internal man-days summary across department staff. |
 | **Projects** | `/admin/projects` | Manage project codes, billable flags, and project team members. |
@@ -98,13 +98,14 @@ Field gear integrity is critical to avoiding lost hardware.
 
 ---
 
-### 3.4 Tracking Timesheet Completion & Mismatches
+### 3.4 Tracking Timesheet Completion
 1. Navigate to **Completion** (`/completion`).
 2. Filter by week and department.
-3. The table categorizes each team member into:
-   - **Complete (Green):** 40+ hours properly logged.
-   - **Missing (Red):** Unallocated days / incomplete hours.
-   - **Mismatch (Amber):** Hours logged on projects different from the Audit Planner's scheduled stores.
+3. The table categorizes task completion status:
+   - **Completed (Green):** Tasks fully finished.
+   - **In Progress (Blue):** Tasks currently underway.
+   - **Blocked (Red):** Tasks facing roadblocks.
+   - **Not Started:** Hours logged but task status not updated.
 4. Export the completion report in Excel or CSV to follow up with team leads.
 
 ![SS20: Timesheet Completion Tracker](../screenshots/SS20_timesheet_completion_tracker.png)

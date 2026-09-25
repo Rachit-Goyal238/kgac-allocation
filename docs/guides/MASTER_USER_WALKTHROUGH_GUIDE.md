@@ -52,8 +52,8 @@ graph TD
 ```
 
 ### Supported Entities
-- **KGAC (K.G. Audit & Consulting):** Primarily handles domestic corporate statutory audits, inventory counts, and consulting engagements.
-- **KPL (K.G. Professional Logistics / Services):** Manages enterprise retail store audits, third-party logistics counts, and contracted workforce operations.
+- **KGAC:** Primarily handles domestic corporate statutory audits, inventory counts, and consulting engagements.
+- **KPL:** Manages enterprise retail store audits, third-party logistics counts, and contracted workforce operations.
 
 Upon first login, team members confirm their assigned entity. All time allocations, billing rates, and client contracts track back to the correct balance sheet.
 
@@ -213,18 +213,17 @@ Field hardware custody follows a strict 4-step governance workflow:
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Auditor as Employee / Auditor
-    actor Manager as Department / Audit Mgr
-    participant System as Asset System
+    participant Auditor
+    participant Manager
+    participant System
 
-    Auditor->>System: 1. Submit Equipment Request (Dates & Purpose)
-    Manager->>System: 2. Approve Request & Physical Handover
-    Note over Auditor,System: Equipment in use during field audit
-    Auditor->>System: 3. Return Hardware & Click "Mark as Returned"
-    System-->>Auditor: Dashboard displays "Awaiting Manager Confirmation"
-    Manager->>System: 4. Physical Inspection & Click "Confirm Return"
-    System-->>Auditor: Liability cleared; Asset status returned to "Available"
+    Auditor->>System: 1. Submit Equipment Request
+    Manager->>System: 2. Approve Request
+    Note over Auditor,System: Equipment in use
+    Auditor->>System: 3. Return Hardware
+    System-->>Auditor: Dashboard displays Awaiting Confirmation
+    Manager->>System: 4. Physical Inspection
+    System-->>Auditor: Liability cleared
 ```
 
 ### Dashboard Asset Banners
@@ -260,11 +259,10 @@ sequenceDiagram
 - **Core Workflow:**
   1. Review upcoming store teams on the dashboard 48 hours prior to audit launch.
   2. Lead on-site audit associates, ensuring all staff clock in on time.
-  3. Report any discrepancy between scheduled store hours and actual count duration in calendar notes.
+  3. Keep the Audit Manager updated about any roadblocks or changes to the plan.
   4. Ensure on-site hardware is kept secure and return requests are submitted promptly post-audit.
 
 ![SS12: Audit Executive Calendar](../screenshots/SS12_audit_executive_calendar.png)
-![SS13: Timesheet Mismatch Alert](../screenshots/SS13_timesheet_mismatch_alert.png)
 
 ---
 
@@ -275,7 +273,7 @@ sequenceDiagram
   1. Coordinate with planners to ensure store staffing targets are met.
   2. Review and approve pending leave requests in **Leave Approvals**.
   3. Inspect physical condition of returned hardware and click **Confirm Return** in Internal Assets.
-  4. Monitor weekly timesheet submission in **Completion** to eliminate missing entries.
+  4. Monitor weekly task progress in **Completion** to track completed and blocked tasks.
   5. Analyze audit profitability (revenue vs labor/travel costs) in **Audit Margins**.
 
 ![SS18: Asset Return Approvals](../screenshots/SS18_asset_return_approvals.png)
@@ -410,7 +408,7 @@ All tabular data across the KGAC platform supports one-click export in both **CS
 | :--- | :--- | :---: | :--- |
 | **Attendance / Payroll** | Man-Days / Dashboard | CSV, Excel | `Employee ID`, `Name`, `Email`, `Department`, `Entity`, `Total Days`, `Working Days`, `Allocated Days`, `Idle Days`, `PTO Days`, `Sick Days` (11 Columns) |
 | **Asset History** | Internal Assets -> Reports | CSV, Excel | `Asset ID`, `Code`, `Name`, `Category`, `Entity`, `Borrower Name`, `Borrow Date`, `Expected Return`, `Actual Return`, `Confirmed By`, `Status`, `Overdue Days` |
-| **Timesheet Completion**| Completion Page | CSV, Excel | `Employee Name`, `Department`, `Week Of`, `Total Hours Logged`, `Billable Hours`, `Internal Hours`, `Submission Status`, `Mismatch Flag` |
+| **Timesheet Completion**| Completion Page | CSV, Excel | `Project Name`, `Total Tasks`, `Completed`, `In Progress`, `Not Started`, `Blocked`, `Completion %` |
 | **Audit Margins** | Reconciliation Page | CSV, Excel | `Audit ID`, `Client Name`, `Store Code`, `Entity`, `Contract Revenue`, `Labor Cost`, `Contractor Cost`, `Expenses`, `Gross Margin (₹)`, `Margin %` |
 | **System Audit Log** | Super Admin Audit Log | CSV, Excel | `Timestamp`, `Actor Username`, `Action Type`, `Target Entity`, `Target Record ID`, `Changes (Previous vs New JSON Diff)` |
 

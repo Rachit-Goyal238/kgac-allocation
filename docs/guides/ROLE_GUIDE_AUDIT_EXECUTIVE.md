@@ -72,19 +72,9 @@ Field team leads can authenticate using multiple convenient methods:
 
 ---
 
-### 3.3 Managing Schedule Mismatches
-When a field audit is scheduled in the Audit Planner, the system expects logged hours on those exact dates.
-- If store access was delayed by the client or extended by an extra day:
-  1. Log the actual hours on the calendar.
-  2. The system flags this in the **Timesheet Mismatch Tracker**.
-  3. Enter detailed explanatory notes in the calendar cell (e.g., "Store manager arrived 2 hours late; inventory count extended to 10 PM").
-  4. Alert your **Audit Manager** so they can approve the adjustment in billing.
-
-![SS13: Timesheet Mismatch Alert](../screenshots/SS13_timesheet_mismatch_alert.png)
-
 ---
 
-### 3.4 Equipment Custody & Return Handover
+### 3.3 Equipment Custody & Return Handover
 1. As team lead, you may request bulk batches of scanners for your crew via **Internal Assets** (`/assets`).
 2. When the engagement concludes:
    - Collect all gear from field assistants.
