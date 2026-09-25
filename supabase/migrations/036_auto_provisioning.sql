@@ -30,8 +30,8 @@ DECLARE
   counter integer := 1;
 BEGIN
   -- first 3 letters of first name + first 3 letters of last name
-  base_username := lower(substring(regexp_replace(p_first, '[^a-zA-Z]', '', 'g') from 1 for 3)) || 
-                   lower(substring(regexp_replace(p_last, '[^a-zA-Z]', '', 'g') from 1 for 3));
+  base_username := upper(substring(regexp_replace(p_first, '[^a-zA-Z]', '', 'g') from 1 for 3)) || 
+                   upper(substring(regexp_replace(p_last, '[^a-zA-Z]', '', 'g') from 1 for 3));
                    
   -- append 3 random numbers (100-999)
   final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
@@ -165,4 +165,5 @@ GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authentica
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
+
 

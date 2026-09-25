@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/lib/types';
@@ -71,7 +71,7 @@ export function useAuth() {
     try {
       // 1. Fetch email mapped to username using RPC
       const { data: email, error: rpcError } = await supabase.rpc('get_email_by_username', {
-        p_username: username.trim().toLowerCase()
+        p_username: username.trim().toUpperCase()
       });
       if (rpcError) throw new Error(rpcError.message);
       if (!email) throw new Error('Username not found.');
@@ -95,7 +95,7 @@ export function useAuth() {
     try {
       // 1. Fetch real email using RPC
       const { data: email, error: rpcError } = await supabase.rpc('get_email_by_username', {
-        p_username: username.trim().toLowerCase()
+        p_username: username.trim().toUpperCase()
       });
       if (rpcError) throw new Error(rpcError.message);
       if (!email) throw new Error('Username not found.');
@@ -115,3 +115,4 @@ export function useAuth() {
 
   return { user, profile, isLoading, signOut, signIn, resetPassword };
 }
+
