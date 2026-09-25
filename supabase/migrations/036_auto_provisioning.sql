@@ -29,12 +29,16 @@ DECLARE
   final_username text;
   counter integer := 1;
 BEGIN
-  base_username := lower(regexp_replace(p_first, '\s+', '', 'g')) || '.' || lower(regexp_replace(p_last, '\s+', '', 'g'));
-  final_username := base_username;
+  -- first 3 letters of first name + first 3 letters of last name
+  base_username := lower(substring(regexp_replace(p_first, '[^a-zA-Z]', '', 'g') from 1 for 3)) || 
+                   lower(substring(regexp_replace(p_last, '[^a-zA-Z]', '', 'g') from 1 for 3));
+                   
+  -- append 3 random numbers (100-999)
+  final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
   
+  -- ensure uniqueness just in case
   WHILE EXISTS (SELECT 1 FROM profiles WHERE username = final_username) LOOP
-    final_username := base_username || counter::text;
-    counter := counter + 1;
+    final_username := base_username || floor(random() * (999-100+1) + 100)::int::text;
   END LOOP;
   
   RETURN final_username;
