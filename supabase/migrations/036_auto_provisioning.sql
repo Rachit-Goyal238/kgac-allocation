@@ -114,6 +114,7 @@ BEGIN
     SET 
       full_name = emp.first_name || ' ' || emp.last_name,
       employee_id = emp.employee_id,
+        username = v_username,
       personal_email = emp.personal_email,
       department_id = COALESCE(emp.department_id, (SELECT id FROM departments WHERE name = 'Unassigned' LIMIT 1)),
       entity = COALESCE(emp.entity, 'KGAC'),
@@ -174,18 +175,22 @@ CREATE OR REPLACE FUNCTION public.get_email_by_username(p_username text)
 RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
-AS $$
+AS $
 DECLARE
   v_email text;
 BEGIN
-  SELECT personal_email INTO v_email FROM profiles WHERE username = p_username;
-  IF v_email IS NULL THEN
-    -- Fallback to the generated dummy email if personal email is missing
-    v_email := p_username || '@kgac-users.com';
+  IF NOT EXISTS (SELECT 1 FROM profiles WHERE upper(username) = upper(p_username)) THEN
+    RETURN NULL;
   END IF;
+
+  SELECT au.email INTO v_email 
+  FROM profiles p
+  JOIN auth.users au ON au.id = p.id
+  WHERE upper(p.username) = upper(p_username);
+  
   RETURN v_email;
 END;
-$$;
+$;
 GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
@@ -198,3 +203,34 @@ NOTIFY pgrst, 'reload schema';
 
 
 
+
+
+
+
+
+
+
+
+-- OVERRIDE BUGGY RPC
+CREATE OR REPLACE FUNCTION public.get_email_by_username(p_username text)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_email text;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM profiles WHERE upper(username) = upper(p_username)) THEN
+    RETURN NULL;
+  END IF;
+
+  SELECT au.email INTO v_email 
+  FROM profiles p
+  JOIN auth.users au ON au.id = p.id
+  WHERE upper(p.username) = upper(p_username);
+  
+  RETURN v_email;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authenticated;
+NOTIFY pgrst, 'reload schema';
