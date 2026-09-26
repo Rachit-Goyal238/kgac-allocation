@@ -43,7 +43,6 @@ export function TeamBuilder() {
 
   const [selectedVendor, setSelectedVendor] = useState('');
   const [selectedResource, setSelectedResource] = useState('');
-  const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
@@ -63,6 +62,8 @@ export function TeamBuilder() {
     const { data } = await supabase.from('vendor_rates').select('*').eq('vendor_id', selectedVendor); 
     return data || [];
   }, enabled: !!selectedVendor });
+
+  const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
 
@@ -405,6 +406,7 @@ export function TeamBuilder() {
     </div>
   );
 }
+
 
 
 
