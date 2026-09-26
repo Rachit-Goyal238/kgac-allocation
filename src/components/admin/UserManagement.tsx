@@ -129,6 +129,7 @@ export function UserManagement() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead>Emp ID</TableHead>
+              <TableHead>Phone</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Entity</TableHead>
               <TableHead>Department</TableHead>
@@ -275,6 +276,7 @@ export function UserManagement() {
     </div>
   );
 }
+
 
 
 
