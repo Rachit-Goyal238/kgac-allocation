@@ -92,9 +92,30 @@ export function VendorManager() {
   );
 }
 
-function VendorRow({ vendor, rates, queryClient }: { vendor: Vendor, rates: VendorRate[], queryClient: any }) {
+function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], queryClient: any }) {
   const [expanded, setExpanded] = useState(false);
   const [newZone, setNewZone] = useState({ zone_or_reason: '', human_rate: '', asset_rate: '' });
+
+  const { data: resources = [] } = useQuery({
+    queryKey: ['vendor_resources', vendor.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vendor_resources').select('*').eq('vendor_id', vendor.id).order('name');
+      if (error) throw error;
+      return data;
+    },
+    enabled: expanded
+  });
+
+  const deleteVendor = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('vendors').delete().eq('id', vendor.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors_admin'] });
+      toast.success('Vendor deleted');
+    }
+  });
   
   const addRate = useMutation({
     mutationFn: async () => {
@@ -168,6 +189,8 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: Vendor, rates: Vend
     </div>
   );
 }
+
+
 
 
 
