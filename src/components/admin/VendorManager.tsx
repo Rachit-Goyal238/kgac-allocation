@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Vendor, VendorRate } from '@/lib/types';
@@ -9,7 +9,7 @@ import { VendorResourceImporter } from './VendorResourceImporter';
 
 export function VendorManager() {
   const queryClient = useQueryClient();
-  const [newVendor, setNewVendor] = useState({ name: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
+  const [newVendor, setNewVendor] = useState({ name: '', contact_email: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
 
   const { data: vendors, isLoading } = useQuery({
     queryKey: ['vendors_admin'],
@@ -32,8 +32,7 @@ export function VendorManager() {
   const createVendor = useMutation({
     mutationFn: async (v: any) => {
       const { error } = await supabase.from('vendors').insert([{
-        name: v.name,
-        type: v.type,
+        name: v.name, contact_email: v.contact_email, type: v.type,
         default_human_rate: v.default_human_rate ? Number(v.default_human_rate) : null,
         default_asset_rate: v.default_asset_rate ? Number(v.default_asset_rate) : null
       }]);
@@ -41,7 +40,7 @@ export function VendorManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vendors_admin'] });
-      setNewVendor({ name: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
+      setNewVendor({ name: '', contact_email: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
       toast.success('Vendor created');
     }
   });
@@ -55,10 +54,14 @@ export function VendorManager() {
         <VendorResourceImporter />
       </div>
 
-      <div className="bg-slate-50 p-4 rounded-lg border grid grid-cols-5 gap-4 items-end">
+      <div className="bg-slate-50 p-4 rounded-lg border grid grid-cols-6 gap-4 items-end">
         <div>
           <label className="text-xs font-medium">Vendor Name</label>
           <input className="w-full border rounded p-2 text-sm" value={newVendor.name} onChange={e => setNewVendor({...newVendor, name: e.target.value})} />
+        </div>
+        <div>
+          <label className="text-xs font-medium">Contact Email</label>
+          <input className="w-full border rounded p-2 text-sm" value={newVendor.contact_email} onChange={e => setNewVendor({...newVendor, contact_email: e.target.value})} placeholder="Master Vendor Email" />
         </div>
         <div>
           <label className="text-xs font-medium">Type</label>
@@ -242,3 +245,4 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
     </div>
   );
 }
+
