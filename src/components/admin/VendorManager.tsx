@@ -152,7 +152,7 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
       >
         <div>
           <div className="font-medium">{vendor.name}</div>
-          <div className="text-xs text-muted-foreground capitalize">{vendor.type} â€¢ Default: {vendor.default_human_rate || '-'}</div>
+          <div className="text-xs text-muted-foreground capitalize">{vendor.type} | Default: {vendor.default_human_rate || '-'}</div>
         </div>
         <Button variant="outline" size="sm">
           {expanded ? 'Hide Rates' : 'Variable Rates'}
@@ -189,6 +189,7 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
     </div>
   );
 }
+
 
 
 
