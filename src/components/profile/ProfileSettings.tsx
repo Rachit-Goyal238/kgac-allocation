@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUpdateProfile } from '@/hooks/useProfiles';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ export function ProfileSettings() {
   const updateProfile = useUpdateProfile();
   
   const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
 
   // Password state
@@ -25,7 +26,8 @@ export function ProfileSettings() {
     if (!profile) return;
     
     updateProfile.mutate(
-      { id: profile.id, full_name: fullName, avatar_url: avatarUrl },
+      { id: profile.id, full_name: fullName, avatar_url: avatarUrl, phone_number: phoneNumber },
+
       {
         onSuccess: () => {
           // Toast is handled by mutation
@@ -205,3 +207,4 @@ export function ProfileSettings() {
     </div>
   );
 }
+

@@ -83,6 +83,7 @@ export function CSVUploader() {
           first_name: rowData['First Name'] || rowData.first_name,
           last_name: rowData['Last Name'] || rowData.last_name,
           personal_email: rowData['Personal Email'] || rowData.personal_email || null,
+          phone_number: rowData['Phone Number'] || rowData['Phone'] || rowData.phone_number || null,
           role: (rowData.Role || rowData.role || 'employee').toLowerCase(),
           department_id: deptId,
           entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase()
@@ -230,6 +231,7 @@ export function CSVUploader() {
     </Dialog>
   );
 }
+
 
 
 

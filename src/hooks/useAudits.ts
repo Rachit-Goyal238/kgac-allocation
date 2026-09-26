@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Audit, AuditTeam } from '@/lib/types';
 import { toast } from 'sonner';
@@ -30,7 +30,8 @@ export function useAuditTeams(auditId?: string) {
         .select(`
           *,
           user:profiles(full_name, email),
-          vendor:vendors(name, type)
+          vendor:vendors(name, type),
+          vendor_resource:vendor_resources(name, type, default_rate)
         `)
         .eq('audit_id', auditId);
       if (error) throw error;
@@ -149,3 +150,4 @@ export function useDeleteAudit() {
     onError: (error: any) => toast.error(error.message)
   });
 }
+

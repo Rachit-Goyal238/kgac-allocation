@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit } from '@/hooks/useAudits';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -25,19 +25,12 @@ export function TeamBuilder() {
   const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
 
   const { data: vendors } = useQuery({ queryKey: ['vendors'], queryFn: async () => {
-    const { data: v } = await supabase.from('vendors').select('*'); 
-    const { data: internal } = await supabase.from('profiles').select('id, full_name, is_internal_vendor').eq('status', 'active');
-    
-    const internalVendors = internal?.filter(i => i.is_internal_vendor).map(i => ({
-      id: i.id,
-      name: `${i.full_name} (Internal Vendor)`,
-      is_internal: true
-    })) || [];
-    
-    return [...(v || []), ...internalVendors];
+    const { data: v } = await supabase.from('vendors').select('*').order('name'); 
+    return v || [];
   }});
+
   const { data: employees } = useQuery({ queryKey: ['profiles'], queryFn: async () => {
-    const { data } = await supabase.from('profiles').select('*').eq('status', 'active'); return data;
+    const { data } = await supabase.from('profiles').select('*').eq('status', 'active').order('full_name'); return data;
   }});
 
   const selectedAudit = audits?.find(a => a.id === selectedAuditId);
@@ -49,10 +42,20 @@ export function TeamBuilder() {
   const requirementsMet = reqLeads > 0 || reqExecs > 0 ? isTeamSatisfied : true;
 
   const [selectedVendor, setSelectedVendor] = useState('');
+  const [selectedResource, setSelectedResource] = useState('');
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
   const [agreedRate, setAgreedRate] = useState('');
+  
+  // New state for Contact Person
+  const [contactPersonId, setContactPersonId] = useState<string>('');
+
+  const { data: vendorResources } = useQuery({ queryKey: ['vendor_resources_tb', selectedVendor], queryFn: async () => {
+    if (!selectedVendor) return [];
+    const { data } = await supabase.from('vendor_resources').select('*').eq('vendor_id', selectedVendor).order('name'); 
+    return data || [];
+  }, enabled: !!selectedVendor });
 
   const { data: vendorRates } = useQuery({ queryKey: ['vendor_rates', selectedVendor], queryFn: async () => {
     if (!selectedVendor) return [];
@@ -62,361 +65,336 @@ export function TeamBuilder() {
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
 
+  const handleUpdateContactPerson = async () => {
+    if (!selectedAuditId) return;
+    updateAudit.mutate({ id: selectedAuditId, contact_person_id: contactPersonId || null }, {
+      onSuccess: () => toast.success('Contact person updated')
+    });
+  };
+
   const handleAssignVendor = () => {
-    if (!selectedAuditId || !selectedVendor || !selectedAudit) return;
-    
-    const isInternal = vendors?.find((v: any) => v.id === selectedVendor)?.is_internal;
+    if (!selectedAuditId || !selectedVendor || !selectedResource || !selectedAudit) return;
     
     let rateToUse = agreedRate ? Number(agreedRate) : null;
     
     if (!rateToUse) {
       if (selectedRateId) {
          const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
-         if (selectedRateObj) {
-           rateToUse = selectedRole === 'asset' ? selectedRateObj.asset_rate : selectedRateObj.human_rate;
+         const resObj = vendorResources?.find(r => r.id === selectedResource);
+         if (selectedRateObj && resObj) {
+           rateToUse = resObj.type === 'man' ? selectedRateObj.human_rate : selectedRateObj.asset_rate;
          }
       } else {
-         // fallback to default rate
-         const vObj = vendors?.find((v: any) => v.id === selectedVendor);
-         if (vObj && !isInternal) {
-            rateToUse = selectedRole === 'asset' ? vObj.default_asset_rate : vObj.default_human_rate;
+         const resObj = vendorResources?.find(r => r.id === selectedResource);
+         if (resObj && resObj.default_rate) {
+           rateToUse = resObj.default_rate;
          }
       }
     }
 
     assignMember.mutate({
       audit_id: selectedAuditId,
-      audit_date: selectedAudit.audit_date,
       project_id: selectedAudit.project_id,
-      vendor_id: isInternal ? null : selectedVendor,
-      user_id: isInternal ? selectedVendor : null,
+      audit_date: selectedAudit.start_date,
+      vendor_id: selectedVendor,
+      vendor_resource_id: selectedResource,
       role: selectedRole,
       agreed_rate: rateToUse
-    }, { onSuccess: () => { setVendorModalOpen(false); setSelectedVendor(''); setSelectedRateId(''); } });
+    }, {
+      onSuccess: () => {
+        setVendorModalOpen(false);
+        setSelectedVendor('');
+        setSelectedResource('');
+        setSelectedRateId('');
+        setAgreedRate('');
+        setSelectedRole('executive');
+        toast.success('Vendor assigned');
+      }
+    });
   };
 
-  const handleAssignEmployee = async () => {
+  const handleAssignEmployee = () => {
     if (!selectedAuditId || !selectedEmployee || !selectedAudit) return;
-
-    // Check for leave conflicts
-    const { data: conflicts } = await supabase.from('allocations')
-      .select('status, notes')
-      .eq('user_id', selectedEmployee)
-      .eq('allocation_date', selectedAudit.audit_date)
-      .in('status', ['pto', 'sick']);
-
-    if (conflicts && conflicts.length > 0) {
-      const conflictMsg = `WARNING: This employee is scheduled for ${conflicts[0].status.toUpperCase()} (Leave) on ${format(new Date(selectedAudit.audit_date), 'MMM d, yyyy')}.\n\nAre you sure you want to assign them to this audit anyway?`;
-      if (!window.confirm(conflictMsg)) {
-        return; // User cancelled
-      }
-    }
-
     assignMember.mutate({
       audit_id: selectedAuditId,
-      audit_date: selectedAudit.audit_date,
       project_id: selectedAudit.project_id,
-      vendor_id: null,
+      audit_date: selectedAudit.start_date,
       user_id: selectedEmployee,
-      role: selectedRole,
-      agreed_rate: agreedRate ? Number(agreedRate) : null
-    }, { onSuccess: () => setEmployeeModalOpen(false) });
+      role: selectedRole
+    }, {
+      onSuccess: () => {
+        setEmployeeModalOpen(false);
+        setSelectedEmployee('');
+        setSelectedRole('executive');
+        toast.success('Employee assigned');
+      }
+    });
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {/* Left Col: Audit List */}
-      <Card className="md:col-span-1 h-[calc(100vh-250px)] flex flex-col">
-        <CardHeader className="pb-3">
-          <CardTitle>Scheduled Audits</CardTitle>
-          <CardDescription>Select an audit to build its team.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto space-y-2 pr-2">
-          {!audits || audits.length === 0 ? (
-            <div className="text-sm text-muted-foreground text-center py-8">No scheduled audits found.</div>
-          ) : (
-            audits.map((audit: any) => (
-              <div 
-                key={audit.id}
-                onClick={() => setSelectedAuditId(audit.id)}
-                className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedAuditId === audit.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}
-              >
-                <div className="font-medium text-sm">{audit.store_name}</div>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs text-muted-foreground">{audit.client?.name}</span>
-                  <span className="text-xs font-medium">{format(new Date(audit.audit_date), 'MMM d, yy')}</span>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Right Col: Team Builder */}
-      <Card className="md:col-span-2 h-[calc(100vh-250px)] flex flex-col">
-        <CardHeader className="flex flex-row items-start justify-between">
-          <div>
-            <CardTitle>
-              {selectedAudit ? `Team: ${selectedAudit.store_name}` : 'Team Builder'}
-            </CardTitle>
-            <CardDescription>
-              {selectedAudit ? `Assign internal and external resources for ${format(new Date(selectedAudit.audit_date), 'MMMM d, yyyy')}` : 'Select an audit to begin.'}
-            </CardDescription>
+    <div className="flex gap-6 h-[calc(100vh-140px)]">
+      {/* Left List */}
+      <div className="w-1/3 border-r pr-4 overflow-y-auto space-y-3">
+        <h3 className="font-semibold text-lg mb-4">Audits ({audits?.length || 0})</h3>
+        {audits?.map((audit: any) => (
+          <div 
+            key={audit.id} 
+            className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedAuditId === audit.id ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-slate-50'}`}
+            onClick={() => {
+              setSelectedAuditId(audit.id);
+              setContactPersonId(audit.contact_person_id || '');
+            }}
+          >
+            <div className="font-medium text-sm">{audit.project?.name || 'Unknown Project'}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {format(new Date(audit.start_date), 'MMM d, yyyy')} - {format(new Date(audit.end_date), 'MMM d, yyyy')}
+            </div>
+            <div className="flex justify-between items-center mt-3">
+               <Badge variant={audit.status === 'scheduled' ? 'default' : 'secondary'} className="text-[10px] capitalize">
+                 {audit.status}
+               </Badge>
+               <div className="text-xs text-slate-500">
+                 {audit.required_leads} Leads, {audit.required_executives} Execs
+               </div>
+            </div>
           </div>
-          {selectedAudit && (
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase">Revenue:</span>
-                <div className="relative">
-                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">₹</span>
-                  <input 
-                    key={selectedAudit.id}
-                    type="number"
-                    className="h-8 w-24 rounded-md border border-input bg-background pl-6 pr-2 py-1 text-xs"
-                    defaultValue={selectedAudit.billing_amount || 0}
-                    onBlur={(e) => {
-                      const val = Number(e.target.value);
-                      if (val !== selectedAudit.billing_amount) {
-                        updateAudit.mutate({ id: selectedAudit.id, billing_amount: val });
-                      }
-                    }}
-                    disabled={updateAudit.isPending}
-                  />
-                </div>
+        ))}
+      </div>
+
+      {/* Right Panel */}
+      <div className="w-2/3 pl-2 overflow-y-auto">
+        {!selectedAuditId ? (
+          <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+            Select an audit from the list to build the team.
+          </div>
+        ) : (
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle>{selectedAudit?.project?.name}</CardTitle>
+                <CardDescription>
+                  {format(new Date(selectedAudit?.start_date), 'MMMM d, yyyy')} to {format(new Date(selectedAudit?.end_date), 'MMMM d, yyyy')}
+                </CardDescription>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase">Req. Leads:</span>
-                <span className="text-sm font-semibold">{selectedAudit.required_leads || 0}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase">Req. Execs:</span>
-                <span className="text-sm font-semibold">{selectedAudit.required_executives || 0}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase">Status:</span>
-                <select 
-                  className="h-8 rounded-md border border-input bg-background px-2 py-1 text-xs"
-                  value={selectedAudit.status}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if ((val === 'in_progress' || val === 'completed') && !requirementsMet) {
-                      toast.error('Cannot change status: Team size requirements not met.');
-                      return;
-                    }
-                    updateAudit.mutate({ id: selectedAudit.id, status: val });
-                  }}
-                  disabled={updateAudit.isPending}
-                >
-                  <option value="scheduled">Scheduled</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 ml-2"
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete this audit? This will remove all team assignments and delete the associated project.')) {
-                    deleteAudit.mutate(selectedAudit, { onSuccess: () => setSelectedAuditId(null) });
-                  }
-                }}
-              >
+              <Button variant="destructive" size="sm" onClick={() => {
+                if(confirm('Delete this audit entirely?')) deleteAudit.mutate(selectedAuditId);
+              }}>
                 <Trash2 className="h-4 w-4" />
               </Button>
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto">
-          {!selectedAudit ? (
-            <div className="h-full flex items-center justify-center border-2 border-dashed rounded-lg text-muted-foreground">
-              No audit selected
-            </div>
-          ) : isLoadingTeam ? (
-            <div className="flex justify-center py-8"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
-          ) : (
-            <div className="space-y-6">
+            </CardHeader>
+            <CardContent>
               
-              {(reqLeads > 0 || reqExecs > 0) && (
-                <div className={`p-4 rounded-lg border ${requirementsMet ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
-                  <h4 className={`text-sm font-semibold mb-2 ${requirementsMet ? 'text-green-800' : 'text-amber-800'}`}>
-                    {requirementsMet ? 'Team Size Satisfied' : 'Missing Team Requirements'}
-                  </h4>
-                  <div className="flex gap-6 text-sm">
-                    {reqLeads > 0 && (
-                      <div className={assignedLeads < reqLeads ? 'text-amber-700 font-medium' : 'text-green-700'}>
-                        Leads: {assignedLeads} / {reqLeads}
-                      </div>
-                    )}
-                    {reqExecs > 0 && (
-                      <div className={assignedExecs < reqExecs ? 'text-amber-700 font-medium' : 'text-green-700'}>
-                        Executives: {assignedExecs} / {reqExecs}
-                      </div>
-                    )}
+              <div className="space-y-6">
+              
+                {/* Contact Person Setup */}
+                <div className="p-4 rounded-lg border bg-slate-50 space-y-3">
+                  <h4 className="text-sm font-semibold">Audit Management</h4>
+                  <div className="flex gap-2 items-center">
+                    <label className="text-sm text-muted-foreground w-1/4">Contact Person</label>
+                    <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm" 
+                      value={contactPersonId} onChange={e => setContactPersonId(e.target.value)}>
+                      <option value="">-- Select Contact Person --</option>
+                      {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
+                    </select>
+                    <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save</Button>
                   </div>
+                </div>
+
+                {(reqLeads > 0 || reqExecs > 0) && (
+                  <div className={`p-4 rounded-lg border ${requirementsMet ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                    <h4 className={`text-sm font-semibold mb-2 ${requirementsMet ? 'text-green-800' : 'text-amber-800'}`}>
+                      {requirementsMet ? 'Team Size Satisfied' : 'Missing Team Requirements'}
+                    </h4>
+                    <div className="flex gap-6 text-sm">
+                      {reqLeads > 0 && (
+                        <div className={assignedLeads < reqLeads ? 'text-amber-700 font-medium' : 'text-green-700'}>
+                          Leads: {assignedLeads} / {reqLeads}
+                        </div>
+                      )}
+                      {reqExecs > 0 && (
+                        <div className={assignedExecs < reqExecs ? 'text-amber-700 font-medium' : 'text-green-700'}>
+                          Executives: {assignedExecs} / {reqExecs}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setVendorModalOpen(true)}><Building className="w-4 h-4 mr-2" /> Add Vendor</Button>
+                  <Button size="sm" onClick={() => setEmployeeModalOpen(true)}><UserPlus className="w-4 h-4 mr-2" /> Add Employee</Button>
+                </div>
+
+                <div className="border rounded-md divide-y">
+                  {isLoadingTeam ? (
+                    <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                  ) : !team || team.length === 0 ? (
+                    <div className="p-8 text-center text-muted-foreground text-sm">
+                      No resources assigned yet.
+                    </div>
+                  ) : (
+                    team.map((member: any) => (
+                      <div key={member.id} className="p-4 flex items-center justify-between hover:bg-slate-50">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                            {member.user_id ? <User className="h-5 w-5 text-slate-600" /> : <Building className="h-5 w-5 text-slate-600" />}
+                          </div>
+                          <div>
+                            <div className="font-medium">
+                              {member.user_id ? member.user?.full_name : (member.vendor_resource?.name || member.vendor?.name)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {member.vendor_id ? `via ${member.vendor?.name}` : member.user?.email}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-[10px] uppercase">{member.role}</Badge>
+                              {member.vendor_id && <Badge variant="secondary" className="text-[10px]">External Rate: {member.agreed_rate || 'Default'}</Badge>}
+                            </div>
+                          </div>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => { if(confirm('Remove member?')) removeMember.mutate({ id: member.id, auditId: selectedAudit.id }) }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Vendor Assignment Modal */}
+        <Dialog open={vendorModalOpen} onOpenChange={setVendorModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Vendor Resource</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">1. Select Master Vendor</label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                  value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedResource(''); setSelectedRateId(''); }}>
+                  <option value="">-- Choose Vendor --</option>
+                  {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                </select>
+              </div>
+
+              {selectedVendor && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">2. Select Resource (Man/Asset)</label>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                    value={selectedResource} onChange={e => { setSelectedResource(e.target.value); setSelectedRateId(''); }}>
+                    <option value="">-- Choose Resource --</option>
+                    {vendorResources?.map((r: any) => <option key={r.id} value={r.id}>{r.name} ({r.type}) - Default Rate: {r.default_rate || 'None'}</option>)}
+                  </select>
+                </div>
+              )}
+              
+              {selectedResource && vendorRates && vendorRates.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">3. Rate Override (Optional)</label>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                    value={selectedRateId} onChange={e => setSelectedRateId(e.target.value)}>
+                    <option value="">-- Use Resource Default --</option>
+                    {vendorRates.map((r: any) => <option key={r.id} value={r.id}>{r.zone_or_reason} (Human: {r.human_rate || '-'}, Asset: {r.asset_rate || '-'})</option>)}
+                  </select>
                 </div>
               )}
 
-              <div className="flex justify-end gap-2">
-                <Button size="sm" variant="outline" onClick={() => setVendorModalOpen(true)}><Building className="w-4 h-4 mr-2" /> Add Vendor</Button>
-                <Button size="sm" onClick={() => setEmployeeModalOpen(true)}><UserPlus className="w-4 h-4 mr-2" /> Add Employee</Button>
-              </div>
-
-              <div className="border rounded-md divide-y">
-                {!team || team.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground text-sm">
-                    No resources assigned yet.
+              {selectedResource && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Role</label>
+                    <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                      value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
+                      <option value="lead">Lead</option>
+                      <option value="executive">Executive</option>
+                      <option value="asset">Asset / Equipment</option>
+                    </select>
                   </div>
-                ) : (
-                  team.map((member: any) => (
-                    <div key={member.id} className="p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                          {member.user_id ? <User className="h-5 w-5 text-slate-600" /> : <Building className="h-5 w-5 text-slate-600" />}
-                        </div>
-                        <div>
-                          <div className="font-medium">{member.user_id ? member.user?.full_name : member.vendor?.name}</div>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className="text-xs capitalize">{member.role}</Badge>
-                            {member.vendor_id && <Badge variant="secondary" className="text-xs">External Vendor</Badge>}
-                            {member.user_id && <Badge variant="secondary" className="text-xs">Internal Employee</Badge>}
-                          </div>
-                        </div>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => { if(confirm('Remove member?')) removeMember.mutate({ id: member.id, auditId: selectedAudit.id }) }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  ))
-                )}
-              </div>
-
+    
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Manual Custom Rate (Overrides Everything)</label>
+                    <Input type="number" value={agreedRate} onChange={(e: any) => setAgreedRate(e.target.value)} placeholder="0.00" />
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setVendorModalOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleAssignVendor} 
+                disabled={
+                  !selectedVendor || !selectedResource || assignMember.isPending || 
+                  (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
+                  (selectedRole === 'executive' && assignedExecs >= reqExecs)
+                }
+              >
+                {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Assign
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Vendor Assignment Modal */}
-      <Dialog open={vendorModalOpen} onOpenChange={setVendorModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assign Vendor Resource</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Vendor</label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedRateId(''); }}>
-                <option value="">-- Choose Vendor --</option>
-                {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
-              </select>
-            </div>
-            
-            {vendorRates && vendorRates.length > 0 && (
+        {/* Employee Assignment Modal */}
+        <Dialog open={employeeModalOpen} onOpenChange={setEmployeeModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign Internal Employee</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Select Variable Rate (Zone/Reason)</label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedRateId} onChange={e => setSelectedRateId(e.target.value)}>
-                  <option value="">-- Use Default Rate --</option>
-                  {vendorRates.map((r: any) => <option key={r.id} value={r.id}>{r.zone_or_reason} (Human: {r.human_rate || '-'}, Asset: {r.asset_rate || '-'})</option>)}
+                <label className="text-sm font-medium">Select Employee</label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                  value={selectedEmployee} onChange={e => setSelectedEmployee(e.target.value)}>
+                  <option value="">-- Choose Employee --</option>
+                  {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
                 </select>
               </div>
-            )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Role</label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
-                <option value="lead">Lead</option>
-                <option value="executive">Executive</option>
-                <option value="asset">Asset / Equipment</option>
-              </select>
-              {selectedRole === 'lead' && assignedLeads >= reqLeads && (
-                <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
-              )}
-              {selectedRole === 'executive' && assignedExecs >= reqExecs && (
-                <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
-              )}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Role</label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
+                  value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
+                  <option value="lead">Lead</option>
+                  <option value="executive">Executive</option>
+                </select>
+                {selectedRole === 'lead' && assignedLeads >= reqLeads && (
+                  <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
+                )}
+                {selectedRole === 'executive' && assignedExecs >= reqExecs && (
+                  <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
+                )}
+              </div>
             </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Agreed Rate Override (Required for Internal Vendors)</label>
-              <Input type="number" value={agreedRate} onChange={(e: any) => setAgreedRate(e.target.value)} placeholder="0.00" />
-            </div>
-
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setVendorModalOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleAssignVendor} 
-              disabled={
-                !selectedVendor || 
-                assignMember.isPending || 
-                (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
-                (selectedRole === 'executive' && assignedExecs >= reqExecs)
-              }
-            >
-              {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Assign
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Employee Assignment Modal */}
-      <Dialog open={employeeModalOpen} onOpenChange={setEmployeeModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Assign Internal Employee</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Select Employee</label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedEmployee} onChange={e => setSelectedEmployee(e.target.value)}>
-                <option value="">-- Choose Employee --</option>
-                {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Role</label>
-              <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
-                <option value="lead">Lead</option>
-                <option value="executive">Executive</option>
-              </select>
-              {selectedRole === 'lead' && assignedLeads >= reqLeads && (
-                <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
-              )}
-              {selectedRole === 'executive' && assignedExecs >= reqExecs && (
-                <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Man Day Cost (₹) [Optional]</label>
-              <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={agreedRate} onChange={(e: any) => setAgreedRate(e.target.value)} placeholder="Cost per day" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEmployeeModalOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleAssignEmployee} 
-              disabled={
-                !selectedEmployee || 
-                assignMember.isPending || 
-                (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
-                (selectedRole === 'executive' && assignedExecs >= reqExecs)
-              }
-            >
-              {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Assign
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEmployeeModalOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleAssignEmployee} 
+                disabled={
+                  !selectedEmployee || 
+                  assignMember.isPending || 
+                  (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
+                  (selectedRole === 'executive' && assignedExecs >= reqExecs)
+                }
+              >
+                {assignMember.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Assign
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
 
-// (I will rewrite TeamBuilder completely to include this if needed, but it is 300+ lines. Let's use replace_file_content)
+
 

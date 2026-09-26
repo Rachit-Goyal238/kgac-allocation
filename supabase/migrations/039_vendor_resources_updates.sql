@@ -1,4 +1,4 @@
--- 039_vendor_resources_updates.sql
+﻿-- 039_vendor_resources_updates.sql
 ALTER TABLE public.vendor_resources ADD COLUMN IF NOT EXISTS contact_email text;
 ALTER TABLE public.vendor_resources DROP CONSTRAINT IF EXISTS vendor_resources_vendor_id_name_key;
 ALTER TABLE public.vendor_resources ADD CONSTRAINT vendor_resources_vendor_id_name_key UNIQUE (vendor_id, name);
@@ -22,7 +22,7 @@ DECLARE
   v_contact_person text;
 BEGIN
   -- We only care about external vendors assigned
-  IF NEW.resource_type = 'external' AND NEW.vendor_resource_id IS NOT NULL THEN
+  IF NEW.vendor_id IS NOT NULL AND NEW.vendor_resource_id IS NOT NULL THEN
     
     -- Get project details and contact person
     SELECT p.name, pr.full_name INTO v_project_name, v_contact_person
@@ -70,3 +70,4 @@ CREATE TRIGGER trigger_notify_vendor_on_assignment
   AFTER INSERT ON public.audit_teams
   FOR EACH ROW
   EXECUTE FUNCTION public.notify_vendor_on_assignment();
+

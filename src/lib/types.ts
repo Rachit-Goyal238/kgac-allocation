@@ -45,6 +45,7 @@ export interface Profile {
   status: UserStatus;
   zone?: string | null;
   is_internal_vendor?: boolean;
+  phone_number?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -324,6 +325,8 @@ export interface AuditTeam {
   vendor_resource_id?: string | null;
   role: "lead" | "executive" | "asset";
   agreed_rate: number | null;
+  assigned_rate?: number | null;
+  resource_type?: 'internal' | 'external';
   created_at: string;
 }
 
@@ -366,5 +369,7 @@ export interface AssetRequest {
   created_at: string;
   updated_at: string;
 }
+
+
 
 
