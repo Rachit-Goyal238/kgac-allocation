@@ -16,7 +16,15 @@ export function VendorManager() {
     queryFn: async () => {
       const { data, error } = await supabase.from('vendors').select('*').order('name');
       if (error) throw error;
-      return data as Vendor[];
+      const { data: internalProfiles } = await supabase.from('profiles').select('*').eq('is_internal_vendor', true);
+      const internalVendors = internalProfiles?.map(p => ({
+        id: p.id,
+        name: p.full_name + ' (Internal Employee Vendor)',
+        type: 'individual',
+        contact_email: p.email,
+        is_internal_user: true
+      })) || [];
+      return [...(data as any[]), ...internalVendors];
     }
   });
 
@@ -245,4 +253,5 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
     </div>
   );
 }
+
 

@@ -26,7 +26,14 @@ export function TeamBuilder() {
 
   const { data: vendors } = useQuery({ queryKey: ['vendors'], queryFn: async () => {
     const { data: v } = await supabase.from('vendors').select('*').order('name'); 
-    return v || [];
+    const { data: internalProfiles } = await supabase.from('profiles').select('*').eq('is_internal_vendor', true);
+    const internalVendors = internalProfiles?.map(p => ({
+      id: p.id,
+      name: p.full_name + ' (Internal Employee Vendor)',
+      type: 'individual',
+      is_internal_user: true
+    })) || [];
+    return [...(v || []), ...internalVendors];
   }});
 
   const { data: employees } = useQuery({ queryKey: ['profiles'], queryFn: async () => {
@@ -46,6 +53,7 @@ export function TeamBuilder() {
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
+  const [actingAs, setActingAs] = useState<'solo' | 'agency'>('solo');
   const [agreedRate, setAgreedRate] = useState('');
   
   // New state for Contact Person
@@ -64,7 +72,7 @@ export function TeamBuilder() {
   }, enabled: !!selectedVendor });
 
   const selectedVendorObj = vendors?.find((v: any) => v.id === selectedVendor);
-  const isIndividual = selectedVendorObj?.type === 'individual';
+  const isIndividual = selectedVendorObj?.type === 'individual' && actingAs === 'solo';
   const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
@@ -109,8 +117,8 @@ export function TeamBuilder() {
       audit_id: selectedAuditId,
       project_id: selectedAudit.project_id,
       audit_date: selectedAudit.audit_date,
-      user_id: null,
-      vendor_id: selectedVendor,
+      user_id: selectedVendorObj?.is_internal_user ? selectedVendor : null,
+        vendor_id: selectedVendorObj?.is_internal_user ? null : selectedVendor,
       vendor_resource_id: isIndividual ? null : selectedResource,
       role: selectedRole,
       agreed_rate: rateToUse
@@ -296,13 +304,29 @@ export function TeamBuilder() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">1. Select Master Vendor</label>
                 <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
-                  value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedResource(''); setSelectedRateId(''); }}>
+                  value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedResource(''); setSelectedRateId(''); setActingAs('solo'); }}>
                   <option value="">-- Choose Vendor --</option>
                   {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
                 </select>
               </div>
 
-              {selectedVendor && !isIndividual && (
+              {selectedVendor && selectedVendorObj?.type === 'individual' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Acting as</label>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center space-x-2">
+                      <input type="radio" value="solo" checked={actingAs === 'solo'} onChange={() => { setActingAs('solo'); setSelectedResource(''); }} className="accent-indigo-600" />
+                      <span className="text-sm">Solo Resource</span>
+                    </label>
+                    <label className="flex items-center space-x-2">
+                      <input type="radio" value="agency" checked={actingAs === 'agency'} onChange={() => setActingAs('agency')} className="accent-indigo-600" />
+                      <span className="text-sm">Agency (Providing someone else)</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {selectedVendor && (!isIndividual || actingAs === 'agency') && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">2. Select Resource (Man/Asset)</label>
                   <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
@@ -417,6 +441,10 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
+
+
 
 
 

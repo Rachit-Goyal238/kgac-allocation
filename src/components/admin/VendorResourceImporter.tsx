@@ -31,7 +31,9 @@ export function VendorResourceImporter() {
     const file = acceptedFiles[0];
     if (!file) return;
 
-    const { data: vendors } = await supabase.from('vendors').select('id, name');
+    const { data: v } = await supabase.from('vendors').select('id, name');
+    const { data: p } = await supabase.from('profiles').select('id, full_name').eq('is_internal_vendor', true);
+    const vendors = [...(v || []), ...(p?.map(x => ({ id: x.id, name: x.full_name })) || [])];
     
     Papa.parse(file, {
       header: true,
@@ -225,4 +227,5 @@ export function VendorResourceImporter() {
     </Dialog>
   );
 }
+
 
