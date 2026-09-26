@@ -170,48 +170,25 @@ BEGIN
 END;
 $$;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 -- RPC for Getting Email by Username during Login
-CREATE OR REPLACE FUNCTION public.get_email_by_username(p_username text)
-RETURNS text
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $
-DECLARE
-  v_email text;
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM profiles WHERE upper(username) = upper(p_username)) THEN
-    RETURN NULL;
-  END IF;
-
-  SELECT au.email INTO v_email 
-  FROM profiles p
-  JOIN auth.users au ON au.id = p.id
-  WHERE upper(p.username) = upper(p_username);
-  
-  RETURN v_email;
-END;
-$;
-GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
-NOTIFY pgrst, 'reload schema';
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- OVERRIDE BUGGY RPC
 CREATE OR REPLACE FUNCTION public.get_email_by_username(p_username text)
 RETURNS text
 LANGUAGE plpgsql
@@ -233,4 +210,6 @@ BEGIN
 END;
 $$;
 GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
