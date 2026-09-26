@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 
 export function TeamBuilder() {
   const { data: audits, isLoading: isLoadingAudits } = useAudits();
-  const [selectedAuditId, setSelectedAuditId] = useState<string | null>(null);
+  const [selectedAuditId, setSelectedAuditId] = useState<string | null>(sessionStorage.getItem('teamBuilderAuditId') || null);
 
   const { data: team, isLoading: isLoadingTeam } = useAuditTeams(selectedAuditId || undefined);
   const assignMember = useAssignTeamMember();
@@ -43,6 +43,7 @@ export function TeamBuilder() {
 
   const [selectedVendor, setSelectedVendor] = useState('');
   const [selectedResource, setSelectedResource] = useState('');
+  const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
@@ -145,7 +146,7 @@ export function TeamBuilder() {
             key={audit.id} 
             className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedAuditId === audit.id ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-slate-50'}`}
             onClick={() => {
-              setSelectedAuditId(audit.id);
+              setSelectedAuditId(audit.id); sessionStorage.setItem('teamBuilderAuditId', audit.id);
               setContactPersonId(audit.contact_person_id || '');
             }}
           >
@@ -293,7 +294,7 @@ export function TeamBuilder() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">2. Select Resource (Man/Asset)</label>
                   <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
-                    value={selectedResource} onChange={e => { setSelectedResource(e.target.value); setSelectedRateId(''); }}>
+                    value={selectedResource} onChange={e => { const newResId = e.target.value; setSelectedResource(newResId); setSelectedRateId(''); const resType = vendorResources?.find((r: any) => r.id === newResId)?.type; if (resType === 'asset') setSelectedRole('asset'); else if (selectedRole === 'asset') setSelectedRole('executive'); }}>
                     <option value="">-- Choose Resource --</option>
                     {vendorResources?.map((r: any) => <option key={r.id} value={r.id}>{r.name} ({r.type}) - Default Rate: {r.default_rate || 'None'}</option>)}
                   </select>
@@ -317,9 +318,14 @@ export function TeamBuilder() {
                     <label className="text-sm font-medium">Role</label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
                       value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
-                      <option value="lead">Lead</option>
-                      <option value="executive">Executive</option>
-                      <option value="asset">Asset / Equipment</option>
+                      {selectedResourceObj?.type === 'asset' ? (
+                        <option value="asset">Asset / Equipment</option>
+                      ) : (
+                        <>
+                          <option value="lead">Lead</option>
+                          <option value="executive">Executive</option>
+                        </>
+                      )}
                     </select>
                   </div>
     
@@ -399,6 +405,9 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
+
 
 
 
