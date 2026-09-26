@@ -96,6 +96,7 @@ export function TeamBuilder() {
       audit_id: selectedAuditId,
       project_id: selectedAudit.project_id,
       audit_date: selectedAudit.start_date,
+      user_id: null,
       vendor_id: selectedVendor,
       vendor_resource_id: selectedResource,
       role: selectedRole,
@@ -120,7 +121,10 @@ export function TeamBuilder() {
       project_id: selectedAudit.project_id,
       audit_date: selectedAudit.start_date,
       user_id: selectedEmployee,
-      role: selectedRole
+      vendor_id: null,
+      vendor_resource_id: null,
+      role: selectedRole,
+      agreed_rate: null
     }, {
       onSuccess: () => {
         setEmployeeModalOpen(false);
@@ -395,6 +399,7 @@ export function TeamBuilder() {
     </div>
   );
 }
+
 
 
 
