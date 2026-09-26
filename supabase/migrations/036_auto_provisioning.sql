@@ -112,8 +112,6 @@ BEGIN
     -- update that row with the imported data.
     UPDATE public.profiles
     SET 
-      first_name = emp.first_name,
-      last_name = emp.last_name,
       full_name = emp.first_name || ' ' || emp.last_name,
       employee_id = emp.employee_id,
       personal_email = emp.personal_email,
@@ -192,6 +190,7 @@ GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authentica
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
+
 
 
 
