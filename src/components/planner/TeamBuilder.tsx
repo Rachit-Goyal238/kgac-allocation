@@ -11,7 +11,9 @@ import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
+import { useQueryClient } from '@tanstack/react-query';
 export function TeamBuilder() {
+  const queryClient = useQueryClient();
   const { data: audits, isLoading: isLoadingAudits } = useAudits();
   const [selectedAuditId, setSelectedAuditId] = useState<string | null>(sessionStorage.getItem('teamBuilderAuditId') || null);
 
@@ -79,13 +81,15 @@ export function TeamBuilder() {
 
   const [isNotifying, setIsNotifying] = useState(false);
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
-  const handleNotifyVendors = async () => {
+  const handlePublishAudit = async () => {
     if (!selectedAuditId) return;
     setIsNotifying(true);
     try {
-      const { error } = await supabase.rpc('notify_audit_vendors', { p_audit_id: selectedAuditId });
+      const { error } = await supabase.rpc('publish_audit', { p_audit_id: selectedAuditId });
       if (error) throw error;
-      toast.success('Notifications sent to all assigned vendors!');
+      toast.success('Audit scheduled, team allocated, and vendors notified!');
+        queryClient.invalidateQueries({ queryKey: ['audits'] });
+        queryClient.invalidateQueries({ queryKey: ['allocations'] });
     } catch (err: any) {
       toast.error('Failed to send notifications: ' + err.message);
     } finally {
@@ -240,9 +244,9 @@ export function TeamBuilder() {
                     <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save</Button>
                     </div>
                     <div className="pt-2 mt-2 border-t flex justify-end">
-                      <Button variant="outline" size="sm" onClick={handleNotifyVendors} disabled={isNotifying || !team || team.length === 0}>
+                      <Button variant="outline" size="sm" onClick={handlePublishAudit} disabled={isNotifying || !team || team.length === 0}>
                         {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Send Notifications to Vendors
+                        Publish & Notify Team
                       </Button>
                     </div>
                   </div>
@@ -463,6 +467,8 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
 
 
 

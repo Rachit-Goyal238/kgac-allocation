@@ -54,33 +54,6 @@ export function useAssignTeamMember() {
           .single();
         if (error) throw error;
   
-        if (teamData.user_id && project_id) {
-          // 1. Assign employee to the project for their selective view
-          const { error: projError } = await supabase
-            .from('project_assignments')
-            .upsert({
-              project_id: project_id,
-              user_id: teamData.user_id
-            }, { onConflict: 'project_id,user_id' });
-            
-          if (projError) console.error('Failed to assign project:', projError);
-
-          // 2. Create a calendar allocation (now using insert since we allow multiple projects per day)
-          if (audit_date) {
-            const { error: allocError } = await supabase
-              .from('allocations')
-              .insert({
-                user_id: teamData.user_id,
-                allocation_date: audit_date,
-                audit_id: teamData.audit_id,
-                project_id: project_id,
-                hours: 0,
-                status: 'billable',
-                notes: 'Auto-assigned from Audit Planner'
-              });
-            if (allocError) console.error('Failed to create allocation:', allocError);
-          }
-        }
   
         return data;
       },
@@ -150,4 +123,6 @@ export function useDeleteAudit() {
     onError: (error: any) => toast.error(error.message)
   });
 }
+
+
 
