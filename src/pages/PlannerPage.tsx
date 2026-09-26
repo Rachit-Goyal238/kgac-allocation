@@ -45,7 +45,7 @@ export function PlannerPage() {
           <TabsTrigger value="vendors">Vendors</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="import" forceMount className={"mt-0 space-y-6 "}>
+        <TabsContent value="import" forceMount className={activeTab !== 'import' ? 'hidden' : 'mt-0 space-y-6'}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <AuditImportTool />
             
@@ -85,17 +85,20 @@ export function PlannerPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="teams" forceMount className={"mt-0 "}>
+        <TabsContent value="teams" forceMount className={activeTab !== 'teams' ? 'hidden' : 'mt-0'}>
           <TeamBuilder />
         </TabsContent>
 
-        <TabsContent value="vendors" forceMount className={"mt-0 "}>
+        <TabsContent value="vendors" forceMount className={activeTab !== 'vendors' ? 'hidden' : 'mt-0'}>
           <VendorManager />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+
+
 
 
 

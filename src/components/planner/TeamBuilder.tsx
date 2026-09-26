@@ -63,6 +63,8 @@ export function TeamBuilder() {
     return data || [];
   }, enabled: !!selectedVendor });
 
+  const selectedVendorObj = vendors?.find((v: any) => v.id === selectedVendor);
+  const isIndividual = selectedVendorObj?.type === 'individual';
   const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
@@ -75,11 +77,19 @@ export function TeamBuilder() {
   };
 
   const handleAssignVendor = () => {
-    if (!selectedAuditId || !selectedVendor || !selectedResource || !selectedAudit) return;
+    if (!selectedAuditId || !selectedVendor || (!isIndividual && !selectedResource) || !selectedAudit) return;
     
     let rateToUse = agreedRate ? Number(agreedRate) : null;
     
     if (!rateToUse) {
+      if (isIndividual) {
+        if (selectedRateId) {
+          const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
+          if (selectedRateObj) rateToUse = selectedRateObj.human_rate;
+        } else {
+          rateToUse = selectedVendorObj?.default_human_rate;
+        }
+      } else {
       if (selectedRateId) {
          const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
          const resObj = vendorResources?.find(r => r.id === selectedResource);
@@ -93,6 +103,7 @@ export function TeamBuilder() {
          }
       }
     }
+    }
 
     assignMember.mutate({
       audit_id: selectedAuditId,
@@ -100,7 +111,7 @@ export function TeamBuilder() {
       audit_date: selectedAudit.audit_date,
       user_id: null,
       vendor_id: selectedVendor,
-      vendor_resource_id: selectedResource,
+      vendor_resource_id: isIndividual ? null : selectedResource,
       role: selectedRole,
       agreed_rate: rateToUse
     }, {
@@ -291,7 +302,7 @@ export function TeamBuilder() {
                 </select>
               </div>
 
-              {selectedVendor && (
+              {selectedVendor && !isIndividual && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">2. Select Resource (Man/Asset)</label>
                   <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
@@ -302,7 +313,7 @@ export function TeamBuilder() {
                 </div>
               )}
               
-              {selectedResource && vendorRates && vendorRates.length > 0 && (
+              {(selectedResource || isIndividual) && vendorRates && vendorRates.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">3. Rate Override (Optional)</label>
                   <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
@@ -313,7 +324,7 @@ export function TeamBuilder() {
                 </div>
               )}
 
-              {selectedResource && (
+              {(selectedResource || isIndividual) && (
                 <>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
@@ -342,7 +353,7 @@ export function TeamBuilder() {
               <Button 
                 onClick={handleAssignVendor} 
                 disabled={
-                  !selectedVendor || !selectedResource || assignMember.isPending || 
+                  !selectedVendor || (!isIndividual && !selectedResource) || assignMember.isPending || 
                   (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
                   (selectedRole === 'executive' && assignedExecs >= reqExecs)
                 }
@@ -406,6 +417,9 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
+
 
 
 
