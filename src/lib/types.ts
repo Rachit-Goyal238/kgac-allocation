@@ -1,4 +1,4 @@
-// ─── Enums & Literal Types ───────────────────────────────────────────────────
+﻿// â”€â”€â”€ Enums & Literal Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export type UserRole =
   | "employee"
@@ -28,7 +28,7 @@ export type AuditAction =
   | "APPROVAL";
 export type UserEntity = "KGAC" | "KPL";
 
-// ─── Database Row Types ──────────────────────────────────────────────────────
+// â”€â”€â”€ Database Row Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface Profile {
   id: string;
@@ -64,6 +64,7 @@ export interface Project {
   is_active: boolean;
   is_billable: boolean;
   client_id: string | null;
+  contact_person_id?: string | null;
   created_at: string;
 }
 
@@ -124,7 +125,7 @@ export interface AuditLog {
   created_at: string;
 }
 
-// ─── Composite / View Types ──────────────────────────────────────────────────
+// â”€â”€â”€ Composite / View Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface ProfileWithDepartment extends Profile {
   department?: Department | null;
@@ -135,7 +136,7 @@ export interface AllocationWithDetails extends Allocation {
   project?: Project;
 }
 
-// ─── Grid Types ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Grid Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface GridCellDay {
   date: string;
@@ -165,7 +166,7 @@ export interface GridCellData {
   totalHours?: number;
 }
 
-// ─── Dashboard Types ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Dashboard Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface DashboardMetrics {
   totalIdleDays: number;
@@ -225,7 +226,7 @@ export interface OverAllocationEntry {
   maxHoursInDay: number;
 }
 
-// ─── Offline Queue Types ─────────────────────────────────────────────────────
+// â”€â”€â”€ Offline Queue Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface OfflineAction {
   id: string;
@@ -236,7 +237,7 @@ export interface OfflineAction {
   retryCount: number;
 }
 
-// ─── CSV Import Types ────────────────────────────────────────────────────────
+// â”€â”€â”€ CSV Import Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface CSVEmployeeRow {
   Name: string;
@@ -252,7 +253,7 @@ export interface CSVValidationResult {
   errors: string[];
 }
 
-// ─── Filter Types ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Filter Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export interface GridFilters {
   departmentId: string | null;
@@ -267,7 +268,7 @@ export interface GridFilters {
   endDate?: string;
 }
 
-// ─── Task Status Labels ──────────────────────────────────────────────────────
+// â”€â”€â”€ Task Status Labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const TASK_STATUS_OPTIONS: {
   value: TaskStatus;
@@ -306,11 +307,21 @@ export interface Vendor {
   created_at: string;
 }
 
+export interface VendorResource {
+  id: string;
+  vendor_id: string;
+  name: string;
+  type: "man" | "asset";
+  default_rate: number | null;
+  created_at: string;
+}
+
 export interface AuditTeam {
   id: string;
   audit_id: string;
   user_id: string | null;
   vendor_id: string | null;
+  vendor_resource_id?: string | null;
   role: "lead" | "executive" | "asset";
   agreed_rate: number | null;
   created_at: string;
@@ -355,4 +366,5 @@ export interface AssetRequest {
   created_at: string;
   updated_at: string;
 }
+
 
