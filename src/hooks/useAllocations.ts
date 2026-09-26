@@ -44,6 +44,13 @@ export function useAllocationsQuery(filters: GridFilters) {
       const { data: profilesData, error: profilesError } = await profilesQuery;
       if (profilesError) throw profilesError;
       
+      // Sort profiles so the logged-in user is always at the top, then alphabetically
+      profilesData.sort((a, b) => {
+        if (a.id === profile.id) return -1;
+        if (b.id === profile.id) return 1;
+        return (a.full_name || '').localeCompare(b.full_name || '');
+      });
+      
       const userIds = profilesData.map(p => p.id);
       if (userIds.length === 0) return { allocations: [], profiles: profilesData as Profile[], gridRows: [] };
 
@@ -198,6 +205,7 @@ export function useSaveDayAllocations() {
     }
   });
 }
+
 
 
 
