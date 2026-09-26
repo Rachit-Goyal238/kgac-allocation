@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Vendor, VendorRate } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { VendorResourceImporter } from './VendorResourceImporter';
 import { Loader2, Plus, Trash2, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -47,7 +48,7 @@ export function VendorManager() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">External Vendors</h3>
+        <h3 className="text-lg font-medium">External Vendors</h3>`n          <VendorResourceImporter />
       </div>
 
       <div className="bg-slate-50 p-4 rounded-lg border grid grid-cols-5 gap-4 items-end">
@@ -166,5 +167,6 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: Vendor, rates: Vend
     </div>
   );
 }
+
 
 
