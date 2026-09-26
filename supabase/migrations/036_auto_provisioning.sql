@@ -110,16 +110,24 @@ BEGIN
 
     -- the insert above triggers handle_new_user, which creates a row in profiles.
     -- update that row with the imported data.
-    UPDATE public.profiles 
-    SET employee_id = emp.employee_id,
-        username = v_username,
-        personal_email = emp.personal_email,
-        roles = ARRAY[COALESCE(emp.role, 'employee')],
-        department_id = emp.department_id,
-        entity = COALESCE(emp.entity, 'KGAC'),
-        entity_selected = true,
-        status = 'active'
+    UPDATE public.profiles
+    SET 
+      first_name = emp.first_name,
+      last_name = emp.last_name,
+      full_name = emp.first_name || ' ' || emp.last_name,
+      employee_id = emp.employee_id,
+      personal_email = emp.personal_email,
+      department_id = COALESCE(emp.department_id, (SELECT id FROM departments WHERE name = 'Unassigned' LIMIT 1)),
+      entity = COALESCE(emp.entity, 'KGAC'),
+      roles = ARRAY[COALESCE(emp.role, 'employee')],
+      status = 'active',
+      entity_selected = true
     WHERE id = new_uid;
+
+    -- Send Welcome Email via Resend if they have a personal email!
+    IF emp.personal_email IS NOT NULL AND emp.personal_email != '' THEN
+      PERFORM public.send_welcome_email(emp.personal_email, emp.first_name, v_username, v_password);
+    END IF;
 
     -- Add to results
     v_results := v_results || jsonb_build_object(
@@ -184,6 +192,7 @@ GRANT EXECUTE ON FUNCTION public.get_email_by_username(text) TO anon, authentica
 GRANT EXECUTE ON FUNCTION public.admin_reset_user_password(uuid, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.bulk_import_employees_v2(jsonb) TO authenticated;
 NOTIFY pgrst, 'reload schema';
+
 
 
 
