@@ -132,6 +132,16 @@ export function ProfileSettings() {
             />
           </div>
 
+          <div className="space-y-2">
+            <Label>Phone Number</Label>
+            <Input 
+              value={phoneNumber} 
+              onChange={(e) => setPhoneNumber(e.target.value)} 
+              placeholder="+1 (555) 000-0000" 
+              className="w-full sm:w-96"
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Username</Label>
@@ -207,4 +217,5 @@ export function ProfileSettings() {
     </div>
   );
 }
+
 
