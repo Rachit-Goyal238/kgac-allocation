@@ -77,6 +77,21 @@ export function TeamBuilder() {
 
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
 
+  const [isNotifying, setIsNotifying] = useState(false);
+  const handleNotifyVendors = async () => {
+    if (!selectedAuditId) return;
+    setIsNotifying(true);
+    try {
+      const { error } = await supabase.rpc('notify_audit_vendors', { p_audit_id: selectedAuditId });
+      if (error) throw error;
+      toast.success('Notifications sent to all assigned vendors!');
+    } catch (err: any) {
+      toast.error('Failed to send notifications: ' + err.message);
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   const handleUpdateContactPerson = async () => {
     if (!selectedAuditId) return;
     updateAudit.mutate({ id: selectedAuditId, contact_person_id: contactPersonId || null }, {
@@ -222,8 +237,14 @@ export function TeamBuilder() {
                       {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
                     </select>
                     <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save</Button>
+                    </div>
+                    <div className="pt-2 mt-2 border-t flex justify-end">
+                      <Button variant="outline" size="sm" onClick={handleNotifyVendors} disabled={isNotifying || !team || team.length === 0}>
+                        {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Send Notifications to Vendors
+                      </Button>
+                    </div>
                   </div>
-                </div>
 
                 {(reqLeads > 0 || reqExecs > 0) && (
                   <div className={`p-4 rounded-lg border ${requirementsMet ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
@@ -441,6 +462,8 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
 
 
 
