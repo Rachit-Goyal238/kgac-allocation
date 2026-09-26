@@ -1,4 +1,5 @@
-﻿import { AuditImportTool } from '@/components/planner/AuditImportTool';
+﻿import React, { useState } from 'react';
+import { AuditImportTool } from '@/components/planner/AuditImportTool';
 import { TeamBuilder } from '@/components/planner/TeamBuilder';
 import { VendorManager } from '@/components/admin/VendorManager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 
 export function PlannerPage() {
-  const [activeTab, setActiveTab] = React.useState('import');
+  const [activeTab, setActiveTab] = useState('import');
   const { data: recentAudits, isLoading } = useQuery({
     queryKey: ['recent-audits'],
     queryFn: async () => {
@@ -95,6 +96,7 @@ export function PlannerPage() {
     </div>
   );
 }
+
 
 
 
