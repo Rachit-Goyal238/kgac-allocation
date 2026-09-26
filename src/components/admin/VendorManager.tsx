@@ -48,7 +48,8 @@ export function VendorManager() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">External Vendors</h3>`n          <VendorResourceImporter />
+        <h3 className="text-lg font-medium">External Vendors</h3>
+          <VendorResourceImporter />
       </div>
 
       <div className="bg-slate-50 p-4 rounded-lg border grid grid-cols-5 gap-4 items-end">
@@ -167,6 +168,8 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: Vendor, rates: Vend
     </div>
   );
 }
+
+
 
 
 

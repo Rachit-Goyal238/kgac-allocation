@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
@@ -81,6 +81,26 @@ export function VendorResourceImporter() {
     setProgress(0);
 
     try {
+      const vendorsToCreate = [...new Set(validRows.filter(r => r.data.vendor_id?.startsWith('CREATE:')).map(r => r.data.provider_name))];
+      const newVendorsMap: Record<string, string> = {};
+      
+      if (vendorsToCreate.length > 0) {
+        const { data: insertedVendors, error: insertError } = await supabase.from('vendors').insert(
+          vendorsToCreate.map(name => ({ name, type: 'agency' }))
+        ).select('id, name');
+        
+        if (insertError) throw insertError;
+        insertedVendors.forEach(v => {
+          newVendorsMap[v.name.toLowerCase()] = v.id;
+        });
+      }
+
+      validRows.forEach(r => {
+        if (r.data.vendor_id?.startsWith('CREATE:')) {
+          r.data.vendor_id = newVendorsMap[r.data.provider_name.toLowerCase()];
+        }
+      });
+
       const batchSize = 50;
       for (let i = 0; i < validRows.length; i += batchSize) {
         const batch = validRows.slice(i, i + batchSize).map(r => ({
@@ -201,3 +221,5 @@ export function VendorResourceImporter() {
     </Dialog>
   );
 }
+
+

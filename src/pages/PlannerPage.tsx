@@ -1,6 +1,6 @@
-import { AuditImportTool } from '@/components/planner/AuditImportTool';
+﻿import { AuditImportTool } from '@/components/planner/AuditImportTool';
 import { TeamBuilder } from '@/components/planner/TeamBuilder';
-import { VendorManager } from '@/components/planner/VendorManager';
+import { VendorManager } from '@/components/admin/VendorManager';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
@@ -68,7 +68,7 @@ export function PlannerPage() {
                         <div>
                           <p className="font-medium text-sm text-slate-900">{audit.store_name}</p>
                           <p className="text-xs text-slate-500 mt-1">
-                            {audit.clients?.name} • {format(new Date(audit.audit_date), 'MMM d, yyyy')}
+                            {audit.clients?.name} â€¢ {format(new Date(audit.audit_date), 'MMM d, yyyy')}
                           </p>
                         </div>
                         <div className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">
@@ -94,3 +94,4 @@ export function PlannerPage() {
     </div>
   );
 }
+
