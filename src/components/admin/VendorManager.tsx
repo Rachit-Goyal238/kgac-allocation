@@ -1,18 +1,21 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Vendor, VendorRate } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { VendorResourceImporter } from './VendorResourceImporter';
-import { Loader2, Plus, Trash2, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import { Loader2, Trash2 } from 'lucide-react';
+import { VendorResourceImporter } from './VendorResourceImporter';
 
 export function VendorManager() {
   const queryClient = useQueryClient();
+  const [newVendor, setNewVendor] = useState({ name: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
+
   const { data: vendors, isLoading } = useQuery({
     queryKey: ['vendors_admin'],
     queryFn: async () => {
-      const { data } = await supabase.from('vendors').select('*');
+      const { data, error } = await supabase.from('vendors').select('*').order('name');
+      if (error) throw error;
       return data as Vendor[];
     }
   });
@@ -20,17 +23,17 @@ export function VendorManager() {
   const { data: vendorRates } = useQuery({
     queryKey: ['vendor_rates'],
     queryFn: async () => {
-      const { data } = await supabase.from('vendor_rates').select('*');
+      const { data, error } = await supabase.from('vendor_rates').select('*');
+      if (error) throw error;
       return data as VendorRate[];
     }
   });
 
-  const [newVendor, setNewVendor] = useState({ name: '', type: 'agency', default_human_rate: '', default_asset_rate: '' });
-  
   const createVendor = useMutation({
     mutationFn: async (v: any) => {
       const { error } = await supabase.from('vendors').insert([{
-        ...v,
+        name: v.name,
+        type: v.type,
         default_human_rate: v.default_human_rate ? Number(v.default_human_rate) : null,
         default_asset_rate: v.default_asset_rate ? Number(v.default_asset_rate) : null
       }]);
@@ -49,7 +52,7 @@ export function VendorManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">External Vendors</h3>
-          <VendorResourceImporter />
+        <VendorResourceImporter />
       </div>
 
       <div className="bg-slate-50 p-4 rounded-lg border grid grid-cols-5 gap-4 items-end">
@@ -73,8 +76,7 @@ export function VendorManager() {
           <input type="number" className="w-full border rounded p-2 text-sm" value={newVendor.default_asset_rate} onChange={e => setNewVendor({...newVendor, default_asset_rate: e.target.value})} />
         </div>
         <Button onClick={() => createVendor.mutate(newVendor)} disabled={!newVendor.name || createVendor.isPending}>
-          {createVendor.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-          Add
+          {createVendor.isPending ? <Loader2 className="animate-spin h-4 w-4" /> : 'Add Vendor'}
         </Button>
       </div>
 
@@ -83,8 +85,8 @@ export function VendorManager() {
           <VendorRow 
             key={vendor.id} 
             vendor={vendor} 
-            rates={vendorRates?.filter(r => r.vendor_id === vendor.id) || []} 
-            queryClient={queryClient} 
+            rates={vendorRates?.filter(r => r.vendor_id === vendor.id) || []}
+            queryClient={queryClient}
           />
         ))}
       </div>
@@ -146,54 +148,78 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
 
   return (
     <div className="border rounded-lg overflow-hidden">
-      <div 
-        className="p-4 bg-white flex justify-between items-center cursor-pointer hover:bg-slate-50"
-        onClick={() => setExpanded(!expanded)}
-      >
-        <div>
+      <div className="p-4 bg-white flex justify-between items-center hover:bg-slate-50">
+        <div className="cursor-pointer flex-1" onClick={() => setExpanded(!expanded)}>
           <div className="font-medium">{vendor.name}</div>
           <div className="text-xs text-muted-foreground capitalize">{vendor.type} | Default: {vendor.default_human_rate || '-'}</div>
         </div>
-        <Button variant="outline" size="sm">
-          {expanded ? 'Hide Rates' : 'Variable Rates'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setExpanded(!expanded)}>
+            {expanded ? 'Hide Details' : 'View Details'}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => { if(confirm('Are you sure you want to delete this vendor?')) deleteVendor.mutate(); }}>
+            <Trash2 className="h-4 w-4 text-red-500" />
+          </Button>
+        </div>
       </div>
       
       {expanded && (
-        <div className="p-4 bg-slate-50 border-t space-y-3">
-          <h4 className="text-sm font-semibold">Zone / Reason Rates</h4>
-          
-          {rates.length > 0 ? (
-            <div className="space-y-2">
-              {rates.map(r => (
-                <div key={r.id} className="flex items-center justify-between bg-white border p-2 rounded text-sm">
-                  <span className="font-medium w-1/3">{r.zone_or_reason}</span>
-                  <span className="text-muted-foreground">Human: {r.human_rate || '-'}</span>
-                  <span className="text-muted-foreground">Asset: {r.asset_rate || '-'}</span>
-                  <Button variant="ghost" size="icon" onClick={() => deleteRate.mutate(r.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">No variable rates configured.</div>
-          )}
+        <div className="p-4 bg-slate-50 border-t space-y-6">
+          {/* RESOURCES SECTION */}
+          <div className="space-y-3">
+            <h4 className="text-sm font-semibold">Imported Resources</h4>
+            {resources.length > 0 ? (
+              <div className="space-y-2 max-h-48 overflow-auto border rounded bg-white">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 sticky top-0">
+                    <tr>
+                      <th className="px-3 py-2 font-medium">Name</th>
+                      <th className="px-3 py-2 font-medium">Type</th>
+                      <th className="px-3 py-2 font-medium">Default Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resources.map((res: any) => (
+                      <tr key={res.id} className="border-t hover:bg-slate-50">
+                        <td className="px-3 py-2">{res.name}</td>
+                        <td className="px-3 py-2 uppercase text-xs">{res.type}</td>
+                        <td className="px-3 py-2">{res.default_rate || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No resources imported. Use the CSV Importer above.</div>
+            )}
+          </div>
 
-          <div className="flex gap-2 items-center mt-4">
-            <input className="border rounded p-1.5 text-sm flex-1" placeholder="Zone or Reason (e.g. North Zone)" value={newZone.zone_or_reason} onChange={e => setNewZone({...newZone, zone_or_reason: e.target.value})} />
-            <input type="number" className="border rounded p-1.5 text-sm w-24" placeholder="Human Rate" value={newZone.human_rate} onChange={e => setNewZone({...newZone, human_rate: e.target.value})} />
-            <input type="number" className="border rounded p-1.5 text-sm w-24" placeholder="Asset Rate" value={newZone.asset_rate} onChange={e => setNewZone({...newZone, asset_rate: e.target.value})} />
-            <Button size="sm" onClick={() => addRate.mutate()} disabled={!newZone.zone_or_reason || addRate.isPending}>Add</Button>
+          {/* RATES SECTION */}
+          <div className="space-y-3 pt-4 border-t">
+            <h4 className="text-sm font-semibold">Zone / Reason Rates</h4>
+            {rates.length > 0 ? (
+              <div className="space-y-2">
+                {rates.map(r => (
+                  <div key={r.id} className="flex items-center justify-between bg-white border p-2 rounded text-sm">
+                    <span className="font-medium w-1/3">{r.zone_or_reason}</span>
+                    <span className="text-muted-foreground">Human: {r.human_rate || '-'}</span>
+                    <span className="text-muted-foreground">Asset: {r.asset_rate || '-'}</span>
+                    <Button variant="ghost" size="icon" onClick={() => deleteRate.mutate(r.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground">No variable rates configured.</div>
+            )}
+            <div className="flex gap-2 items-center mt-2">
+              <input className="border rounded p-1.5 text-sm flex-1" placeholder="Zone or Reason (e.g. North Zone)" value={newZone.zone_or_reason} onChange={e => setNewZone({...newZone, zone_or_reason: e.target.value})} />
+              <input type="number" className="border rounded p-1.5 text-sm w-24" placeholder="Human Rate" value={newZone.human_rate} onChange={e => setNewZone({...newZone, human_rate: e.target.value})} />
+              <input type="number" className="border rounded p-1.5 text-sm w-24" placeholder="Asset Rate" value={newZone.asset_rate} onChange={e => setNewZone({...newZone, asset_rate: e.target.value})} />
+              <Button size="sm" onClick={() => addRate.mutate()} disabled={!newZone.zone_or_reason || addRate.isPending}>Add</Button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
@@ -52,8 +52,11 @@ export function VendorResourceImporter() {
           let vendorId = null;
           if (providerName && vendors) {
             const matched = vendors.find(v => v.name.toLowerCase() === providerName.toLowerCase());
-            if (matched) vendorId = matched.id;
-            else errors.push(`Provider '${providerName}' not found. Please create them first.`);
+            if (matched) {
+              vendorId = matched.id;
+            } else {
+              vendorId = 'CREATE:' + providerName;
+            }
           }
 
           return {
@@ -117,6 +120,7 @@ export function VendorResourceImporter() {
 
       toast.success(`Successfully imported ${validRows.length} resources`);
       queryClient.invalidateQueries({ queryKey: ['vendor_resources'] });
+      queryClient.invalidateQueries({ queryKey: ['vendors_admin'] });
       setOpen(false);
       setParsedRows([]);
     } catch (err: any) {
@@ -221,5 +225,3 @@ export function VendorResourceImporter() {
     </Dialog>
   );
 }
-
-
