@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
@@ -53,7 +53,7 @@ export function VendorResourceImporter() {
           if (providerName && vendors) {
             const matched = vendors.find(v => v.name.toLowerCase() === providerName.toLowerCase());
             if (matched) vendorId = matched.id;
-            else errors.push(Provider '+providerName+' not found. Please create them first.);
+            else errors.push(`Provider '${providerName}' not found. Please create them first.`);
           }
 
           return {
@@ -95,7 +95,7 @@ export function VendorResourceImporter() {
         setProgress(Math.round(((i + batch.length) / validRows.length) * 100));
       }
 
-      toast.success(Successfully imported +validRows.length+ resources);
+      toast.success(`Successfully imported ${validRows.length} resources`);
       queryClient.invalidateQueries({ queryKey: ['vendor_resources'] });
       setOpen(false);
       setParsedRows([]);
@@ -131,8 +131,7 @@ export function VendorResourceImporter() {
             
             <div 
               {...getRootProps()} 
-              className={order-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors
-                 + (isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:bg-slate-50')}
+              className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${isDragActive ? 'border-indigo-500 bg-indigo-50' : 'border-slate-300 hover:bg-slate-50'}`}
             >
               <input {...getInputProps()} />
               <UploadCloud className="mx-auto h-12 w-12 text-slate-400 mb-4" />
@@ -193,7 +192,7 @@ export function VendorResourceImporter() {
                 className="gap-2 bg-indigo-600 hover:bg-indigo-700"
               >
                 {isImporting && <UploadCloud className="h-4 w-4 animate-bounce" />}
-                {isImporting ? Importing... +progress+% : Import +validCount+ Valid Resources}
+                {isImporting ? `Importing... ${progress}%` : `Import ${validCount} Valid Resources`}
               </Button>
             </div>
           </div>
