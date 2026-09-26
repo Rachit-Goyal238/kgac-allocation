@@ -197,6 +197,7 @@ export function UserManagement() {
                         <SelectItem value="none">None</SelectItem>
                         <SelectItem value="KGAC">KGAC</SelectItem>
                         <SelectItem value="KPL">KPL</SelectItem>
+                        <SelectItem value="XSPL">XSPL</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
@@ -276,6 +277,7 @@ export function UserManagement() {
     </div>
   );
 }
+
 
 
 

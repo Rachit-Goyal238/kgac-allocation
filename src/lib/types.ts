@@ -26,7 +26,7 @@ export type AuditAction =
   | "STATUS_CHANGE"
   | "LOGIN"
   | "APPROVAL";
-export type UserEntity = "KGAC" | "KPL";
+export type UserEntity = "KGAC" | "KPL" | "XSPL";
 
 // â”€â”€â”€ Database Row Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -369,6 +369,7 @@ export interface AssetRequest {
   created_at: string;
   updated_at: string;
 }
+
 
 
 

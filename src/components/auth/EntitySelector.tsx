@@ -59,6 +59,12 @@ export function EntitySelector() {
           >
             <span className="text-xl font-bold">KPL</span>
           </div>
+          <div
+            onClick={() => setSelectedEntity("XSPL")}
+            className={`flex cursor-pointer flex-col items-center justify-between rounded-md border-2 p-4 hover:bg-accent ${selectedEntity === "XSPL" ? "border-primary" : "border-muted bg-popover"}`}
+          >
+            <span className="text-xl font-bold">XSPL</span>
+          </div>
         </div>
 
         <Button

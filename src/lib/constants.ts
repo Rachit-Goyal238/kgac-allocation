@@ -84,7 +84,7 @@ export const SAMPLE_CSV_CONTENT = `Employee ID,First Name,Last Name,Personal Ema
 KGAC-101,John,Doe,john.doe@gmail.com,+919876543210,audit_executive,Engineering,KGAC,North
 KGAC-102,Jane,Smith,jane.smith@outlook.com,+918765432109,audit_manager,Design,KPL,South
 KGAC-103,Alice,Brown,alice.b@gmail.com,+917654321098,employee,Engineering,KGAC,East
-KGAC-104,Charlie,Davis,charlie.d@yahoo.com,+916543210987,employee,Operations,KGAC,West`;
+KGAC-104,Charlie,Davis,charlie.d@yahoo.com,+916543210987,employee,Operations,XSPL,West`;
 
 // â”€â”€â”€ Default Departments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -126,4 +126,5 @@ export const TASK_STATUS_COLORS: Record<string, string> = {
   pending_review: 'bg-yellow-100 text-yellow-700',
   blocked: 'bg-red-100 text-red-700',
 };
+
 
