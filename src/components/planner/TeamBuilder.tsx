@@ -75,9 +75,10 @@ export function TeamBuilder() {
   const isIndividual = selectedVendorObj?.type === 'individual' && actingAs === 'solo';
   const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
 
-  if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
+
 
   const [isNotifying, setIsNotifying] = useState(false);
+  if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
   const handleNotifyVendors = async () => {
     if (!selectedAuditId) return;
     setIsNotifying(true);
@@ -462,6 +463,8 @@ export function TeamBuilder() {
     </div>
   );
 }
+
+
 
 
 
