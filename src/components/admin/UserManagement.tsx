@@ -110,15 +110,11 @@ export function UserManagement() {
           </Select>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
             <SelectTrigger className="w-full sm:w-[150px]"><SelectValue placeholder="Role" /></SelectTrigger>
-            <SelectContent>
+                        <SelectContent>
               <SelectItem value="all">All Roles</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="manager">Manager</SelectItem>
-              <SelectItem value="planner">Planner</SelectItem>
-              <SelectItem value="client_head">Client Head</SelectItem>
-              <SelectItem value="audit_executive">Audit Executive</SelectItem>
-              <SelectItem value="employee">Employee</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
+              {Object.entries(ROLE_LABELS).map(([val, label]) => (
+                <SelectItem key={val} value={val}>{label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -279,5 +275,6 @@ export function UserManagement() {
     </div>
   );
 }
+
 
 

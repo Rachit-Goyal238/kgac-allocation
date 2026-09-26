@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+﻿import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Allocation, GridFilters, GridRow, Profile } from '@/lib/types';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -198,5 +198,6 @@ export function useSaveDayAllocations() {
     }
   });
 }
+
 
 
