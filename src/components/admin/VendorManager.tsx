@@ -118,6 +118,17 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
       toast.success('Vendor deleted');
     }
   });
+
+  const deleteResource = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('vendor_resources').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor_resources', vendor.id] });
+      toast.success('Resource deleted');
+    }
+  });
   
   const addRate = useMutation({
     mutationFn: async () => {
@@ -176,6 +187,8 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
                       <th className="px-3 py-2 font-medium">Name</th>
                       <th className="px-3 py-2 font-medium">Type</th>
                       <th className="px-3 py-2 font-medium">Default Rate</th>
+                      <th className="px-3 py-2 font-medium">Email</th>
+                      <th className="px-3 py-2 font-medium"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,6 +197,12 @@ function VendorRow({ vendor, rates, queryClient }: { vendor: any, rates: any[], 
                         <td className="px-3 py-2">{res.name}</td>
                         <td className="px-3 py-2 uppercase text-xs">{res.type}</td>
                         <td className="px-3 py-2">{res.default_rate || '-'}</td>
+                        <td className="px-3 py-2 text-xs text-muted-foreground">{res.contact_email || "-"}</td>
+                        <td className="px-3 py-2 text-right">
+                          <Button variant="ghost" size="icon" onClick={() => { if(confirm("Delete resource?")) deleteResource.mutate(res.id); }}>
+                            <Trash2 className="h-3 w-3 text-red-500" />
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

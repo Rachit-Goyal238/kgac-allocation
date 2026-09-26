@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ export function VendorResourceImporter() {
   const queryClient = useQueryClient();
 
   const generateTemplate = () => {
-    const csvContent = "Provider Name,Resource Name,Type (man/asset),Default Rate\nDeloitte,John Smith,man,500\nDeloitte,Dell Laptop,asset,100\nFreelance Auditor A,Freelance Auditor A,man,450";
+    const csvContent = "Provider Name,Resource Name,Type (man/asset),Default Rate,Contact Email\nDeloitte,John Smith,man,500\nDeloitte,Dell Laptop,asset,100\nFreelance Auditor A,Freelance Auditor A,man,450,freelance@test.com";
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -41,8 +41,9 @@ export function VendorResourceImporter() {
           const providerName = String(r['Provider Name'] || '').trim();
           const resourceName = String(r['Resource Name'] || '').trim();
           const type = String(r['Type (man/asset)'] || r['Type'] || '').toLowerCase().trim();
-          const rateRaw = r['Default Rate'] || r['Rate'];
+          const rateRaw = r['Default Rate,Contact Email'] || r['Rate'];
           const rate = rateRaw ? Number(rateRaw) : null;
+          const contactEmail = String(r['Contact Email'] || r['Email'] || '').trim();
 
           const errors = [];
           if (!providerName) errors.push('Provider Name required');
@@ -60,7 +61,7 @@ export function VendorResourceImporter() {
           }
 
           return {
-            data: { provider_name: providerName, resource_name: resourceName, type, default_rate: rate, vendor_id: vendorId },
+            data: { provider_name: providerName, resource_name: resourceName, type, default_rate: rate, contact_email: contactEmail, vendor_id: vendorId },
             isValid: errors.length === 0,
             errors
           };
@@ -109,11 +110,10 @@ export function VendorResourceImporter() {
         const batch = validRows.slice(i, i + batchSize).map(r => ({
           vendor_id: r.data.vendor_id,
           name: r.data.resource_name,
-          type: r.data.type,
-          default_rate: r.data.default_rate
+          type: r.data.type, default_rate: r.data.default_rate, contact_email: r.data.contact_email
         }));
 
-        const { error } = await supabase.from('vendor_resources').insert(batch);
+        const { error } = await supabase.from('vendor_resources').upsert(batch, { onConflict: 'vendor_id,name' });
         if (error) throw error;
         setProgress(Math.round(((i + batch.length) / validRows.length) * 100));
       }
@@ -225,3 +225,4 @@ export function VendorResourceImporter() {
     </Dialog>
   );
 }
+
