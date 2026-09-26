@@ -68,7 +68,7 @@ export function PlannerPage() {
                         <div>
                           <p className="font-medium text-sm text-slate-900">{audit.store_name}</p>
                           <p className="text-xs text-slate-500 mt-1">
-                            {audit.clients?.name} â€¢ {format(new Date(audit.audit_date), 'MMM d, yyyy')}
+                            {audit.clients?.name} | {format(new Date(audit.audit_date), 'MMM d, yyyy')}
                           </p>
                         </div>
                         <div className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">
@@ -94,4 +94,5 @@ export function PlannerPage() {
     </div>
   );
 }
+
 

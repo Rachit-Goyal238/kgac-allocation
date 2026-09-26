@@ -95,7 +95,7 @@ export function TeamBuilder() {
     assignMember.mutate({
       audit_id: selectedAuditId,
       project_id: selectedAudit.project_id,
-      audit_date: selectedAudit.start_date,
+      audit_date: selectedAudit.audit_date,
       user_id: null,
       vendor_id: selectedVendor,
       vendor_resource_id: selectedResource,
@@ -119,7 +119,7 @@ export function TeamBuilder() {
     assignMember.mutate({
       audit_id: selectedAuditId,
       project_id: selectedAudit.project_id,
-      audit_date: selectedAudit.start_date,
+      audit_date: selectedAudit.audit_date,
       user_id: selectedEmployee,
       vendor_id: null,
       vendor_resource_id: null,
@@ -151,7 +151,7 @@ export function TeamBuilder() {
           >
             <div className="font-medium text-sm">{audit.project?.name || 'Unknown Project'}</div>
             <div className="text-xs text-muted-foreground mt-1">
-              {format(new Date(audit.start_date), 'MMM d, yyyy')} - {format(new Date(audit.end_date), 'MMM d, yyyy')}
+              {format(new Date(audit.audit_date), 'MMM d, yyyy')}
             </div>
             <div className="flex justify-between items-center mt-3">
                <Badge variant={audit.status === 'scheduled' ? 'default' : 'secondary'} className="text-[10px] capitalize">
@@ -177,7 +177,7 @@ export function TeamBuilder() {
               <div>
                 <CardTitle>{selectedAudit?.project?.name}</CardTitle>
                 <CardDescription>
-                  {format(new Date(selectedAudit?.start_date), 'MMMM d, yyyy')} to {format(new Date(selectedAudit?.end_date), 'MMMM d, yyyy')}
+                  Audit Date: {format(new Date(selectedAudit?.audit_date || new Date()), 'MMMM d, yyyy')}
                 </CardDescription>
               </div>
               <Button variant="destructive" size="sm" onClick={() => {
@@ -399,6 +399,7 @@ export function TeamBuilder() {
     </div>
   );
 }
+
 
 
 
