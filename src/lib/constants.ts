@@ -1,12 +1,12 @@
 ﻿import type { AllocationStatus } from './types';
 
-// â”€â”€â”€ Work Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Work Configuration 
 
 export const WORK_HOURS_PER_DAY = 8;
 export const COMPANY_DOMAIN = 'kgac.in';
 export const APP_LAUNCH_DATE = '2026-09-01'; // Change this date when you officially launch!
 
-// â”€â”€â”€ Allocation Status Options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Allocation Status Options 
 
 export const ALLOCATION_STATUSES: { value: AllocationStatus; label: string; color: string }[] = [
   { value: 'billable', label: 'Billable', color: 'bg-blue-500' },
@@ -22,7 +22,7 @@ export const STATUS_LABELS: Record<AllocationStatus, string> = {
   sick: 'Sick',
 };
 
-// â”€â”€â”€ Cell Color Coding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Cell Color Coding 
 
 export const CELL_COLORS = {
   idle: {
@@ -57,7 +57,7 @@ export const CELL_COLORS = {
   },
 } as const;
 
-// â”€â”€â”€ Role Hierarchy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Role Hierarchy 
 
 export const ROLE_LABELS = {
   pending: 'Pending',
@@ -74,7 +74,7 @@ export const ROLE_LABELS = {
   super_admin: 'Super Admin',
 } as const;
 
-// â”€â”€â”€ Days â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Days 
 
 export const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
@@ -86,7 +86,7 @@ KGAC-102,Jane,Smith,jane.smith@outlook.com,+918765432109,audit_manager,Design,KP
 KGAC-103,Alice,Brown,alice.b@gmail.com,+917654321098,employee,Engineering,KGAC,East,150000
 KGAC-104,Charlie,Davis,charlie.d@yahoo.com,+916543210987,employee,Operations,XSPL,West,120000`;
 
-// â”€â”€â”€ Default Departments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Default Departments 
 
 export const DEFAULT_DEPARTMENTS = [
   'Engineering',
@@ -98,7 +98,7 @@ export const DEFAULT_DEPARTMENTS = [
   'Sales',
 ] as const;
 
-// â”€â”€â”€ Default Projects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Default Projects 
 
 export const DEFAULT_PROJECTS = [
   { name: 'Project Alpha', code: 'ALPHA', color: '#3B82F6', is_billable: true },
@@ -109,7 +109,7 @@ export const DEFAULT_PROJECTS = [
   { name: 'Bench', code: 'BENCH', color: '#EF4444', is_billable: false },
 ] as const;
 
-// â”€â”€â”€ Task Status Configuration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Task Status Configuration 
 
 export const TASK_STATUS_LABELS: Record<string, string> = {
   not_started: 'Not Started',
