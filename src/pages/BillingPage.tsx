@@ -13,7 +13,7 @@ import { Loader2, TrendingDown, Clock, Building, Briefcase } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function BillingPage() {
-  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: new Date() });
+  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
   const [zoneFilter, setZoneFilter] = useState('');
   
   // Tab 1: Original Audit Expense metrics
