@@ -1,3 +1,7 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ENABLE_ATTENDANCE_SYSTEM } from '@/lib/constants';
+import { Clock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
