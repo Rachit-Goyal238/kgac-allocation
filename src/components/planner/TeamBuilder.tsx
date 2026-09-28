@@ -61,7 +61,7 @@ export function TeamBuilder() {
   const requirementsMet = reqLeads > 0 || reqExecs > 0 ? isTeamSatisfied : true;
 
   const [selectedVendor, setSelectedVendor] = useState('');
-  const [selectedResource, setSelectedResource] = useState('');
+  const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
@@ -69,6 +69,47 @@ export function TeamBuilder() {
   const [agreedRate, setAgreedRate] = useState('');
   
   // New state for Contact Person
+  
+  const { data: overlappingAssignments } = useQuery({
+    queryKey: ['audit_conflicts'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('audit_teams')
+        .select(`
+          user_id, vendor_resource_id, vendor_id,
+          audit:audits!inner(id, store_name, audit_date, end_date, status)
+        `)
+        .neq('audit.status', 'completed');
+      return data || [];
+    }
+  });
+
+  const checkConflict = (userId: string | null, vendorId: string | null, vendorResourceId: string | null) => {
+    if (!selectedAudit || !overlappingAssignments) return null;
+    const s1 = new Date(selectedAudit.audit_date);
+    const e1 = new Date(selectedAudit.end_date || selectedAudit.audit_date);
+    
+    for (const a of overlappingAssignments) {
+      const au = a.audit as any;
+      if (au.id === selectedAudit.id) continue;
+      
+      let match = false;
+      if (userId && a.user_id === userId) match = true;
+      else if (vendorResourceId && a.vendor_resource_id === vendorResourceId) match = true;
+      else if (vendorId && !vendorResourceId && a.vendor_id === vendorId && a.vendor_resource_id === null) match = true;
+      
+      if (!match) continue;
+      
+      const s2 = new Date(au.audit_date);
+      const e2 = new Date(au.end_date || au.audit_date);
+      
+      if (s1 <= e2 && e1 >= s2) {
+        return au;
+      }
+    }
+    return null;
+  };
+
   const [contactPersonId, setContactPersonId] = useState<string>('');
   const [billingAmount, setBillingAmount] = useState<string>('');
 
@@ -86,7 +127,7 @@ export function TeamBuilder() {
 
   const selectedVendorObj = vendors?.find((v: any) => v.id === selectedVendor);
   const isIndividual = selectedVendorObj?.type === 'individual' && actingAs === 'solo';
-  const selectedResourceObj = vendorResources?.find((r: any) => r.id === selectedResource);
+  
 
 
 
@@ -126,55 +167,70 @@ export function TeamBuilder() {
     });
   };
 
-  const handleAssignVendor = () => {
-    if (!selectedAuditId || !selectedVendor || (!isIndividual && !selectedResource) || !selectedAudit) return;
+  const handleAssignVendor = async () => {
+    if (!selectedAuditId || !selectedVendor || !selectedAudit) return;
+    if (!isIndividual && selectedResources.length === 0) return;
     
-    let rateToUse = agreedRate ? Number(agreedRate) : null;
-    
-    if (!rateToUse) {
+    try {
       if (isIndividual) {
-        if (selectedRateId) {
-          const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
-          if (selectedRateObj) rateToUse = selectedRateObj.human_rate;
-        } else {
-          rateToUse = selectedVendorObj?.default_human_rate;
+        let rateToUse = agreedRate ? Number(agreedRate) : null;
+        if (!rateToUse) {
+          if (selectedRateId) {
+            const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
+            if (selectedRateObj) rateToUse = selectedRateObj.human_rate;
+          } else {
+            rateToUse = selectedVendorObj?.default_human_rate;
+          }
         }
+        await assignMember.mutateAsync({
+          audit_id: selectedAuditId,
+          project_id: selectedAudit.project_id,
+          audit_date: selectedAudit.audit_date,
+          user_id: selectedVendorObj?.is_internal_user ? selectedVendor : null,
+          vendor_id: selectedVendorObj?.is_internal_user ? null : selectedVendor,
+          vendor_resource_id: null,
+          role: selectedRole,
+          agreed_rate: rateToUse
+        });
       } else {
-      if (selectedRateId) {
-         const selectedRateObj = vendorRates?.find(r => r.id === selectedRateId);
-         const resObj = vendorResources?.find(r => r.id === selectedResource);
-         if (selectedRateObj && resObj) {
-           rateToUse = resObj.type === 'man' ? selectedRateObj.human_rate : selectedRateObj.asset_rate;
-         }
-      } else {
-         const resObj = vendorResources?.find(r => r.id === selectedResource);
-         if (resObj && resObj.default_rate) {
-           rateToUse = resObj.default_rate;
-         }
+        // Multi-select for agency resources
+        for (const resId of selectedResources) {
+          let rateToUse = agreedRate ? Number(agreedRate) : null;
+          const resObj = vendorResources?.find((r: any) => r.id === resId);
+          if (!rateToUse) {
+            if (selectedRateId) {
+               const selectedRateObj = vendorRates?.find((r: any) => r.id === selectedRateId);
+               if (selectedRateObj && resObj) {
+                 rateToUse = resObj.type === 'man' ? selectedRateObj.human_rate : selectedRateObj.asset_rate;
+               }
+            } else {
+               if (resObj && resObj.default_rate) {
+                 rateToUse = resObj.default_rate;
+               }
+            }
+          }
+          await assignMember.mutateAsync({
+            audit_id: selectedAuditId,
+            project_id: selectedAudit.project_id,
+            audit_date: selectedAudit.audit_date,
+            user_id: null,
+            vendor_id: selectedVendor,
+            vendor_resource_id: resId,
+            role: resObj?.type === 'asset' ? 'asset' : selectedRole,
+            agreed_rate: rateToUse
+          });
+        }
       }
+      setVendorModalOpen(false);
+      setSelectedVendor('');
+      setSelectedResources([]);
+      setSelectedRateId('');
+      setAgreedRate('');
+      setSelectedRole('executive');
+      toast.success('Vendor(s) assigned');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to assign vendor');
     }
-    }
-
-    assignMember.mutate({
-      audit_id: selectedAuditId,
-      project_id: selectedAudit.project_id,
-      audit_date: selectedAudit.audit_date,
-      user_id: selectedVendorObj?.is_internal_user ? selectedVendor : null,
-        vendor_id: selectedVendorObj?.is_internal_user ? null : selectedVendor,
-      vendor_resource_id: isIndividual ? null : selectedResource,
-      role: selectedRole,
-      agreed_rate: rateToUse
-    }, {
-      onSuccess: () => {
-        setVendorModalOpen(false);
-        setSelectedVendor('');
-        setSelectedResource('');
-        setSelectedRateId('');
-        setAgreedRate('');
-        setSelectedRole('executive');
-        toast.success('Vendor assigned');
-      }
-    });
   };
 
   const handleAssignEmployee = () => {
@@ -369,18 +425,23 @@ export function TeamBuilder() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">1. Select Master Vendor</label>
                 <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
-                  value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedResource(''); setSelectedRateId(''); setActingAs('solo'); }}>
+                  value={selectedVendor} onChange={e => { setSelectedVendor(e.target.value); setSelectedResources([]); setSelectedRateId(''); setActingAs('solo'); }}>
                   <option value="">-- Choose Vendor --</option>
                   {vendors?.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
                 </select>
               </div>
 
+              {selectedVendor && selectedVendorObj?.type === 'individual' && checkConflict(selectedVendorObj.is_internal_user ? selectedVendor : null, selectedVendorObj.is_internal_user ? null : selectedVendor, null) && (
+                <p className="text-sm text-red-600 font-medium bg-red-50 p-2 rounded border border-red-200 mt-2">
+                  ⚠️ Warning: This individual is already double-booked on those dates for another audit: {checkConflict(selectedVendorObj.is_internal_user ? selectedVendor : null, selectedVendorObj.is_internal_user ? null : selectedVendor, null)?.store_name}.
+                </p>
+              )}
               {selectedVendor && selectedVendorObj?.type === 'individual' && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Acting as</label>
                   <div className="flex space-x-4">
                     <label className="flex items-center space-x-2">
-                      <input type="radio" value="solo" checked={actingAs === 'solo'} onChange={() => { setActingAs('solo'); setSelectedResource(''); }} className="accent-indigo-600" />
+                      <input type="radio" value="solo" checked={actingAs === 'solo'} onChange={() => { setActingAs('solo'); setSelectedResources([]); }} className="accent-indigo-600" />
                       <span className="text-sm">Solo Resource</span>
                     </label>
                     <label className="flex items-center space-x-2">
@@ -393,16 +454,33 @@ export function TeamBuilder() {
 
               {selectedVendor && !isIndividual && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">2. Select Resource (Man/Asset)</label>
-                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
-                    value={selectedResource} onChange={e => { const newResId = e.target.value; setSelectedResource(newResId); setSelectedRateId(''); const resType = vendorResources?.find((r: any) => r.id === newResId)?.type; if (resType === 'asset') setSelectedRole('asset'); else if (selectedRole === 'asset') setSelectedRole('executive'); }}>
-                    <option value="">-- Choose Resource --</option>
-                    {vendorResources?.map((r: any) => <option key={r.id} value={r.id}>{r.name} ({r.type}) - Default Rate: {r.default_rate || 'None'}</option>)}
-                  </select>
+                  <label className="text-sm font-medium">2. Select Resources (Man/Asset)</label>
+                  <div className="border rounded-md p-3 max-h-48 overflow-y-auto space-y-3 bg-slate-50">
+                    {vendorResources?.map((r: any) => {
+                      const conflict = checkConflict(null, null, r.id);
+                      return (
+                      <div key={r.id} className="flex flex-col">
+                        <label className="flex items-center space-x-2">
+                          <input 
+                            type="checkbox" 
+                            className="accent-indigo-600 rounded w-4 h-4"
+                            checked={selectedResources.includes(r.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) setSelectedResources([...selectedResources, r.id]);
+                              else setSelectedResources(selectedResources.filter(id => id !== r.id));
+                              setSelectedRateId('');
+                            }}
+                          />
+                          <span className="text-sm">{r.name} ({r.type}) - Default Rate: {r.default_rate || 'None'}</span>
+                        </label>
+                        {conflict && <span className="text-xs text-red-600 ml-6 font-medium">⚠️ Double-booked! Also scheduled for: {conflict.store_name}</span>}
+                      </div>
+                    )})}
+                  </div>
                 </div>
               )}
               
-              {(selectedResource || isIndividual) && vendorRates && vendorRates.length > 0 && (
+              {(selectedResources.length > 0 || isIndividual) && vendorRates && vendorRates.length > 0 && (
                 <div className="space-y-2">
                   <label className="text-sm font-medium">3. Rate Override (Optional)</label>
                   <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
@@ -413,13 +491,13 @@ export function TeamBuilder() {
                 </div>
               )}
 
-              {(selectedResource || isIndividual) && (
+              {(selectedResources.length > 0 || isIndividual) && (
                 <>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Role</label>
                     <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" 
                       value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
-                      {selectedResourceObj?.type === 'asset' ? (
+                      {selectedResources.some(id => vendorResources?.find((r:any) => r.id === id)?.type === 'asset') ? (
                         <option value="asset">Asset / Equipment</option>
                       ) : (
                         <>
@@ -442,7 +520,7 @@ export function TeamBuilder() {
               <Button 
                 onClick={handleAssignVendor} 
                 disabled={
-                  !selectedVendor || (!isIndividual && !selectedResource) || assignMember.isPending || 
+                  !selectedVendor || (!isIndividual && selectedResources.length === 0) || assignMember.isPending || 
                   (selectedRole === 'lead' && assignedLeads >= reqLeads) ||
                   (selectedRole === 'executive' && assignedExecs >= reqExecs)
                 }
@@ -468,6 +546,11 @@ export function TeamBuilder() {
                   <option value="">-- Choose Employee --</option>
                   {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
                 </select>
+                {selectedEmployee && checkConflict(selectedEmployee, null, null) && (
+                  <p className="text-sm text-red-600 font-medium bg-red-50 p-2 rounded border border-red-200 mt-2">
+                    ⚠️ Warning: This employee is already double-booked on those dates for another audit: {checkConflict(selectedEmployee, null, null)?.store_name}.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
