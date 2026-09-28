@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,7 +19,7 @@ export function TimesheetApprovals() {
         .from('allocations')
         .select(`
           *,
-          profile:profiles!inner(full_name, email, role),
+          profile:profiles!inner(full_name, email, roles),
           project:projects(name),
           audit:audits(store_name)
         `)
