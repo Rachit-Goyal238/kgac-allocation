@@ -84,7 +84,7 @@ export function AttendancePage() {
     if (!attendanceData) return;
     const exportData = attendanceData.map(d => ({
       Name: d.name,
-      Role: d.role,
+      Role: Array.isArray(d.role) ? d.role.join(', ').replace(/_/g, ' ') : String(d.role || ''),
       Department: d.department,
       'Days Present': d.daysPresent,
       'Days On Leave': d.daysOnLeave,

@@ -45,6 +45,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/auth/reset-password" element={<AuthCallback />} />
           
           <Route
             path="/"
@@ -76,7 +77,7 @@ export default function App() {
             <Route
               path="planner"
               element={
-                <ProtectedRoute allowedRoles={['planner', 'manager', 'client_head']}>
+                <ProtectedRoute allowedRoles={['planner', 'manager', 'client_head', 'admin', 'super_admin']}>
                   <Suspense fallback={<PageLoader />}><PlannerPage /></Suspense>
                 </ProtectedRoute>
               }
