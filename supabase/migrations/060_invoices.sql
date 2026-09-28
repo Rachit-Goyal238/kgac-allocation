@@ -13,6 +13,11 @@ CREATE TABLE IF NOT EXISTS public.invoices (
 
 ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "invoices_select" ON public.invoices;
+DROP POLICY IF EXISTS "invoices_insert" ON public.invoices;
+DROP POLICY IF EXISTS "invoices_update" ON public.invoices;
+DROP POLICY IF EXISTS "invoices_delete" ON public.invoices;
+
 CREATE POLICY "invoices_select" ON public.invoices FOR SELECT USING (true);
 CREATE POLICY "invoices_insert" ON public.invoices FOR INSERT WITH CHECK (true);
 CREATE POLICY "invoices_update" ON public.invoices FOR UPDATE USING (true);
