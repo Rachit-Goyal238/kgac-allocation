@@ -24,7 +24,7 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           charts: ['recharts'],
           ui: ['lucide-react', 'date-fns', 'sonner'],
-          export: ['xlsx', 'papaparse']
+          export: ['exceljs', 'papaparse']
         }
       }
     }
