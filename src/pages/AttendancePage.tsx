@@ -67,7 +67,7 @@ export function AttendancePage() {
           id: p.id,
           name: p.full_name,
           role: p.role,
-          department: p.department?.name || 'N/A',
+          department: (p.department as any)?.name || 'N/A',
           daysPresent,
           daysOnLeave,
           totalHours: Math.round(totalHours * 10) / 10,
