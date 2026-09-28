@@ -233,6 +233,22 @@ export function UserManagement() {
                       }}
                     />
                   </TableCell>
+                    {isAdmin && (
+                    <TableCell>
+                      <input 
+                        type="number" 
+                        className="border rounded p-1 text-xs w-[80px]" 
+                        placeholder="Salary..." 
+                        defaultValue={profile.monthly_salary || ''}
+                        onBlur={e => {
+                          const val = e.target.value ? Number(e.target.value) : null;
+                          if (val !== profile.monthly_salary) {
+                            updateProfile.mutate({ id: profile.id, monthly_salary: val });
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    )}
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <input 

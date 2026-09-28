@@ -208,7 +208,7 @@ export function CSVUploader() {
                   <li><code>Personal Email</code> (for login invite)</li>
                   <li><code>Phone Number</code></li>
                   <li><code>Role</code> (e.g. audit_executive, audit_lead)</li>
-                  <li><code>Department</code>, <code>Entity</code>, <code>Zone</code></li>
+                  <li><code>Department</code>, <code>Entity</code>, <code>Zone</code>, <code>Monthly Salary</code></li>
                 </ul>
               </div>
           </div>

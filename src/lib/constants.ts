@@ -80,11 +80,11 @@ export const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as c
 
 // ðŸ“… CSV Template ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…ðŸ“…
 
-export const SAMPLE_CSV_CONTENT = `Employee ID,First Name,Last Name,Personal Email,Phone Number,Role,Department,Entity,Zone
-KGAC-101,John,Doe,john.doe@gmail.com,+919876543210,audit_executive,Engineering,KGAC,North
-KGAC-102,Jane,Smith,jane.smith@outlook.com,+918765432109,audit_manager,Design,KPL,South
-KGAC-103,Alice,Brown,alice.b@gmail.com,+917654321098,employee,Engineering,KGAC,East
-KGAC-104,Charlie,Davis,charlie.d@yahoo.com,+916543210987,employee,Operations,XSPL,West`;
+export const SAMPLE_CSV_CONTENT = `Employee ID,First Name,Last Name,Personal Email,Phone Number,Role,Department,Entity,Zone,Monthly Salary
+KGAC-101,John,Doe,john.doe@gmail.com,+919876543210,audit_executive,Engineering,KGAC,North,220000
+KGAC-102,Jane,Smith,jane.smith@outlook.com,+918765432109,audit_manager,Design,KPL,South,350000
+KGAC-103,Alice,Brown,alice.b@gmail.com,+917654321098,employee,Engineering,KGAC,East,150000
+KGAC-104,Charlie,Davis,charlie.d@yahoo.com,+916543210987,employee,Operations,XSPL,West,120000`;
 
 // â”€â”€â”€ Default Departments â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
