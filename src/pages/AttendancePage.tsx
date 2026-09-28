@@ -76,7 +76,7 @@ export function AttendancePage() {
         };
       });
 
-      return report.sort((a: any, b: any) => a.name.localeCompare(b.name));
+      return (report as any[]).sort((a: any, b: any) => a.name.localeCompare(b.name));
     }
   });
 
@@ -103,7 +103,7 @@ export function AttendancePage() {
           <p className="text-slate-500 text-sm">Track employee clock-ins, clock-outs, and approved leaves.</p>
         </div>
         <div className="flex gap-4">
-          <DateRangePicker value={dateRange} onChange={(start, end) => setDateRange({ start, end })} />
+          <DateRangePicker startDate={dateRange.start} endDate={dateRange.end} onChange={(start, end) => setDateRange({ start, end })} />
           <ExportButton onExport={handleExport} disabled={!attendanceData || attendanceData.length === 0} />
         </div>
       </div>
