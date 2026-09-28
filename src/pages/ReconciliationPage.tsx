@@ -358,7 +358,7 @@ export function ReconciliationPage() {
 
           <CardContent>
 
-            <div className="text-2xl font-bold text-green-600">â‚¹{totals.revenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600">&#x20B9;{totals.revenue.toLocaleString()}</div>
 
             <p className="text-xs text-muted-foreground mt-1">From scheduled audits</p>
 
@@ -378,7 +378,7 @@ export function ReconciliationPage() {
 
           <CardContent>
 
-            <div className="text-2xl font-bold text-orange-600">â‚¹{totals.cost.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-orange-600">&#x20B9;{totals.cost.toLocaleString()}</div>
 
             <p className="text-xs text-muted-foreground mt-1">Direct external + internal expenses</p>
 
@@ -406,7 +406,7 @@ export function ReconciliationPage() {
 
           <CardContent>
 
-            <div className="text-2xl font-bold text-blue-600">â‚¹{totals.margin.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-blue-600">&#x20B9;{totals.margin.toLocaleString()}</div>
 
             <p className="text-xs text-muted-foreground mt-1">{overallMarginPercent.toFixed(1)}% margin</p>
 
@@ -476,13 +476,13 @@ export function ReconciliationPage() {
 
                     <TableCell>{audit.internalCount} {audit.internalCount === 1 ? 'person' : 'people'}</TableCell>
 
-                    <TableCell className="text-right font-medium text-green-700">â‚¹{audit.billing.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-medium text-green-700">&#x20B9;{audit.billing.toLocaleString()}</TableCell>
 
-                    <TableCell className="text-right font-medium text-orange-700">â‚¹{audit.teamCost.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-medium text-orange-700">&#x20B9;{audit.teamCost.toLocaleString()}</TableCell>
 
                     <TableCell className="text-right">
 
-                      <div className="font-medium text-blue-700">â‚¹{audit.grossMargin.toLocaleString()}</div>
+                      <div className="font-medium text-blue-700">&#x20B9;{audit.grossMargin.toLocaleString()}</div>
 
                       <div className="text-xs text-slate-500">{audit.marginPercent.toFixed(1)}%</div>
 

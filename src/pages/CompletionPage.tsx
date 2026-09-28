@@ -31,7 +31,7 @@ function ProgressRing({ pct }: { pct: number }) {
 }
 
 export function CompletionPage() {
-  const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date() });
+  const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date(new Date().setMonth(new Date().getMonth() + 1)) });
   const [zoneFilter, setZoneFilter] = useState('');
   const [allocations, setAllocations] = useState<any[]>([]);
 
@@ -39,7 +39,10 @@ export function CompletionPage() {
     const fetchAllocations = async () => {
       let q = supabase.from('allocations').select('*, projects(name), audits(store_name), profiles!inner(full_name, zone)')
         .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
-        .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+        .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'))
+          .neq('status', 'pto')
+          .neq('status', 'sick')
+          .neq('status', 'public_holiday');
       if (zoneFilter) q = q.ilike('profiles.zone', `%${zoneFilter}%`);
       const { data, error } = await q;
       if (error) {

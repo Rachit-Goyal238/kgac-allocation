@@ -138,7 +138,7 @@ export function BillingPage() {
                     <CardTitle className="text-sm font-medium">Total Resource Cost</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">₹{totalOwed.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">&#x20B9;{totalOwed.toLocaleString()}</div>
                     <p className="text-xs text-muted-foreground">in selected period</p>
                 </CardContent>
                 </Card>
@@ -164,7 +164,7 @@ export function BillingPage() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <RechartsTooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                        <RechartsTooltip formatter={(value: number) => `&#x20B9;${value.toLocaleString()}`} />
                         <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                     </BarChart>
                     </ResponsiveContainer>
@@ -180,7 +180,7 @@ export function BillingPage() {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <RechartsTooltip formatter={(value: number) => `₹${value.toLocaleString()}`} />
+                        <RechartsTooltip formatter={(value: number) => `&#x20B9;${value.toLocaleString()}`} />
                         <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
                     </BarChart>
                     </ResponsiveContainer>
@@ -242,7 +242,7 @@ export function BillingPage() {
                         </TableCell>
                         <TableCell>{r.resource_name}</TableCell>
                         <TableCell className="capitalize">{r.role.replace('_', ' ')}</TableCell>
-                        <TableCell className="text-right font-medium">₹{r.amount.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-medium">&#x20B9;{r.amount.toLocaleString()}</TableCell>
                         </TableRow>
                     ))}
                     </TableBody>
@@ -269,7 +269,7 @@ export function BillingPage() {
                         <TrendingDown className="h-4 w-4 text-red-500" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-red-600">₹{aggregateProjectStats?.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                        <div className="text-2xl font-bold text-red-600">&#x20B9;{aggregateProjectStats?.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
                         <p className="text-xs text-muted-foreground">Calculated from mapped salaries</p>
                     </CardContent>
                 </Card>
@@ -333,7 +333,7 @@ export function BillingPage() {
                                 {proj.totalManDays.toFixed(2)} Days
                             </TableCell>
                             <TableCell className="text-right text-red-600 font-bold">
-                                ₹{proj.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                &#x20B9;{proj.totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </TableCell>
                             </TableRow>
                         ))
