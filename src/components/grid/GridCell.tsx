@@ -44,7 +44,7 @@ export function GridCell({ cellData, allocation, date, userId, onEdit, isEditing
     const cellDate = parseISO(date);
     const diffDays = Math.round((cellDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
     
-    return diffDays >= -14 && diffDays <= 14;
+    return diffDays >= -3 && diffDays <= 7;
   };
 
   const isEditable = canEdit();
