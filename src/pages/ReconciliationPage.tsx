@@ -22,7 +22,7 @@ export function ReconciliationPage() {
       const { data: audits, error } = await supabase
         .from('audits')
         .select(`
-          id, store_name, store_code, audit_date, status, billing_amount,
+          id, store_name, store_code, audit_date, end_date, status, billing_amount,
           client:clients(name),
           teams:audit_teams(
             role, agreed_rate, vendor_id,
@@ -70,7 +70,7 @@ export function ReconciliationPage() {
 
         return {
           id: audit.id,
-          date: audit.audit_date,
+          date: audit.end_date && audit.end_date !== audit.audit_date ? `${audit.audit_date} to ${audit.end_date}` : audit.audit_date,
           client: (audit.client as any)?.name || 'Unknown',
           store: `${audit.store_name} ${audit.store_code ? `(${audit.store_code})` : ''}`,
           status: audit.status,

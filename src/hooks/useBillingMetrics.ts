@@ -66,7 +66,7 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
             
             externalResources.push({
               audit_name: audit.store_name,
-              audit_date: audit.audit_date,
+              audit_date: audit.end_date && audit.end_date !== audit.audit_date ? `${audit.audit_date} to ${audit.end_date}` : audit.audit_date,
               vendor: resourceName,
               resource_name: team.vendor ? team.vendor.name : (team.user?.full_name || 'Internal'),
               role: team.role,

@@ -21,7 +21,7 @@ export function MyUpcomingAudits() {
         .select(`
           role,
           audit:audits(
-            id, store_name, store_code, location, audit_date, status, audit_type,
+            id, store_name, store_code, location, audit_date, end_date, status, audit_type,
             client:clients(name)
           )
         `)
@@ -99,7 +99,7 @@ export function MyUpcomingAudits() {
                   <div className="mt-4 md:mt-0 flex md:flex-col items-center md:items-end gap-3">
                     <div className="flex items-center bg-white border rounded px-3 py-1.5 shadow-sm">
                       <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                      <span className="text-sm font-medium">{format(new Date(audit.audit_date), 'MMM d, yyyy')}</span>
+                      <span className="text-sm font-medium">{format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}</span>
                     </div>
                     <div className="flex gap-2">
                       <Badge variant="outline" className="capitalize text-[10px]">{assignment.role}</Badge>
