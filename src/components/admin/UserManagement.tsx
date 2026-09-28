@@ -14,6 +14,7 @@ import { AdminPasswordReset } from '@/components/admin/AdminPasswordReset';
 import { ROLE_LABELS } from '@/lib/constants';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { Trash2 } from 'lucide-react';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -22,6 +23,9 @@ export function UserManagement() {
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
+  
+  const { profile: currentUser } = useAuthContext();
+  const isAdmin = currentUser?.roles?.includes('admin') || currentUser?.roles?.includes('super_admin');
   
   const { data: profiles, isLoading: profilesLoading } = useProfiles();
   const { data: departments = [], isLoading: deptsLoading } = useDepartments();
@@ -134,7 +138,7 @@ export function UserManagement() {
               <TableHead>Entity</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Zone</TableHead>
-              <TableHead>Rate (INR)</TableHead>
+              {isAdmin && <TableHead>Salary/Mo (INR)</TableHead>}
               <TableHead>Vendor</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>

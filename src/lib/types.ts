@@ -45,6 +45,7 @@ export interface Profile {
   status: UserStatus;
   zone?: string | null;
   agreed_rate?: number | null;
+  monthly_salary?: number | null;
   is_internal_vendor?: boolean;
   phone_number?: string | null;
   created_at: string;
