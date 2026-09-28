@@ -276,10 +276,16 @@ export function TeamBuilder() {
                     <div className="flex justify-end mt-2">
                       <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save Details</Button>
                     </div>
-                    <div className="pt-2 mt-2 border-t flex justify-end">
-                      <Button variant="outline" size="sm" onClick={handlePublishAudit} disabled={isNotifying || !team || team.length === 0}>
+                    <div className="pt-2 mt-2 border-t flex justify-between items-center">
+                      {selectedAudit.status === 'scheduled' ? (
+                        <Button variant="secondary" className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200" size="sm" onClick={handleCompleteAudit} disabled={completeAudit.isPending}>
+                          {completeAudit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                          Mark Completed
+                        </Button>
+                      ) : <div></div>}
+                      <Button variant="outline" size="sm" onClick={handlePublishAudit} disabled={isNotifying || !team || team.length === 0 || selectedAudit.status === 'completed'}>
                         {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Publish & Notify Team
+                        {selectedAudit.status === 'completed' ? 'Audit Completed' : 'Publish & Notify Team'}
                       </Button>
                     </div>
                   </div>
