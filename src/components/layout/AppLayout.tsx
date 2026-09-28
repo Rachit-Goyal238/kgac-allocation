@@ -1,3 +1,4 @@
+import { AttendanceGatekeeper } from '@/components/layout/AttendanceGatekeeper';
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
@@ -5,6 +6,7 @@ import { Header } from './Header';
 
 export function AppLayout() {
   return (
+    <AttendanceGatekeeper>
     <div className="flex h-screen overflow-hidden bg-transparent">
       <div className="hidden w-64 flex-shrink-0 md:block">
         <Sidebar />
@@ -18,5 +20,6 @@ export function AppLayout() {
         </main>
       </div>
     </div>
+    </AttendanceGatekeeper>
   );
 }

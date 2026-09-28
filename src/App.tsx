@@ -23,6 +23,7 @@ const TimesheetApprovalsPage = lazy(() => import('@/pages/TimesheetApprovalsPage
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const PlannerPage = lazy(() => import('@/pages/PlannerPage').then(m => ({ default: m.PlannerPage })));
 const AssetsPage = lazy(() => import('@/pages/AssetsPage').then(m => ({ default: m.AssetsPage })));
+const AttendancePage = lazy(() => import('@/pages/AttendancePage').then(m => ({ default: m.AttendancePage })));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback').then(m => ({ default: m.AuthCallback })));
 
 function PageLoader() {
@@ -56,6 +57,11 @@ export default function App() {
             }
           >
             <Route index element={<Navigate to="/calendar" replace />} />
+            <Route path="attendance" element={
+              <ProtectedRoute allowedRoles={['admin', 'super_admin', 'manager', 'hr']}>
+                <AttendancePage />
+              </ProtectedRoute>
+            } />
             <Route path="calendar" element={
               <Suspense fallback={<PageLoader />}><CalendarPage /></Suspense>
             } />
