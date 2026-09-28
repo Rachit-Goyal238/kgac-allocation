@@ -19,7 +19,8 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
           )
         `)
         .gte('audit_date', format(dateRange.start, 'yyyy-MM-dd'))
-        .lte('audit_date', format(dateRange.end, 'yyyy-MM-dd'));
+        .lte('audit_date', format(dateRange.end, 'yyyy-MM-dd'))
+        .neq('status', 'draft');
         
       const { data: audits } = await query;
 

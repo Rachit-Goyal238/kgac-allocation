@@ -20,13 +20,14 @@ export function MyUpcomingAudits() {
         .from('audit_teams')
         .select(`
           role,
-          audit:audits(
+          audit:audits!inner(
             id, store_name, store_code, location, audit_date, end_date, status, audit_type,
             client:clients(name)
           )
         `)
         .eq('user_id', user?.id)
         .gte('audit.audit_date', today)
+        .neq('audit.status', 'draft')
         .order('audit(audit_date)', { ascending: true });
 
       if (error) throw error;

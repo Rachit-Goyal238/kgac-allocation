@@ -95,7 +95,7 @@ export function AuditImportTool() {
               audit_date: safeDate(getField(row, ['audit date', 'start date', 'date'])),
                 end_date: getField(row, ['end date']) ? safeDate(getField(row, ['end date'])) : safeDate(getField(row, ['audit date', 'start date', 'date'])),
               audit_type: safeString(getField(row, ['type', 'audit type']), 'General'),
-              status: 'scheduled',
+              status: 'draft',
               billing_amount: safeNumber(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])),
               required_leads: safeNumber(getField(row, ['leads', 'required leads', 'lead count'])),
               required_executives: safeNumber(getField(row, ['executives', 'required executives', 'executive count']))

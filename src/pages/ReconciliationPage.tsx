@@ -32,6 +32,7 @@ export function ReconciliationPage() {
         `)
         .gte('audit_date', startStr)
         .lte('audit_date', endStr)
+        .neq('status', 'draft')
         .order('audit_date', { ascending: false });
 
       if (error) throw error;
