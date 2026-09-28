@@ -45,6 +45,7 @@ export function BillingPage() {
         `)
         .gte('allocation_date', startStr)
         .lte('allocation_date', endStr)
+          .eq('is_approved', true)
         .neq('status', 'pto')
         .neq('status', 'sick')
         .neq('status', 'public_holiday');

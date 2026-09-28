@@ -7,6 +7,7 @@ import { OverAllocationChart } from '@/components/dashboard/OverAllocationChart'
 import { LeaveApprovals } from '@/components/admin/LeaveApprovals';
 import { MyUpcomingAudits } from '@/components/dashboard/MyUpcomingAudits';
 import { OverdueAssetReminder } from '@/components/dashboard/OverdueAssetReminder';
+import { NotificationAlerts } from '@/components/dashboard/NotificationAlerts';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { subDays, format } from 'date-fns';
 import { Loader2 } from 'lucide-react';

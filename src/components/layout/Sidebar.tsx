@@ -41,6 +41,7 @@ const navLinkClasses = ({ isActive }: { isActive: boolean }) =>
 
 export function Sidebar({ onClose }: SidebarProps) {
   const { profile, signOut } = useAuthContext();
+  const { unreadCount } = useNotifications();
 
   const handleLinkClick = () => {
     if (onClose) onClose();
@@ -83,8 +84,17 @@ export function Sidebar({ onClose }: SidebarProps) {
 
           {/* Dashboard - All users */}
           <NavLink to="/dashboard" onClick={handleLinkClick} className={navLinkClasses}>
-            <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
-            Dashboard
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center">
+                <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
+                Dashboard
+              </div>
+              {unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </div>
           </NavLink>
 
           {/* Assets - All users */}

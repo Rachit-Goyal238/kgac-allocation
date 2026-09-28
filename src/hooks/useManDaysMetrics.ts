@@ -11,7 +11,8 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         .from('allocations')
         .select('*, projects(name), profiles!inner(zone)')
         .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
-        .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
+        .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'))
+        .eq('is_approved', true);
         
       if (zoneFilter) {
         query = query.ilike('profiles.zone', `%${zoneFilter}%`);
