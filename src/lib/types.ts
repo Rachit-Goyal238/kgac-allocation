@@ -44,6 +44,7 @@ export interface Profile {
   department_id: string | null;
   status: UserStatus;
   zone?: string | null;
+  agreed_rate?: number | null;
   is_internal_vendor?: boolean;
   phone_number?: string | null;
   created_at: string;

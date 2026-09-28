@@ -134,6 +134,7 @@ export function UserManagement() {
               <TableHead>Entity</TableHead>
               <TableHead>Department</TableHead>
               <TableHead>Zone</TableHead>
+              <TableHead>Rate (INR)</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
