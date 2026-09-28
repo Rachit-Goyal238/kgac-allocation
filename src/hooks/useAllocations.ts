@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Allocation, GridFilters, GridRow, Profile } from '@/lib/types';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -186,10 +186,12 @@ export function useSaveDayAllocations() {
       if (allocations.length > 0) {
         const toInsert = allocations.map((a: any) => {
           delete a.id;
+          delete a.is_approved;
           return {
             ...a,
             user_id: userId,
-            allocation_date: date
+            allocation_date: date,
+            is_approved: !!isManagerOrAdmin
           };
         });
         const { error } = await supabase.from('allocations').insert(toInsert);
