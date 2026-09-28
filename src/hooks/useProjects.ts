@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Project } from '@/lib/types';
 
@@ -8,8 +8,7 @@ export function useProjects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
-        .eq('is_active', true);
+        .select('*');
       if (error) throw error;
       return data as Project[];
     },
