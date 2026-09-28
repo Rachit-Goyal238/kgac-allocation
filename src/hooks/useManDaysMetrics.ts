@@ -25,7 +25,7 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         .from('audit_teams')
         .select(`
           id, vendor_id, user_id, role,
-          audit:audits(id, audit_date, end_date, project_id, project:projects(name))
+          audit:audits(id, audit_date, end_date, project_id, status, project:projects(name))
         `);
       if (teamError) throw teamError;
 
@@ -62,7 +62,7 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
         if (t.role === 'asset') return;
         
         const audit = t.audit as any;
-        if (!audit || !audit.audit_date) return;
+        if (!audit || !audit.audit_date || audit.status !== 'completed') return;
         
         const auditDate = new Date(audit.audit_date);
         if (auditDate < dateRange.start || auditDate > dateRange.end) return;

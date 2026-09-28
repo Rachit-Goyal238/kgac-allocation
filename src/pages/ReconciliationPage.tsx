@@ -66,7 +66,7 @@ export function ReconciliationPage() {
 
         .lte('audit_date', endStr)
 
-        .neq('status', 'draft')
+        .eq('status', 'completed')
 
         .order('audit_date', { ascending: false });
 

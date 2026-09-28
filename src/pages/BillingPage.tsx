@@ -9,8 +9,9 @@ import { ExportButton } from '@/components/shared/ExportButton';
 import { useBillingMetrics } from '@/hooks/useBillingMetrics';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { format, subMonths, addMonths } from 'date-fns';
-import { Loader2, TrendingDown, Clock, Building, Briefcase } from 'lucide-react';
+import { Loader2, TrendingDown, Clock, Building, Briefcase, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { VendorInvoices } from '@/components/finance/VendorInvoices';
 
 export function BillingPage() {
   const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
@@ -130,6 +131,7 @@ export function BillingPage() {
         <TabsList className="mb-4">
           <TabsTrigger value="audits" className="flex items-center gap-2"><Briefcase className="h-4 w-4"/> Audits Expenses</TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2"><Building className="h-4 w-4"/> Manual Projects Expenses</TabsTrigger>
+          <TabsTrigger value="invoices" className="flex items-center gap-2"><FileText className="h-4 w-4"/> Vendor Invoices</TabsTrigger>
         </TabsList>
 
         <TabsContent value="audits" className="space-y-6">
@@ -344,6 +346,10 @@ export function BillingPage() {
                 </div>
                 </CardContent>
             </Card>
+        </TabsContent>
+
+        <TabsContent value="invoices" className="space-y-6">
+          <VendorInvoices />
         </TabsContent>
       </Tabs>
     </div>
