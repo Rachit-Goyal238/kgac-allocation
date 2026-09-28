@@ -60,6 +60,7 @@ export function TeamBuilder() {
   
   // New state for Contact Person
   const [contactPersonId, setContactPersonId] = useState<string>('');
+  const [billingAmount, setBillingAmount] = useState<string>('');
 
   const { data: vendorResources } = useQuery({ queryKey: ['vendor_resources_tb', selectedVendor], queryFn: async () => {
     if (!selectedVendor) return [];
@@ -99,8 +100,12 @@ export function TeamBuilder() {
 
   const handleUpdateContactPerson = async () => {
     if (!selectedAuditId) return;
-    updateAudit.mutate({ id: selectedAuditId, contact_person_id: contactPersonId || null }, {
-      onSuccess: () => toast.success('Contact person updated')
+    updateAudit.mutate({ 
+      id: selectedAuditId, 
+      contact_person_id: contactPersonId || null,
+      billing_amount: billingAmount ? Number(billingAmount) : 0
+    }, {
+      onSuccess: () => toast.success('Audit details updated')
     });
   };
 

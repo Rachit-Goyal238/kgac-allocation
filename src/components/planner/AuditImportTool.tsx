@@ -218,7 +218,7 @@ export function AuditImportTool() {
                   size="sm" 
                   className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200"
                   onClick={() => {
-                    const csvContent = "data:text/csv;charset=utf-8,Store Name,Store Code,Location,Audit Date (DD-MM-YYYY),Audit Type,Billing Amount,Required Leads,Required Executives\nDemo Store,DEMO-001,New York,25-10-2026,General,1500,1,2";
+                    const csvContent = "data:text/csv;charset=utf-8,Store Name,Store Code,Location,Audit Date (DD-MM-YYYY),End Date (DD-MM-YYYY),Audit Type,Billing Amount,Required Leads,Required Executives\nDemo Store,DEMO-001,New York,25-10-2026,28-10-2026,General,1500,1,2";
                     const encodedUri = encodeURI(csvContent);
                     const link = document.createElement("a");
                     link.setAttribute("href", encodedUri);
