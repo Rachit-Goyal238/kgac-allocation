@@ -42,7 +42,8 @@ export function CompletionPage() {
         .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'))
           .neq('status', 'pto')
           .neq('status', 'sick')
-          .neq('status', 'public_holiday');
+          .neq('status', 'public_holiday')
+          .eq('is_approved', true);
       if (zoneFilter) q = q.ilike('profiles.zone', `%${zoneFilter}%`);
       const { data, error } = await q;
       if (error) {

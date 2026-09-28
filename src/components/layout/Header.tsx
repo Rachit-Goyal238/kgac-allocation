@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { ROLE_LABELS } from '@/lib/constants';
-import { Menu, LogOut, User } from 'lucide-react';
+import { Menu, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sidebar } from './Sidebar';
+import { useNotifications } from '@/hooks/useNotifications';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,14 +14,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Sidebar } from './Sidebar';
 
 export function Header() {
   const location = useLocation();
-  const { profile, signOut } = useAuthContext();
+  const { profile } = useAuthContext();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [mobileOpen, setMobileOpen] = useState(false);
+  
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -62,6 +63,44 @@ export function Header() {
       </div>
 
       <div className="flex items-center space-x-4">
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5 text-slate-600" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel className="flex justify-between items-center">
+              Notifications
+              {unreadCount > 0 && (
+                <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-blue-600 hover:bg-transparent" onClick={(e) => { e.preventDefault(); markAllAsRead.mutate(); }}>
+                  Mark all as read
+                </Button>
+              )}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-sm text-slate-500">No notifications</div>
+              ) : (
+                notifications.map((n) => (
+                  <DropdownMenuItem key={n.id} className="flex flex-col items-start p-3 cursor-default" onClick={(e) => { e.preventDefault(); if (!n.is_read) markAsRead.mutate(n.id); }}>
+                    <div className="flex justify-between w-full mb-1">
+                      <span className={`font-medium text-sm ${!n.is_read ? 'text-slate-900' : 'text-slate-500'}`}>{n.title}</span>
+                      {!n.is_read && <span className="h-2 w-2 rounded-full bg-blue-500"></span>}
+                    </div>
+                    <span className="text-xs text-slate-500">{n.message}</span>
+                  </DropdownMenuItem>
+                ))
+              )}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <div className="flex items-center space-x-2">
           <span className="relative flex h-3 w-3">
             {isOnline && (
@@ -77,7 +116,6 @@ export function Header() {
             {isOnline ? 'Online' : 'Offline'}
           </span>
         </div>
-
       </div>
     </header>
   );

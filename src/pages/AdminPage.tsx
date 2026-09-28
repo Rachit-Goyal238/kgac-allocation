@@ -6,6 +6,7 @@ import { UserManagement } from '@/components/admin/UserManagement';
 import { SeedDataToggle } from '@/components/admin/SeedDataToggle';
 import { DepartmentManager } from '@/components/admin/DepartmentManager';
 import { ProjectManager } from '@/components/admin/ProjectManager';
+import { TimesheetApprovals } from '@/components/admin/TimesheetApprovals';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -59,6 +60,7 @@ export function AdminPage() {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="mb-4 flex-wrap h-auto gap-1">
           <TabsTrigger value="users">Users & Roles</TabsTrigger>
+          <TabsTrigger value="timesheets">Timesheet Approvals</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
           {isManagerPlus && <TabsTrigger value="projects">Projects</TabsTrigger>}
           {isAdminPlus && <TabsTrigger value="vendors">Vendors</TabsTrigger>}
@@ -68,7 +70,12 @@ export function AdminPage() {
           {isSuperAdmin && <TabsTrigger value="database">Database</TabsTrigger>}
         </TabsList>
         
+        
+        <TabsContent value="timesheets" className="mt-0">
+          <TimesheetApprovals />
+        </TabsContent>
         <TabsContent value="users" className="mt-0">
+
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <UserManagement />
           </div>
