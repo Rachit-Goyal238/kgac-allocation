@@ -27,7 +27,7 @@ export function ReconciliationPage() {
           teams:audit_teams(
             role, agreed_rate, vendor_id,
             vendor:vendors(name, default_human_rate, default_asset_rate),
-            user:profiles!left(zone, agreed_rate)
+            user:profiles!left(zone, agreed_rate, monthly_salary)
           )
         `)
         .gte('audit_date', startStr)
@@ -65,7 +65,15 @@ export function ReconciliationPage() {
               totalTeamCost += (Number(rate) || 0) * days;
             } else if (!team.vendor_id) {
               internalCount += 1;
-              let intRate = team.agreed_rate || team.user?.agreed_rate;
+              let intRate = team.agreed_rate;
+              if (!intRate && team.user?.monthly_salary) {
+                const auditDate = new Date(audit.audit_date || new Date());
+                const daysInMonth = new Date(auditDate.getFullYear(), auditDate.getMonth() + 1, 0).getDate();
+                intRate = Number(team.user.monthly_salary) / daysInMonth;
+              } else if (!intRate) {
+                intRate = team.user?.agreed_rate;
+              }
+
               if (intRate) {
                 totalTeamCost += (Number(intRate) || 0) * days;
               }

@@ -15,7 +15,7 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
           teams:audit_teams(
             id, role, agreed_rate, user_id, vendor_id,
             vendor:vendors(name, default_human_rate, default_asset_rate),
-            user:profiles!left(full_name, is_internal_vendor, zone, agreed_rate)
+            user:profiles!left(full_name, is_internal_vendor, zone, agreed_rate, monthly_salary)
           )
         `)
         .gte('audit_date', format(dateRange.start, 'yyyy-MM-dd'))
@@ -59,7 +59,15 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
             resourceName = team.vendor.name;
           } else if (team.user_id) {
             // Internal resource with cost
-            let intRate = team.agreed_rate || team.user?.agreed_rate;
+            let intRate = team.agreed_rate;
+            if (!intRate && team.user?.monthly_salary) {
+              const auditDate = new Date(audit.audit_date || new Date());
+              const daysInMonth = new Date(auditDate.getFullYear(), auditDate.getMonth() + 1, 0).getDate();
+              intRate = Number(team.user.monthly_salary) / daysInMonth;
+            } else if (!intRate) {
+              intRate = team.user?.agreed_rate;
+            }
+
             if (intRate) {
               rate = (Number(intRate) || 0) * days;
               resourceName = team.user?.is_internal_vendor ? team.user.full_name : 'Internal Employee';
