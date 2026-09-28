@@ -8,7 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Loader2, Plus, FileText, CheckCircle2, Clock, Download } from 'lucide-react';
-import { exportToCSV } from '@/lib/export';
+import { exportToCSV, exportToExcel } from '@/lib/export';
+import { printInvoice } from '@/lib/invoice';
+import { Printer } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function VendorInvoices() {
@@ -94,7 +96,7 @@ export function VendorInvoices() {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Vendor Invoices</h2>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <Button variant="outline" className="mr-2" onClick={() => exportToCSV(invoices?.map(i => ({ Date: new Date(i.created_at).toLocaleDateString(), Vendor: i.vendor?.name, Audit: i.audit?.store_name, Amount: i.amount, Status: i.status, Notes: i.notes })) || [], 'vendor_invoices.csv')}><Download className="h-4 w-4 mr-2"/> Export CSV</Button>
+          <Button variant="outline" className="mr-2" onClick={() => exportToExcel(invoices?.map(i => ({ Date: new Date(i.created_at).toLocaleDateString(), Vendor: i.vendor?.name, Audit: i.audit?.store_name, Amount: i.amount, Status: i.status, Notes: i.notes })) || [], [], 'vendor_invoices.xlsx')}><Download className="h-4 w-4 mr-2"/> Export Excel</Button>
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" /> Create Invoice</Button>
           </DialogTrigger>
@@ -178,10 +180,15 @@ export function VendorInvoices() {
                       <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>
                     )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-2">
                     {inv.status === 'pending' && (
                       <Button size="sm" variant="outline" className="text-xs" onClick={() => updateStatus.mutate({ id: inv.id, newStatus: 'paid' })}>
                         Mark Paid
+                      </Button>
+                    )}
+                    {inv.status === 'paid' && (
+                      <Button size="sm" variant="secondary" className="text-xs" onClick={() => printInvoice(inv)}>
+                        <Printer className="h-3 w-3 mr-1" /> Print PDF
                       </Button>
                     )}
                   </TableCell>

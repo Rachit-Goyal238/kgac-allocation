@@ -56,7 +56,7 @@ export function DashboardPage() {
 
       {/* Personal reminder cards — visible to all users */}
       <OverdueAssetReminder />
-      <MyUpcomingAudits />
+      <MyUpcomingAudits startDate={startStr} endDate={endStr} />
 
 
       {isManagerOrAdmin && (

@@ -8,15 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Loader2, MapPin, Building2, Calendar, Search } from 'lucide-react';
 import { format } from 'date-fns';
 
-export function MyUpcomingAudits() {
+export function MyUpcomingAudits({ startDate, endDate }: { startDate?: string, endDate?: string }) {
   const { user } = useAuthContext();
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: assignments, isLoading } = useQuery({
-    queryKey: ['my_audits', user?.id],
+    queryKey: ['my_audits', user?.id, startDate, endDate],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
+      let query = supabase
         .from('audit_teams')
         .select(`
           role,
@@ -25,8 +25,14 @@ export function MyUpcomingAudits() {
             client:clients(name)
           )
         `)
-        .eq('user_id', user?.id)
-        .gte('audit.audit_date', today)
+        .eq('user_id', user?.id);
+
+      if (startDate) query = query.gte('audit.audit_date', startDate);
+      else query = query.gte('audit.audit_date', today);
+      
+      if (endDate) query = query.lte('audit.audit_date', endDate);
+      
+      const { data, error } = await query
         .neq('audit.status', 'draft')
         .order('audit(audit_date)', { ascending: true });
 
