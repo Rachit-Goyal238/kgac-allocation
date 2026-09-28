@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENABLE_ATTENDANCE_SYSTEM } from '@/lib/constants';
+import { useState, useEffect } from 'react';
 import { Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import React from 'react';
@@ -283,6 +284,7 @@ export function Sidebar({ onClose }: SidebarProps) {
 function ClockOutButton({ user }: { user: any }) {
   const queryClient = useQueryClient();
   const today = new Date().toISOString().split('T')[0];
+  const [elapsed, setElapsed] = useState('');
 
   const { data: attendance } = useQuery({
     queryKey: ['attendance', user?.id, today],
@@ -292,6 +294,24 @@ function ClockOutButton({ user }: { user: any }) {
     },
     enabled: !!user?.id
   });
+
+  useEffect(() => {
+    if (!attendance || !attendance.clock_in || attendance.clock_out) return;
+    
+    const interval = setInterval(() => {
+      const start = new Date(attendance.clock_in).getTime();
+      const now = new Date().getTime();
+      const diff = now - start;
+      
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      
+      setElapsed(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [attendance]);
 
   const clockOut = useMutation({
     mutationFn: async () => {
@@ -306,14 +326,19 @@ function ClockOutButton({ user }: { user: any }) {
   if (!attendance || attendance.clock_out) return null;
 
   return (
-    <Button 
-      variant="outline" 
-      className="w-full justify-start text-amber-500 hover:text-amber-600 hover:bg-amber-50/10 border-slate-700 bg-transparent" 
-      onClick={() => { if(confirm('Are you sure you want to clock out for the day?')) clockOut.mutate(); }}
-      disabled={clockOut.isPending}
-    >
-      <Clock className="mr-3 h-5 w-5" />
-      Clock Out
-    </Button>
+    <div className="flex flex-col space-y-2 mb-4 p-3 bg-slate-800 rounded-lg border border-slate-700">
+      <div className="flex justify-between items-center text-slate-300 text-sm">
+        <span className="flex items-center"><Clock className="w-4 h-4 mr-2 text-emerald-400" /> Working</span>
+        <span className="font-mono font-medium tracking-wider">{elapsed || '00:00:00'}</span>
+      </div>
+      <Button 
+        variant="outline" 
+        className="w-full text-amber-500 hover:text-amber-600 hover:bg-amber-50/10 border-slate-600 bg-transparent h-8 text-xs" 
+        onClick={() => { if(confirm('Are you sure you want to clock out for the day?')) clockOut.mutate(); }}
+        disabled={clockOut.isPending}
+      >
+        Clock Out
+      </Button>
+    </div>
   );
 }
