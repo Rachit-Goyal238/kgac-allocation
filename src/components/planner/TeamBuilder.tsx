@@ -192,7 +192,7 @@ export function TeamBuilder() {
           >
             <div className="font-medium text-sm">{audit.project?.name || 'Unknown Project'}</div>
             <div className="text-xs text-muted-foreground mt-1">
-              {format(new Date(audit.audit_date), 'MMM d, yyyy')}
+              {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
             </div>
             <div className="flex justify-between items-center mt-3">
                <Badge variant={audit.status === 'scheduled' ? 'default' : 'secondary'} className="text-[10px] capitalize">
@@ -218,7 +218,7 @@ export function TeamBuilder() {
               <div>
                 <CardTitle>{selectedAudit?.project?.name}</CardTitle>
                 <CardDescription>
-                  Audit Date: {format(new Date(selectedAudit?.audit_date || new Date()), 'MMMM d, yyyy')}
+                  Date(s): {format(new Date(selectedAudit?.audit_date || new Date()), 'MMM d, yyyy')} {selectedAudit?.end_date && selectedAudit.end_date !== selectedAudit.audit_date ? `- ${format(new Date(selectedAudit.end_date), 'MMM d, yyyy')}` : ''}
                 </CardDescription>
               </div>
               <Button variant="destructive" size="sm" onClick={() => {

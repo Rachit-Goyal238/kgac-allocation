@@ -163,7 +163,10 @@ export function UserManagement() {
                   <TableCell>
                     <span className="text-sm font-medium">{profile.employee_id || '-'}</span>
                   </TableCell>
-                  <TableCell>
+                    <TableCell>
+                      <span className="text-sm text-muted-foreground">{profile.phone_number || '-'}</span>
+                    </TableCell>
+                    <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="outline" size="sm" className="w-[120px] h-8 text-xs justify-between">
@@ -277,6 +280,7 @@ export function UserManagement() {
     </div>
   );
 }
+
 
 
 

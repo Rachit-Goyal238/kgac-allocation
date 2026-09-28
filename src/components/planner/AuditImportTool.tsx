@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Upload, AlertCircle, FileText, Loader2 } from 'lucide-react';
@@ -92,7 +92,8 @@ export function AuditImportTool() {
               store_name: safeString(getField(row, ['store', 'name']), 'Unknown Store'),
               store_code: safeString(getField(row, ['code'])),
               location: safeString(getField(row, ['location', 'city', 'address'])),
-              audit_date: safeDate(getField(row, ['date'])),
+              audit_date: safeDate(getField(row, ['audit date', 'start date', 'date'])),
+              end_date: safeDate(getField(row, ['end date'])) || safeDate(getField(row, ['audit date', 'start date', 'date'])),
               audit_type: safeString(getField(row, ['type', 'audit type']), 'General'),
               status: 'scheduled',
               billing_amount: safeNumber(getField(row, ['fee', 'amount', 'price', 'revenue', 'billing'])),
@@ -237,6 +238,7 @@ export function AuditImportTool() {
                 <li><code>Store Code</code> (optional)</li>
                 <li><code>Location</code></li>
                 <li><code>Audit Date</code> (DD-MM-YYYY or YYYY-MM-DD)</li>
+                <li><code>End Date</code> (optional, defaults to Audit Date)</li>
                 <li><code>Audit Type</code></li>
                 <li><code>Billing Amount</code> (optional)</li>
                 <li><code>Required Leads</code> (number of Team Leads needed)</li>
@@ -258,3 +260,4 @@ export function AuditImportTool() {
     </Card>
   );
 }
+

@@ -70,7 +70,7 @@ export function PlannerPage() {
                         <div>
                           <p className="font-medium text-sm text-slate-900">{audit.store_name}</p>
                           <p className="text-xs text-slate-500 mt-1">
-                            {audit.clients?.name} | {format(new Date(audit.audit_date), 'MMM d, yyyy')}
+                            {audit.clients?.name} | {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
                           </p>
                         </div>
                         <div className="text-xs text-slate-400 bg-slate-50 px-2 py-1 rounded">

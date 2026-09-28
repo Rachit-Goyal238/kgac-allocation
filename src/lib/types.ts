@@ -291,6 +291,7 @@ export interface Audit {
   store_code: string | null;
   location: string | null;
   audit_date: string;
+  end_date?: string;
   audit_type: string;
   status: "scheduled" | "in_progress" | "completed" | "cancelled";
   billing_amount: number;
@@ -369,6 +370,7 @@ export interface AssetRequest {
   created_at: string;
   updated_at: string;
 }
+
 
 
 
