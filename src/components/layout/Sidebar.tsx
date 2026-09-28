@@ -107,6 +107,13 @@ export function Sidebar({ onClose }: SidebarProps) {
             <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
             Internal Assets
           </NavLink>
+          
+          {hasAnyRole(user, ['admin', 'super_admin', 'manager', 'hr']) && (
+            <NavLink to="/attendance" onClick={handleLinkClick} className={navLinkClasses}>
+              <Clock className="mr-3 h-5 w-5 flex-shrink-0" />
+              Attendance
+            </NavLink>
+          )}
 
           {/* Audit Margins - Manager, Admin, Super Admin, Finance */}
           {(isManagerPlus || isFinance) && (
@@ -268,6 +275,7 @@ export function Sidebar({ onClose }: SidebarProps) {
           </div>
         </div>
         
+        {ENABLE_ATTENDANCE_SYSTEM && <ClockOutButton user={user} />}
         <Button 
           variant="ghost" 
           className="mt-4 w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700" 
