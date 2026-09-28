@@ -1,6 +1,5 @@
 ﻿import React from 'react';
 import { useNotifications } from '@/hooks/useNotifications';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Bell, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -18,15 +17,15 @@ export function NotificationAlerts() {
       </h3>
       <div className="grid gap-3">
         {notifications.filter(n => !n.is_read).map(notification => (
-          <Alert key={notification.id} className="border-red-200 bg-red-50 flex flex-col sm:flex-row justify-between sm:items-center p-4">
+          <div key={notification.id} className="border border-red-200 rounded-lg bg-red-50 flex flex-col sm:flex-row justify-between sm:items-center p-4">
             <div>
-              <AlertTitle className="text-red-800 font-bold mb-1">{notification.title}</AlertTitle>
-              <AlertDescription className="text-red-700">
+              <div className="text-red-800 font-bold mb-1 text-sm">{notification.title}</div>
+              <div className="text-red-700 text-sm">
                 {notification.message}
                 <div className="text-xs mt-1 opacity-70">
                   {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                 </div>
-              </AlertDescription>
+              </div>
             </div>
             <Button 
               size="sm" 
@@ -37,7 +36,7 @@ export function NotificationAlerts() {
               <Check className="h-4 w-4 mr-2" />
               Mark as Acknowledged
             </Button>
-          </Alert>
+          </div>
         ))}
       </div>
     </div>
