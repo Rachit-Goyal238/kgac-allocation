@@ -126,3 +126,21 @@ export function useDeleteAudit() {
 
 
 
+
+export function useCompleteAudit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (auditId: string) => {
+      const { error } = await supabase.rpc('complete_audit', { p_audit_id: auditId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['audits'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Audit marked as completed');
+    },
+    onError: (error: any) => {
+      toast.error(`Error completing audit: ${error.message}`);
+    }
+  });
+}

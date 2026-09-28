@@ -1,12 +1,12 @@
 ﻿import React, { useState } from 'react';
-import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit } from '@/hooks/useAudits';
+import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit, useCompleteAudit } from '@/hooks/useAudits';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Loader2, UserPlus, Trash2, Building, User } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Building, User, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ export function TeamBuilder() {
   const assignMember = useAssignTeamMember();
   const removeMember = useRemoveTeamMember();
   const updateAudit = useUpdateAudit();
+  const completeAudit = useCompleteAudit();
   const deleteAudit = useDeleteAudit();
 
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
@@ -91,6 +92,13 @@ export function TeamBuilder() {
 
   const [isNotifying, setIsNotifying] = useState(false);
   if (isLoadingAudits) return <div className="p-8 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>;
+  const handleCompleteAudit = async () => {
+    if (!selectedAuditId) return;
+    if (confirm('Are you sure you want to mark this audit as completed? It will be removed from active projects.')) {
+      completeAudit.mutate(selectedAuditId);
+    }
+  };
+
   const handlePublishAudit = async () => {
     if (!selectedAuditId) return;
     setIsNotifying(true);
