@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+﻿import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 
@@ -33,10 +33,14 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
       audits?.forEach((audit: any) => {
         let auditTotal = 0;
         
+        let days = 1;
+        if (audit.end_date && audit.end_date !== audit.audit_date) {
+            const diffTime = Math.abs(new Date(audit.end_date).getTime() - new Date(audit.audit_date).getTime());
+            days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        }
+
         audit.teams?.forEach((team: any) => {
           if (zoneFilter && team.user?.zone?.toLowerCase() !== zoneFilter.toLowerCase()) {
-             // For vendors without a user profile, we might skip them or include them?
-             // Usually zone filtering applies to internal employees/internal vendors.
              if (team.user_id) return;
           }
           
@@ -51,11 +55,11 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
                 ? team.vendor.default_asset_rate 
                 : team.vendor.default_human_rate;
             }
-            rate = Number(rate) || 0;
+            rate = (Number(rate) || 0) * days;
             resourceName = team.vendor.name;
           } else if (team.user_id && team.agreed_rate) {
             // Internal resource with cost
-            rate = Number(team.agreed_rate) || 0;
+            rate = (Number(team.agreed_rate) || 0) * days;
             resourceName = team.user?.is_internal_vendor ? team.user.full_name : 'Internal Employee';
           }
           
