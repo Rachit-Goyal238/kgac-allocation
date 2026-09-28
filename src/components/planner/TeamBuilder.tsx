@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { toast } from 'sonner';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+
 export function TeamBuilder() {
   const queryClient = useQueryClient();
   const { data: audits, isLoading: isLoadingAudits } = useAudits();
@@ -43,6 +45,13 @@ export function TeamBuilder() {
   }});
 
   const selectedAudit = audits?.find(a => a.id === selectedAuditId);
+  useEffect(() => {
+    if (selectedAudit) {
+      setContactPersonId(selectedAudit.contact_person_id || '');
+      setBillingAmount(selectedAudit.billing_amount ? selectedAudit.billing_amount.toString() : '');
+    }
+  }, [selectedAuditId, selectedAudit?.contact_person_id, selectedAudit?.billing_amount]);
+
   const assignedLeads = team?.filter(m => m.role === 'lead').length || 0;
   const assignedExecs = team?.filter(m => m.role === 'executive').length || 0;
   const reqLeads = selectedAudit?.required_leads || 0;
@@ -193,6 +202,7 @@ export function TeamBuilder() {
             onClick={() => {
               setSelectedAuditId(audit.id); sessionStorage.setItem('teamBuilderAuditId', audit.id);
               setContactPersonId(audit.contact_person_id || '');
+              setBillingAmount(audit.billing_amount ? audit.billing_amount.toString() : '');
             }}
           >
             <div className="font-medium text-sm">{audit.project?.name || 'Unknown Project'}</div>
