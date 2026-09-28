@@ -1,20 +1,14 @@
-﻿import re
+﻿import sys
+import re
 
 with open('src/components/admin/VendorResourceImporter.tsx', 'r', encoding='utf-8') as f:
     text = f.read()
 
-# Add AlertCircle icon
 text = text.replace("import { Upload, FileText, Check, AlertTriangle, Loader2 } from 'lucide-react';", "import { Upload, FileText, Check, AlertTriangle, Loader2, AlertCircle } from 'lucide-react';")
 
-old_ui = """            <div className="space-y-4">
-              <div className="flex justify-end">
-                <Button variant="link" onClick={generateTemplate} className="h-auto p-0 text-indigo-600">
-                  Download Sample Template
-                </Button>
-              </div>"""
+pattern = r'<div className="flex justify-end">\s*<Button variant="link" onClick=\{generateTemplate\} className="h-auto p-0 text-indigo-600">\s*Download Sample Template\s*</Button>\s*</div>'
 
-new_ui = """            <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
+new_ui = r"""<div className="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center text-blue-800 mb-2">
                     <AlertCircle className="h-5 w-5 mr-2" />
@@ -40,7 +34,8 @@ new_ui = """            <div className="space-y-4">
                 </ul>
               </div>"""
 
-text = text.replace(old_ui, new_ui)
+text = re.sub(pattern, new_ui, text)
 
 with open('src/components/admin/VendorResourceImporter.tsx', 'w', encoding='utf-8') as f:
     f.write(text)
+    print("Success: VendorResourceImporter updated.")

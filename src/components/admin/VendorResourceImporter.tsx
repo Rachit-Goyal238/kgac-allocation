@@ -4,7 +4,7 @@ import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UploadCloud, CheckCircle2, XCircle, FileSpreadsheet } from 'lucide-react';
+import { UploadCloud, CheckCircle2, XCircle, FileSpreadsheet, AlertCircle, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -149,11 +149,31 @@ export function VendorResourceImporter() {
 
         {!parsedRows.length ? (
           <div className="space-y-4">
-            <div className="flex justify-end">
-              <Button variant="link" onClick={generateTemplate} className="h-auto p-0 text-indigo-600">
-                Download Sample Template
-              </Button>
-            </div>
+            <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mb-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center text-blue-800 mb-2">
+                    <AlertCircle className="h-5 w-5 mr-2" />
+                    <p className="font-medium mb-1">Expected CSV Format</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200"
+                    onClick={generateTemplate}
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    Download Template
+                  </Button>
+                </div>
+                <p className="text-sm text-blue-800 mb-2">Your CSV should contain the following headers:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs text-blue-800 opacity-90">
+                  <li><code>Provider Name</code> (e.g. Deloitte)</li>
+                  <li><code>Resource Name</code> (e.g. John Doe)</li>
+                  <li><code>Type (man/asset)</code></li>
+                  <li><code>Default Rate</code> (e.g. 500)</li>
+                  <li><code>Contact Email</code> (optional)</li>
+                </ul>
+              </div>
             
             <div 
               {...getRootProps()} 
@@ -227,5 +247,6 @@ export function VendorResourceImporter() {
     </Dialog>
   );
 }
+
 
 

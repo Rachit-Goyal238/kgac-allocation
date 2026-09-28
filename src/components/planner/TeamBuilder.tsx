@@ -227,7 +227,7 @@ export function TeamBuilder() {
                 </CardDescription>
               </div>
               <Button variant="destructive" size="sm" onClick={() => {
-                if(confirm('Delete this audit entirely?')) deleteAudit.mutate(selectedAuditId);
+                if(confirm('Delete this audit entirely?')) deleteAudit.mutate(selectedAudit);
               }}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -246,7 +246,17 @@ export function TeamBuilder() {
                       <option value="">-- Select Contact Person --</option>
                       {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
                     </select>
-                    <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save</Button>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <label className="text-sm text-muted-foreground w-1/4">Client Revenue (₹)</label>
+                      <div className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm items-center">
+                        <span className="text-muted-foreground mr-2">₹</span>
+                        <input type="number" className="bg-transparent border-0 outline-none w-full" 
+                          value={billingAmount} onChange={e => setBillingAmount(e.target.value)} placeholder="0.00" />
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-2">
+                      <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save Details</Button>
                     </div>
                     <div className="pt-2 mt-2 border-t flex justify-end">
                       <Button variant="outline" size="sm" onClick={handlePublishAudit} disabled={isNotifying || !team || team.length === 0}>
@@ -472,6 +482,7 @@ export function TeamBuilder() {
     </div>
   );
 }
+
 
 
 
