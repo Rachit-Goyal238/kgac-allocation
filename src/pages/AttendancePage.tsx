@@ -21,7 +21,7 @@ export function AttendancePage() {
       // Get all active internal profiles
       const { data: profiles, error: profErr } = await supabase
         .from('profiles')
-        .select('id, full_name, role, department:departments(name)')
+        .select('id, full_name, roles, department:departments(name)')
         .eq('status', 'active');
       if (profErr) throw profErr;
 
@@ -66,7 +66,7 @@ export function AttendancePage() {
         return {
           id: p.id,
           name: p.full_name,
-          role: p.role,
+          role: p.roles,
           department: (p.department as any)?.name || 'N/A',
           daysPresent,
           daysOnLeave,
