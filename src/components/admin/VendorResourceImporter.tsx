@@ -17,7 +17,7 @@ export function VendorResourceImporter() {
   const queryClient = useQueryClient();
 
   const generateTemplate = () => {
-    const csvContent = "Provider Name,Resource Name,Type (man/asset),Default Rate,Contact Email\nDeloitte,John Smith,man,500\nDeloitte,Dell Laptop,asset,100\nFreelance Auditor A,Freelance Auditor A,man,450,freelance@test.com";
+    const csvContent = "Provider Name,Resource Name,Type (man/asset),Default Rate,Contact Email\nDeloitte,John Smith,man,500,\nDeloitte,Dell Laptop,asset,100,\nFreelance Auditor A,Freelance Auditor A,man,450,freelance@test.com";
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
@@ -43,7 +43,7 @@ export function VendorResourceImporter() {
           const providerName = String(r['Provider Name'] || '').trim();
           const resourceName = String(r['Resource Name'] || '').trim();
           const type = String(r['Type (man/asset)'] || r['Type'] || '').toLowerCase().trim();
-          const rateRaw = r['Default Rate,Contact Email'] || r['Rate'];
+          const rateRaw = r['Default Rate'] || r['Rate'];
           const rate = rateRaw ? Number(rateRaw) : null;
           const contactEmail = String(r['Contact Email'] || r['Email'] || '').trim();
 
