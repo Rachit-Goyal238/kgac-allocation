@@ -108,7 +108,7 @@ export function Sidebar({ onClose }: SidebarProps) {
             Internal Assets
           </NavLink>
           
-          {hasAnyRole(profile, ['admin', 'super_admin', 'manager', 'hr']) && (
+          {hasAnyRole(roles, ['admin', 'super_admin', 'manager', 'hr']) && (
             <NavLink to="/attendance" onClick={handleLinkClick} className={navLinkClasses}>
               <Clock className="mr-3 h-5 w-5 flex-shrink-0" />
               Attendance
