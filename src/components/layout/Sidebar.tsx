@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
 import { hasRole, hasAnyRole } from '@/lib/utils';
 import { ROLE_LABELS } from '@/lib/constants';
 import { 
@@ -104,6 +105,13 @@ export function Sidebar({ onClose }: SidebarProps) {
             <NavLink to="/completion" onClick={handleLinkClick} className={navLinkClasses}>
               <CheckCircle2 className="mr-3 h-5 w-5 flex-shrink-0" />
               Completion
+            </NavLink>
+          )}
+
+          {isManagerPlus && (
+            <NavLink to="/approvals" onClick={handleLinkClick} className={navLinkClasses}>
+              <CheckSquare className="mr-3 h-5 w-5 flex-shrink-0 text-emerald-600" />
+              Timesheet Approvals
             </NavLink>
           )}
 

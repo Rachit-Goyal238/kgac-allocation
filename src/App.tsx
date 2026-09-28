@@ -19,6 +19,7 @@ const ManDaysPage = lazy(() => import('@/pages/ManDaysPage').then(m => ({ defaul
 const CommandPage = lazy(() => import('@/pages/SuperAdminCommandCenter').then(m => ({ default: m.SuperAdminCommandCenter })));
 const CompletionPage = lazy(() => import('@/pages/CompletionPage').then(m => ({ default: m.CompletionPage })));
 const ReconciliationPage = lazy(() => import('@/pages/ReconciliationPage').then(m => ({ default: m.ReconciliationPage })));
+const TimesheetApprovalsPage = lazy(() => import('@/pages/TimesheetApprovalsPage').then(m => ({ default: m.TimesheetApprovalsPage })));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const PlannerPage = lazy(() => import('@/pages/PlannerPage').then(m => ({ default: m.PlannerPage })));
 const AssetsPage = lazy(() => import('@/pages/AssetsPage').then(m => ({ default: m.AssetsPage })));
@@ -83,6 +84,14 @@ export default function App() {
               }
             />
 
+            <Route
+              path="approvals"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'manager']}>
+                  <Suspense fallback={<PageLoader />}><TimesheetApprovalsPage /></Suspense>
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="assets"
               element={
