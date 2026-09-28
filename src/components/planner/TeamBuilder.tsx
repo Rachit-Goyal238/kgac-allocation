@@ -231,7 +231,7 @@ export function TeamBuilder() {
 
       {/* Right Panel */}
       <div className="w-2/3 pl-2 overflow-y-auto">
-        {!selectedAuditId ? (
+        {!selectedAudit ? (
           <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
             Select an audit from the list to build the team.
           </div>
