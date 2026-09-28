@@ -76,7 +76,7 @@ export function AttendancePage() {
         };
       });
 
-      return (report as any[]).sort((a: any, b: any) => a.name.localeCompare(b.name));
+      return report;
     }
   });
 
