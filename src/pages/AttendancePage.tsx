@@ -126,7 +126,7 @@ export function AttendancePage() {
               <TableBody>
                 {attendanceData?.map(row => (
                   <TableRow key={row.id}>
-                    <TableCell className="font-medium">{row.name} <span className="text-xs text-slate-400 capitalize block">{row.role.replace('_', ' ')}</span></TableCell>
+                    <TableCell className="font-medium">{row.name} <span className="text-xs text-slate-400 capitalize block">{Array.isArray(row.role) ? row.role.join(', ').replace(/_/g, ' ') : String(row.role || '').replace(/_/g, ' ')}</span></TableCell>
                     <TableCell>{row.department}</TableCell>
                     <TableCell className="text-center font-medium text-emerald-600">{row.daysPresent}</TableCell>
                     <TableCell className="text-center font-medium text-amber-600">{row.daysOnLeave}</TableCell>
