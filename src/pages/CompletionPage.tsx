@@ -37,7 +37,7 @@ export function CompletionPage() {
 
   useEffect(() => {
     const fetchAllocations = async () => {
-      let q = supabase.from('allocations').select('*, projects(name), profiles!inner(full_name, zone)')
+      let q = supabase.from('allocations').select('*, projects(name), audits(store_name), profiles!inner(full_name, zone)')
         .gte('allocation_date', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('allocation_date', format(dateRange.end, 'yyyy-MM-dd'));
       if (zoneFilter) q = q.ilike('profiles.zone', `%${zoneFilter}%`);
@@ -70,9 +70,9 @@ export function CompletionPage() {
   const mismatches = allocations.filter(a => a.hours > 0 && a.task_status === 'not_started');
 
   const projectGroups = allocations.reduce((acc: any, a) => {
-    const projId = a.project_id;
+    const projId = a.audit_id || a.project_id || 'unknown';
     if (!acc[projId]) {
-      acc[projId] = { name: a.projects?.name || 'Unknown', total: 0, completed: 0, inProgress: 0, notStarted: 0, blocked: 0 };
+      acc[projId] = { name: a.audits?.store_name || a.projects?.name || 'Unknown', total: 0, completed: 0, inProgress: 0, notStarted: 0, blocked: 0 };
     }
     acc[projId].total++;
     if (a.task_status === 'completed') acc[projId].completed++;

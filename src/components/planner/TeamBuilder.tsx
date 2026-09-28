@@ -205,7 +205,7 @@ export function TeamBuilder() {
               setBillingAmount(audit.billing_amount ? audit.billing_amount.toString() : '');
             }}
           >
-            <div className="font-medium text-sm">{audit.project?.name || 'Unknown Project'}</div>
+            <div className="font-medium text-sm">{audit.store_name || audit.project?.name || 'Unknown Project'}</div>
             <div className="text-xs text-muted-foreground mt-1">
               {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
             </div>
