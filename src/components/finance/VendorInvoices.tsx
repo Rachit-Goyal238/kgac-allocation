@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 import { Input } from '@/components/ui/input';
 import { Loader2, Plus, FileText, CheckCircle2, Clock, Download } from 'lucide-react';
 import { exportToCSV, exportToExcel } from '@/lib/export';
+import { ExportButton } from '@/components/shared/ExportButton';
 import { printInvoice } from '@/lib/invoice';
 import { Printer } from 'lucide-react';
 import { toast } from 'sonner';
@@ -96,7 +97,11 @@ export function VendorInvoices() {
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold">Vendor Invoices</h2>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <Button variant="outline" className="mr-2" onClick={() => exportToExcel(invoices?.map(i => ({ Date: new Date(i.created_at).toLocaleDateString(), Vendor: i.vendor?.name, Audit: i.audit?.store_name, Amount: i.amount, Status: i.status, Notes: i.notes })) || [], [], 'vendor_invoices.xlsx')}><Download className="h-4 w-4 mr-2"/> Export Excel</Button>
+          <ExportButton onExport={(format) => {
+            const data = invoices?.map(i => ({ Date: new Date(i.created_at).toLocaleDateString(), Vendor: i.vendor?.name, Audit: i.audit?.store_name, Amount: i.amount, Status: i.status, Notes: i.notes })) || [];
+            if (format === 'csv') exportToCSV(data, 'vendor_invoices.csv');
+            else exportToExcel(data, [], 'vendor_invoices.xlsx');
+          }} />
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" /> Create Invoice</Button>
           </DialogTrigger>

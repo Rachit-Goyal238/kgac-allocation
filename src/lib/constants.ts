@@ -128,3 +128,4 @@ export const TASK_STATUS_COLORS: Record<string, string> = {
 };
 
 
+export const ENABLE_ATTENDANCE_SYSTEM = true;

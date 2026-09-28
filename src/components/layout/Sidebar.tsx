@@ -275,3 +275,41 @@ export function Sidebar({ onClose }: SidebarProps) {
     </div>
   );
 }
+
+function ClockOutButton({ user }: { user: any }) {
+  const queryClient = useQueryClient();
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data: attendance } = useQuery({
+    queryKey: ['attendance', user?.id, today],
+    queryFn: async () => {
+      const { data } = await supabase.from('attendance').select('*').eq('user_id', user?.id).eq('date', today).maybeSingle();
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
+  const clockOut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from('attendance').update({ clock_out: new Date().toISOString() }).eq('id', attendance?.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+    }
+  });
+
+  if (!attendance || attendance.clock_out) return null;
+
+  return (
+    <Button 
+      variant="outline" 
+      className="w-full justify-start text-amber-500 hover:text-amber-600 hover:bg-amber-50/10 border-slate-700 bg-transparent" 
+      onClick={() => { if(confirm('Are you sure you want to clock out for the day?')) clockOut.mutate(); }}
+      disabled={clockOut.isPending}
+    >
+      <Clock className="mr-3 h-5 w-5" />
+      Clock Out
+    </Button>
+  );
+}
