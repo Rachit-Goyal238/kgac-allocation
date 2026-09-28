@@ -86,7 +86,9 @@ export function CSVUploader() {
           phone_number: rowData['Phone Number'] || rowData['Phone'] || rowData.phone_number || null,
           role: (rowData.Role || rowData.role || 'employee').toLowerCase(),
           department_id: deptId,
-          entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase()
+          entity: (rowData.Entity || rowData.entity || 'KGAC').toUpperCase(),
+          zone: rowData.Zone || rowData.zone || null,
+          monthly_salary: rowData['Monthly Salary'] || rowData.monthly_salary ? Number(rowData['Monthly Salary'] || rowData.monthly_salary) : null
         };
       });
       
