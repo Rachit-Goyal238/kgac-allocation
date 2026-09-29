@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+﻿import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AuditImportTool } from '@/components/planner/AuditImportTool';
 import { TeamBuilder } from '@/components/planner/TeamBuilder';
 import { VendorManager } from '@/components/admin/VendorManager';
@@ -10,7 +11,9 @@ import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 
 export function PlannerPage() {
-  const [activeTab, setActiveTab] = useState('import');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'import';
+  const setActiveTab = (tab: string) => setSearchParams({ tab }, { replace: true });
   const { data: recentAudits, isLoading } = useQuery({
     queryKey: ['recent-audits'],
     queryFn: async () => {
