@@ -8,25 +8,26 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Search, MapPin, Building2, Calendar, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Loader2, Search, MapPin, Building2, Calendar, CheckCircle2, Clock, XCircle, Users } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 
-const STATUS_CONFIG = {
-  scheduled: { label: 'Scheduled', icon: Clock, className: 'bg-blue-100 text-blue-700 border-blue-200' },
-  in_progress: { label: 'In Progress', icon: Clock, className: 'bg-amber-100 text-amber-700 border-amber-200' },
-  completed: { label: 'Completed', icon: CheckCircle2, className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  cancelled: { label: 'Cancelled', icon: XCircle, className: 'bg-red-100 text-red-700 border-red-200' },
-  draft: { label: 'Draft', icon: Clock, className: 'bg-slate-100 text-slate-600 border-slate-200' },
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+  scheduled:   { label: 'Scheduled',   className: 'bg-blue-100 text-blue-700 border-blue-200' },
+  in_progress: { label: 'In Progress', className: 'bg-amber-100 text-amber-700 border-amber-200' },
+  completed:   { label: 'Completed',   className: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+  cancelled:   { label: 'Cancelled',   className: 'bg-red-100 text-red-700 border-red-200' },
+  draft:       { label: 'Draft',       className: 'bg-slate-100 text-slate-600 border-slate-200' },
 };
 
 export function AuditsPage() {
   const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(addMonths(new Date(), 3));
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [endDate, setEndDate]     = useState(addMonths(new Date(), 3));
+  const [search, setSearch]       = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const startStr = format(startDate, 'yyyy-MM-dd');
-  const endStr = format(endDate, 'yyyy-MM-dd');
+  const endStr   = format(endDate,   'yyyy-MM-dd');
 
   const { data: audits, isLoading } = useQuery({
     queryKey: ['all_audits_view', startStr, endStr],
@@ -36,7 +37,12 @@ export function AuditsPage() {
         .select(`
           id, store_name, store_code, location, audit_date, end_date,
           audit_type, status, billing_amount,
-          client:clients(name)
+          client:clients(name),
+          audit_teams(
+            role,
+            user:profiles(full_name),
+            vendor_resource:vendor_resources(name)
+          )
         `)
         .in('status', ['scheduled', 'in_progress', 'completed', 'cancelled'])
         .gte('audit_date', startStr)
@@ -47,8 +53,8 @@ export function AuditsPage() {
     }
   });
 
-  const filtered = (audits || []).filter(a => {
-    const matchSearch = !search || 
+  const filtered = (audits || []).filter((a: any) => {
+    const matchSearch = !search ||
       a.store_name?.toLowerCase().includes(search.toLowerCase()) ||
       (a.client as any)?.name?.toLowerCase().includes(search.toLowerCase()) ||
       a.location?.toLowerCase().includes(search.toLowerCase()) ||
@@ -58,27 +64,33 @@ export function AuditsPage() {
   });
 
   const handleExport = (fmt: 'csv' | 'excel') => {
-    const data = filtered.map(a => ({
-      'Client': (a.client as any)?.name || '',
-      'Store': a.store_name,
-      'Code': a.store_code || '',
-      'Location': a.location || '',
-      'Type': a.audit_type,
-      'Start Date': a.audit_date,
-      'End Date': a.end_date || a.audit_date,
-      'Status': a.status,
-    }));
+    const data = filtered.map((a: any) => {
+      const team = (a.audit_teams || []).map((t: any) =>
+        t.user?.full_name || t.vendor_resource?.name || '—'
+      ).join(', ');
+      return {
+        'Client':     (a.client as any)?.name || '',
+        'Store':      a.store_name,
+        'Code':       a.store_code || '',
+        'Location':   a.location || '',
+        'Type':       a.audit_type,
+        'Start Date': a.audit_date,
+        'End Date':   a.end_date || a.audit_date,
+        'Status':     a.status,
+        'Team':       team,
+      };
+    });
     const filename = `audits_${startStr}_to_${endStr}`;
     if (fmt === 'csv') exportToCSV(data, `${filename}.csv`);
     else exportToExcel(data, [], `${filename}.xlsx`);
   };
 
-  const counts = {
-    all: (audits || []).length,
-    scheduled: (audits || []).filter(a => a.status === 'scheduled').length,
-    completed: (audits || []).filter(a => a.status === 'completed').length,
-    in_progress: (audits || []).filter(a => a.status === 'in_progress').length,
-    cancelled: (audits || []).filter(a => a.status === 'cancelled').length,
+  const counts: Record<string, number> = {
+    all:         (audits || []).length,
+    scheduled:   (audits || []).filter((a: any) => a.status === 'scheduled').length,
+    completed:   (audits || []).filter((a: any) => a.status === 'completed').length,
+    in_progress: (audits || []).filter((a: any) => a.status === 'in_progress').length,
+    cancelled:   (audits || []).filter((a: any) => a.status === 'cancelled').length,
   };
 
   return (
@@ -87,7 +99,7 @@ export function AuditsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">All Audits</h1>
-          <p className="text-sm text-slate-500">View scheduled and completed audits by date range.</p>
+          <p className="text-sm text-slate-500">View scheduled and completed audits with their allocated team.</p>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <DateRangePicker startDate={startDate} endDate={endDate} onChange={(s, e) => { setStartDate(s); setEndDate(e); }} />
@@ -95,7 +107,7 @@ export function AuditsPage() {
         </div>
       </div>
 
-      {/* Status filter pills */}
+      {/* Status pills */}
       <div className="flex flex-wrap gap-2">
         {(['all', 'scheduled', 'in_progress', 'completed', 'cancelled'] as const).map(s => (
           <button
@@ -143,15 +155,15 @@ export function AuditsPage() {
                 <TableRow>
                   <TableHead>Client / Store</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Type</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Team</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map(audit => {
-                  const cfg = STATUS_CONFIG[audit.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.scheduled;
-                  const Icon = cfg.icon;
+                {filtered.map((audit: any) => {
+                  const cfg = STATUS_CONFIG[audit.status] || STATUS_CONFIG.scheduled;
+                  const team: any[] = audit.audit_teams || [];
                   return (
                     <TableRow key={audit.id} className="hover:bg-slate-50">
                       <TableCell>
@@ -159,7 +171,9 @@ export function AuditsPage() {
                         <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                           <Building2 className="h-3 w-3" />
                           {(audit.client as any)?.name || '—'}
-                          {audit.store_code && <span className="ml-1 bg-slate-100 px-1.5 py-0.5 rounded font-mono">{audit.store_code}</span>}
+                          {audit.store_code && (
+                            <span className="ml-1 bg-slate-100 px-1.5 py-0.5 rounded font-mono">{audit.store_code}</span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -167,9 +181,6 @@ export function AuditsPage() {
                           <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
                           {audit.location || '—'}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm capitalize text-slate-600">{audit.audit_type?.replace(/_/g, ' ')}</span>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm font-medium text-slate-800">
@@ -182,10 +193,31 @@ export function AuditsPage() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`text-xs font-semibold gap-1 ${cfg.className}`}>
-                          <Icon className="h-3 w-3" />
+                        <Badge variant="outline" className={`text-xs font-semibold ${cfg.className}`}>
                           {cfg.label}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {team.length === 0 ? (
+                          <span className="text-xs text-slate-400 italic">Unassigned</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {team.map((t: any, i: number) => {
+                              const name = t.user?.full_name || t.vendor_resource?.name || 'Unknown';
+                              const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+                              return (
+                                <span
+                                  key={i}
+                                  title={`${name}${t.role ? ` (${t.role})` : ''}`}
+                                  className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium"
+                                >
+                                  <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-[9px] font-bold flex-shrink-0">{initials}</span>
+                                  {name}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
