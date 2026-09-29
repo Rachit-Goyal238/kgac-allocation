@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ENABLE_ATTENDANCE_SYSTEM } from '@/lib/constants';
 import { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, ClipboardCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
@@ -88,6 +88,11 @@ export function Sidebar({ onClose }: SidebarProps) {
           )}
 
           {/* Dashboard - All users */}
+          <NavLink to="/audits" onClick={handleLinkClick} className={navLinkClasses}>
+            <ClipboardCheck className="mr-3 h-5 w-5 flex-shrink-0" />
+            All Audits
+          </NavLink>
+          
           <NavLink to="/dashboard" onClick={handleLinkClick} className={navLinkClasses}>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center">
