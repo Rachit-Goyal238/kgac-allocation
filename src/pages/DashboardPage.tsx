@@ -56,7 +56,25 @@ export function DashboardPage() {
 
       {/* Personal reminder cards — visible to all users */}
       <OverdueAssetReminder />
-      <MyUpcomingAudits startDate={startStr} endDate={endStr} />
+      <>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-slate-800">My Upcoming Audits</h3>
+            <p className="text-xs text-slate-500">Your assigned audits from today onwards</p>
+          </div>
+          {!isManagerOrAdmin && (
+            <DateRangePicker
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                if (start) setStartDate(start);
+                if (end) setEndDate(end);
+              }}
+            />
+          )}
+        </div>
+        <MyUpcomingAudits startDate={startStr} endDate={endStr} />
+      </>
 
 
       {isManagerOrAdmin && (
