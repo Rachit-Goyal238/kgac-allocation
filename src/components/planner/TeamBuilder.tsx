@@ -323,10 +323,27 @@ export function TeamBuilder() {
                   Date(s): {format(new Date(selectedAudit?.audit_date || new Date()), 'MMM d, yyyy')} {selectedAudit?.end_date && selectedAudit.end_date !== selectedAudit.audit_date ? `- ${format(new Date(selectedAudit.end_date), 'MMM d, yyyy')}` : ''}
                 </CardDescription>
               </div>
-              <Button variant="destructive" size="sm" onClick={() => {
-                if(confirm('Delete this audit entirely?')) deleteAudit.mutate(selectedAudit);
-              }}>
-                <Trash2 className="h-4 w-4" />
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                disabled={selectedAudit?.status === 'completed' || deleteAudit.isPending}
+                title={selectedAudit?.status === 'completed' ? 'Completed audits cannot be deleted' : 'Delete this audit'}
+                onClick={() => {
+                  if (selectedAudit?.status === 'completed') {
+                    toast.error('Completed audits cannot be deleted.');
+                    return;
+                  }
+                  if (confirm('Delete this audit entirely? This will remove the audit, team assignments, allocations, and corresponding project across the entire application.')) {
+                    deleteAudit.mutate(selectedAudit, {
+                      onSuccess: () => {
+                        setSelectedAuditId(null);
+                        sessionStorage.removeItem('teamBuilderAuditId');
+                      }
+                    });
+                  }
+                }}
+              >
+                {deleteAudit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </Button>
             </CardHeader>
             <CardContent>
@@ -367,9 +384,23 @@ export function TeamBuilder() {
                   )}
 
                   {selectedAudit.status === 'cancelled' && (
-                    <div className="p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs flex items-center gap-2">
-                      <Ban className="h-4 w-4 shrink-0 text-red-600" />
-                      <span><strong>This audit is Cancelled.</strong> All team allocations have been removed.</span>
+                    <div className="p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Ban className="h-4 w-4 shrink-0 text-red-600" />
+                        <span><strong>This audit is Cancelled.</strong> All team allocations have been removed.</span>
+                      </div>
+                      {selectedAudit.cancelled_at && (
+                        <div className="text-[11px] text-red-700 bg-red-100/60 p-1.5 rounded flex flex-wrap items-center justify-between gap-2 border border-red-200/60">
+                          <div>
+                            <span className="font-semibold">Cancelled by: </span>
+                            <span>{selectedAudit.canceller?.full_name || 'System / Manager'}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold">Cancelled on: </span>
+                            <span>{format(new Date(selectedAudit.cancelled_at), 'dd-MMM-yyyy hh:mm a')}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 

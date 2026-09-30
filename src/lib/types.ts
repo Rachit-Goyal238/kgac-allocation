@@ -300,6 +300,9 @@ export interface Audit {
   scheduled_by?: string | null;
   scheduled_at?: string | null;
   scheduler?: { full_name: string } | null;
+  cancelled_by?: string | null;
+  cancelled_at?: string | null;
+  canceller?: { full_name: string } | null;
   required_leads?: number;
   required_executives?: number;
   contact_person_id?: string | null;

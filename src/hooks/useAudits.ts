@@ -12,7 +12,8 @@ export function useAudits() {
         .select(`
           *,
           client:clients(name),
-          scheduler:profiles!audits_scheduled_by_fkey(full_name)
+          scheduler:profiles!audits_scheduled_by_fkey(full_name),
+          canceller:profiles!audits_cancelled_by_fkey(full_name)
         `)
         .order('audit_date', { ascending: true });
       if (error) throw error;
@@ -106,20 +107,24 @@ export function useDeleteAudit() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (audit: any) => {
-      // Delete the audit
-      const { error } = await supabase.from('audits').delete().eq('id', audit.id);
-      if (error) throw error;
-      
-      // Delete the corresponding project if it exists
-      if (audit.project_id) {
-        await supabase.from('projects').delete().eq('id', audit.project_id);
+      if (audit.status === 'completed') {
+        throw new Error('Cannot delete an audit that has been marked completed.');
       }
+      
+      const { error } = await supabase.rpc('delete_audit', { p_audit_id: audit.id });
+      if (error) throw error;
       return audit.id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['audits'] });
+      queryClient.invalidateQueries({ queryKey: ['all_audits_view'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('Audit deleted');
+      queryClient.invalidateQueries({ queryKey: ['admin_projects'] });
+      queryClient.invalidateQueries({ queryKey: ['allocations'] });
+      queryClient.invalidateQueries({ queryKey: ['my_audits'] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['audit_conflicts'] });
+      toast.success('Audit deleted successfully from all views');
     },
     onError: (error: any) => toast.error(error.message)
   });

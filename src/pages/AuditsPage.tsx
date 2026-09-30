@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
@@ -36,8 +36,10 @@ export function AuditsPage() {
         .from('audits')
         .select(`
           id, store_name, store_code, location, audit_date, end_date,
-          audit_type, status, billing_amount,
+          audit_type, status, billing_amount, scheduled_by, scheduled_at, cancelled_by, cancelled_at,
           client:clients(name),
+          scheduler:profiles!audits_scheduled_by_fkey(full_name),
+          canceller:profiles!audits_cancelled_by_fkey(full_name),
           audit_teams(
             role,
             user:profiles(full_name),
@@ -196,6 +198,18 @@ export function AuditsPage() {
                         <Badge variant="outline" className={`text-xs font-semibold ${cfg.className}`}>
                           {cfg.label}
                         </Badge>
+                        {audit.status === 'scheduled' && audit.scheduler?.full_name && (
+                          <div className="text-[11px] text-slate-500 mt-1 whitespace-nowrap">
+                            By {audit.scheduler.full_name}
+                            {audit.scheduled_at && ` • ${format(new Date(audit.scheduled_at), 'dd MMM')}`}
+                          </div>
+                        )}
+                        {audit.status === 'cancelled' && audit.canceller?.full_name && (
+                          <div className="text-[11px] text-red-600 mt-1 whitespace-nowrap">
+                            By {audit.canceller.full_name}
+                            {audit.cancelled_at && ` • ${format(new Date(audit.cancelled_at), 'dd MMM')}`}
+                          </div>
+                        )}
                       </TableCell>
                       <TableCell>
                         {team.length === 0 ? (
