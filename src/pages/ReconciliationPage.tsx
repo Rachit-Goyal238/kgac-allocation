@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,7 +22,7 @@ import { exportToCSV, exportToExcel } from '@/lib/export';
 
 export function ReconciliationPage() {
 
-  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
+  const [dateRange, setDateRange] = useState({ start: new Date(), end: addMonths(new Date(), 3) });
 
   const [zoneFilter, setZoneFilter] = useState('');
 

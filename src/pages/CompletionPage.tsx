@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { exportToCSV, exportToExcel } from '@/lib/export';
-import { format } from 'date-fns';
+import { format, addMonths } from 'date-fns';
 import { CheckCircle2, Clock, AlertTriangle, XCircle, ListTodo, TrendingUp } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280'];
@@ -31,7 +31,7 @@ function ProgressRing({ pct }: { pct: number }) {
 }
 
 export function CompletionPage() {
-  const [dateRange, setDateRange] = useState({ start: new Date(new Date().setMonth(new Date().getMonth() - 1)), end: new Date(new Date().setMonth(new Date().getMonth() + 1)) });
+  const [dateRange, setDateRange] = useState({ start: new Date(), end: addMonths(new Date(), 3) });
   const [zoneFilter, setZoneFilter] = useState('');
   const [allocations, setAllocations] = useState<any[]>([]);
 

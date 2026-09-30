@@ -138,11 +138,28 @@ export function ExportModal() {
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Start Date</label>
-            <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <Input 
+              type="date" 
+              value={startDate} 
+              max={endDate} 
+              onChange={e => {
+                const val = e.target.value;
+                setStartDate(val);
+                if (val && val > endDate) setEndDate(val);
+              }} 
+            />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">End Date</label>
-            <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            <Input 
+              type="date" 
+              value={endDate} 
+              min={startDate} 
+              onChange={e => {
+                const val = e.target.value;
+                if (!val || val >= startDate) setEndDate(val);
+              }} 
+            />
           </div>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-end">

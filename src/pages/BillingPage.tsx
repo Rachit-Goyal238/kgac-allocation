@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { useQuery } from '@tanstack/react-query';
@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VendorInvoices } from '@/components/finance/VendorInvoices';
 
 export function BillingPage() {
-  const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
+  const [dateRange, setDateRange] = useState({ start: new Date(), end: addMonths(new Date(), 3) });
   const [zoneFilter, setZoneFilter] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'audits';

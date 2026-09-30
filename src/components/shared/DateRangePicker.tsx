@@ -1,6 +1,5 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
-import { Input } from '@/components/ui/input';
 
 interface DateRangePickerProps {
   startDate: Date;
@@ -9,15 +8,30 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePicker({ startDate, endDate, onChange }: DateRangePickerProps) {
+  const startStr = format(startDate, 'yyyy-MM-dd');
+  const endStr = format(endDate, 'yyyy-MM-dd');
+
   const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
-      onChange(parseISO(e.target.value), endDate);
+      const newStart = parseISO(e.target.value);
+      // If start date is moved beyond current end date, advance end date as well
+      if (newStart > endDate) {
+        onChange(newStart, newStart);
+      } else {
+        onChange(newStart, endDate);
+      }
     }
   };
 
   const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
-      onChange(startDate, parseISO(e.target.value));
+      const newEnd = parseISO(e.target.value);
+      // Hard guard: End date cannot be set before start date
+      if (newEnd < startDate) {
+        onChange(startDate, startDate);
+      } else {
+        onChange(startDate, newEnd);
+      }
     }
   };
 
@@ -28,7 +42,8 @@ export function DateRangePicker({ startDate, endDate, onChange }: DateRangePicke
         <input 
           type="date" 
           className="bg-transparent border-none text-sm outline-none w-[120px]"
-          value={format(startDate, 'yyyy-MM-dd')} 
+          value={startStr} 
+          max={endStr}
           onChange={handleStartChange} 
         />
       </div>
@@ -37,7 +52,8 @@ export function DateRangePicker({ startDate, endDate, onChange }: DateRangePicke
         <input 
           type="date" 
           className="bg-transparent border-none text-sm outline-none w-[120px]"
-          value={format(endDate, 'yyyy-MM-dd')} 
+          value={endStr} 
+          min={startStr}
           onChange={handleEndChange} 
         />
       </div>

@@ -9,13 +9,13 @@ import { MyUpcomingAudits } from '@/components/dashboard/MyUpcomingAudits';
 import { OverdueAssetReminder } from '@/components/dashboard/OverdueAssetReminder';
 import { NotificationAlerts } from '@/components/dashboard/NotificationAlerts';
 import { DateRangePicker } from '@/components/shared/DateRangePicker';
-import { subDays, format } from 'date-fns';
+import { addMonths, format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 
 export function DashboardPage() {
-  const [startDate, setStartDate] = useState(subDays(new Date(), 14));
-  const [endDate, setEndDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(addMonths(new Date(), 3));
   const [zoneFilter, setZoneFilter] = useState<string>('');
   const { profile } = useAuthContext();
   

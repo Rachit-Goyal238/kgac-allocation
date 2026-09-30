@@ -7,9 +7,10 @@ import { ExportButton } from '@/components/shared/ExportButton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useManDaysMetrics } from '@/hooks/useManDaysMetrics';
+import { addMonths } from 'date-fns';
 
 export function ManDaysPage() {
-  const [dateRange, setDateRange] = useState({ start: new Date(new Date().getFullYear(), new Date().getMonth(), 1), end: new Date() });
+  const [dateRange, setDateRange] = useState({ start: new Date(), end: addMonths(new Date(), 3) });
   const [zoneFilter, setZoneFilter] = useState('');
   const [showBreakdown, setShowBreakdown] = useState(false);
   const { data, isLoading, isError } = useManDaysMetrics(dateRange, zoneFilter);
