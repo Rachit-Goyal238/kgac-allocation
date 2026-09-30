@@ -79,7 +79,7 @@ export function AttendanceGatekeeper({ children }: { children: React.ReactNode }
 
   if (!ENABLE_ATTENDANCE_SYSTEM || !user) return <>{children}</>;
   
-  if (isLoadingAttendance || isLoadingLeave) {
+  if ((isLoadingAttendance && !attendance) || (isLoadingLeave && !todayLeave)) {
     return <div className="h-screen w-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-8 h-8 animate-spin text-slate-400" /></div>;
   }
 

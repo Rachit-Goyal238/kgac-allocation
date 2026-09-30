@@ -29,7 +29,6 @@ export function useAuth() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        if (_event === 'SIGNED_IN') setIsLoading(true);
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
