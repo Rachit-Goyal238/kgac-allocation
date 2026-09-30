@@ -26,6 +26,7 @@ const AssetsPage = lazy(() => import('@/pages/AssetsPage').then(m => ({ default:
 const AuditsPage = lazy(() => import('@/pages/AuditsPage').then(m => ({ default: m.AuditsPage })));
 const AttendancePage = lazy(() => import('@/pages/AttendancePage').then(m => ({ default: m.AttendancePage })));
 const AuthCallback = lazy(() => import('@/components/auth/AuthCallback').then(m => ({ default: m.AuthCallback })));
+const ResetPasswordPage = lazy(() => import('@/components/auth/ResetPasswordPage').then(m => ({ default: m.ResetPasswordPage })));
 
 function PageLoader() {
   return (
@@ -46,7 +47,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/auth/reset-password" element={<AuthCallback />} />
+          <Route path="/auth/reset-password" element={<Suspense fallback={<PageLoader />}><ResetPasswordPage /></Suspense>} />
           
           <Route
             path="/"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +8,8 @@ import { Loader2, Lock, User } from 'lucide-react';
 
 export function LoginPage() {
   const { user, isLoading, signIn, resetPassword } = useAuthContext();
-  
-  const [view, setView] = useState<'login' | 'forgot'>('login');
+  const [searchParams] = useSearchParams();
+  const [view, setView] = useState<'login' | 'forgot'>(searchParams.get('view') === 'forgot' ? 'forgot' : 'login');
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
