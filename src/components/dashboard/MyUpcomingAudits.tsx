@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -7,8 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Loader2, MapPin, Building2, Calendar, Search } from 'lucide-react';
 import { format } from 'date-fns';
+import { DateRangePicker } from '@/components/shared/DateRangePicker';
 
-export function MyUpcomingAudits({ startDate, endDate }: { startDate?: string, endDate?: string }) {
+interface MyUpcomingAuditsProps {
+  startDate?: string;
+  endDate?: string;
+  pickerStartDate?: Date;
+  pickerEndDate?: Date;
+  onDateChange?: (start: Date, end: Date) => void;
+}
+
+export function MyUpcomingAudits({ 
+  startDate, 
+  endDate,
+  pickerStartDate,
+  pickerEndDate,
+  onDateChange
+}: MyUpcomingAuditsProps) {
   const { user } = useAuthContext();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -56,9 +71,9 @@ export function MyUpcomingAudits({ startDate, endDate }: { startDate?: string, e
   }) || [];
 
   return (
-    <Card className="border-blue-100 bg-blue-50/30">
-      <CardHeader className="pb-3 border-b border-blue-100/50 bg-white/50">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <Card className="border-blue-100 bg-blue-50/30 shadow-sm">
+      <CardHeader className="pb-3 border-b border-blue-100/50 bg-white/70 rounded-t-xl">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
           <div>
             <CardTitle className="text-lg text-blue-900 flex items-center gap-2">
               <Calendar className="h-5 w-5 text-blue-600" />
@@ -66,14 +81,26 @@ export function MyUpcomingAudits({ startDate, endDate }: { startDate?: string, e
             </CardTitle>
             <CardDescription className="text-blue-700/70">Your scheduled field assignments</CardDescription>
           </div>
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Search store, code, location..."
-              className="pl-9 bg-white border-blue-200"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
+            {pickerStartDate && pickerEndDate && onDateChange && (
+              <div className="bg-white p-0.5 rounded-lg border border-blue-100 shadow-xs">
+                <DateRangePicker 
+                  startDate={pickerStartDate}
+                  endDate={pickerEndDate}
+                  onChange={onDateChange}
+                />
+              </div>
+            )}
+            <div className="relative w-full sm:w-60">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search store, code, location..."
+                className="pl-9 bg-white border-blue-200 h-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -83,46 +110,63 @@ export function MyUpcomingAudits({ startDate, endDate }: { startDate?: string, e
             {searchTerm ? 'No audits match your search.' : 'You have no upcoming audits scheduled.'}
           </div>
         ) : (
-          <div className="divide-y divide-blue-100">
-            {filtered.map((assignment, i) => {
-              const au = assignment.audit as any;
+          <div className="divide-y divide-blue-100/40 bg-white">
+            {filtered.map((item, index) => {
+              const au = item.audit as any;
+              const formattedDate = format(new Date(au.audit_date), 'EEE, MMM d, yyyy');
+              const hasMultiDay = au.end_date && au.end_date !== au.audit_date;
+              const formattedEndDate = hasMultiDay ? format(new Date(au.end_date), 'EEE, MMM d, yyyy') : '';
+
               return (
-                <div key={`${au.id}-${i}`} className="p-4 sm:p-6 bg-white hover:bg-blue-50/50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div key={index} className="p-4 hover:bg-slate-50/80 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-slate-900">{au.store_name}</h4>
-                      {au.store_code && <Badge variant="outline" className="text-xs font-mono bg-slate-50">{au.store_code}</Badge>}
+                      <span className="font-semibold text-slate-800 text-base">{au.store_name}</span>
+                      {au.store_code && (
+                        <Badge variant="outline" className="text-xs bg-slate-50 text-slate-600 font-mono">
+                          {au.store_code}
+                        </Badge>
+                      )}
+                      <Badge className={
+                        item.role === 'lead' 
+                          ? 'bg-amber-100 text-amber-800 border-amber-200' 
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
+                      }>
+                        {item.role ? item.role.toUpperCase() : 'MEMBER'}
+                      </Badge>
                     </div>
-                    
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
                       {au.client?.name && (
-                        <span className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                           <Building2 className="h-3.5 w-3.5" />
-                          {au.client.name}
-                        </span>
+                          <span>{au.client.name}</span>
+                        </div>
                       )}
                       {au.location && (
-                        <span className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5" />
-                          {au.location}
-                        </span>
+                          <span>{au.location}</span>
+                        </div>
                       )}
-                      <span className="flex items-center gap-1 text-blue-600 font-medium bg-blue-50 px-2 py-0.5 rounded-full">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {format(new Date(au.audit_date), 'MMM d, yyyy')}
-                        {au.end_date && au.end_date !== au.audit_date && ` - ${format(new Date(au.end_date), 'MMM d')}`}
-                      </span>
+                      {au.audit_type && (
+                        <div className="capitalize text-slate-400">
+                          • {au.audit_type} Audit
+                        </div>
+                      )}
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-3">
+
+                  <div className="flex items-center gap-3 self-end md:self-center">
                     <div className="text-right">
-                      <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Your Role</p>
-                      <p className="text-sm font-medium capitalize text-slate-900">{assignment.role}</p>
+                      <div className="text-sm font-medium text-slate-900 flex items-center gap-1.5 justify-end">
+                        <Calendar className="h-4 w-4 text-blue-600" />
+                        <span>{formattedDate}</span>
+                      </div>
+                      {hasMultiDay && (
+                        <div className="text-xs text-slate-500">to {formattedEndDate}</div>
+                      )}
                     </div>
-                    <Badge className={au.status === 'scheduled' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' : 'bg-green-100 text-green-700 hover:bg-green-100'}>
-                      {au.status}
-                    </Badge>
                   </div>
                 </div>
               );

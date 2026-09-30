@@ -37,62 +37,83 @@ export function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-slate-50/50 p-6 space-y-6 overflow-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Header: Dashboard Overview with its own labeled Date Range Picker */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard</h2>
-          <p className="text-sm text-slate-500">Overview of resource utilization and capacity.</p>
+          <p className="text-sm text-slate-500 mt-0.5">Overview of resource utilization and capacity metrics.</p>
         </div>
         {isManagerOrAdmin && (
-          <div className="flex gap-2 items-center flex-wrap">
+          <div className="flex items-center gap-2.5 flex-wrap">
             <input 
               type="text" 
               placeholder="Filter by Zone..." 
-              className="border rounded p-2 text-sm max-w-[150px] bg-white"
+              className="border border-input rounded-md px-3 h-10 text-sm max-w-[150px] bg-white shadow-xs"
               value={zoneFilter}
               onChange={e => setZoneFilter(e.target.value)}
             />
-            <DateRangePicker 
-              startDate={dashboardStartDate}
-              endDate={dashboardEndDate}
-              onChange={(start, end) => {
-                if (start) setDashboardStartDate(start);
-                if (end) setDashboardEndDate(end);
-              }}
-            />
+            <div className="flex items-center gap-2 bg-white px-2.5 py-1 rounded-md border border-input shadow-xs">
+              <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Metrics Period:</span>
+              <DateRangePicker 
+                startDate={dashboardStartDate}
+                endDate={dashboardEndDate}
+                onChange={(start, end) => {
+                  if (start) setDashboardStartDate(start);
+                  if (end) setDashboardEndDate(end);
+                }}
+              />
+            </div>
           </div>
         )}
+      </div>
+
+      {/* Visual Section Separator */}
+      <div className="relative pt-1 pb-1">
+        <div className="absolute inset-0 flex items-center" aria-hidden="true">
+          <div className="w-full border-t border-slate-200/80" />
+        </div>
+        <div className="relative flex justify-start">
+          <span className="bg-slate-50/90 pr-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Upcoming Field Assignments
+          </span>
+        </div>
       </div>
 
       {/* Personal reminder cards — visible to all users */}
       <OverdueAssetReminder />
 
-      {/* Upcoming Audits Section with its own dedicated DateRangePicker */}
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-          <div>
-            <h3 className="text-base font-semibold text-slate-800">My Upcoming Audits</h3>
-            <p className="text-xs text-slate-500">Your assigned audits for the scheduled period</p>
-          </div>
-          <DateRangePicker
-            startDate={auditsStartDate}
-            endDate={auditsEndDate}
-            onChange={(start, end) => {
-              if (start) setAuditsStartDate(start);
-              if (end) setAuditsEndDate(end);
-            }}
-          />
-        </div>
-        <MyUpcomingAudits startDate={auditsStartStr} endDate={auditsEndStr} />
-      </div>
+      {/* My Upcoming Audits Card (Contains its own date range picker and search inside the card header) */}
+      <MyUpcomingAudits 
+        startDate={auditsStartStr} 
+        endDate={auditsEndStr}
+        pickerStartDate={auditsStartDate}
+        pickerEndDate={auditsEndDate}
+        onDateChange={(start, end) => {
+          if (start) setAuditsStartDate(start);
+          if (end) setAuditsEndDate(end);
+        }}
+      />
 
       {isManagerOrAdmin && (
         <>
+          {/* Visual Divider before Analytics */}
+          <div className="relative pt-4 pb-1">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-slate-200/80" />
+            </div>
+            <div className="relative flex justify-start">
+              <span className="bg-slate-50/90 pr-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Resource Utilization & Capacity
+              </span>
+            </div>
+          </div>
+
           {isLoading ? (
-            <div className="flex-1 flex items-center justify-center min-h-[400px]">
+            <div className="flex-1 flex items-center justify-center min-h-[350px]">
               <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
             </div>
           ) : error ? (
-            <div className="flex-1 flex items-center justify-center text-red-500 min-h-[400px]">
+            <div className="flex-1 flex items-center justify-center text-red-500 min-h-[350px]">
               Error loading metrics: {(error as Error).message}
             </div>
           ) : data ? (
