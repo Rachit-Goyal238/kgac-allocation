@@ -137,76 +137,11 @@ export default function App() {
               }
             />
             
-            {/* Admin routes */}
+            {/* Admin routes combined to prevent remounting */}
             <Route
-              path="admin/users"
+              path="admin/:tab?"
               element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/departments"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/projects"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'manager']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/clients"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'client_head']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/vendors"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/settings"
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="admin/roles"
-              element={
-                <ProtectedRoute requiredRole="super_admin">
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/audit-log"
-              element={
-                <ProtectedRoute requiredRole="super_admin">
-                  <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="admin/database"
-              element={
-                <ProtectedRoute requiredRole="super_admin">
+                <ProtectedRoute allowedRoles={['admin', 'super_admin', 'hr', 'manager', 'client_head']}>
                   <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
                 </ProtectedRoute>
               }
