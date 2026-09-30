@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Loader2,
@@ -22,7 +23,8 @@ import {
   CheckCircle2,
   Calendar,
   AlertTriangle,
-  UserCheck
+  UserCheck,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { format, differenceInCalendarDays } from 'date-fns';
@@ -138,11 +140,19 @@ function AssetDashboard() {
               {getIcon(asset.type)}
               <div className="font-medium">{asset.name}</div>
             </div>
-            <span className={`text-xs px-2 py-1 rounded-full ${asset.status === 'available' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
-              {asset.status}
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              asset.status === 'available' ? 'bg-green-100 text-green-700' :
+              asset.status === 'in_use' ? 'bg-blue-100 text-blue-700' :
+              asset.status === 'unusable' ? 'bg-rose-100 text-rose-700 border border-rose-200 font-semibold' :
+              'bg-amber-100 text-amber-700'
+            }`}>
+              {asset.status === 'unusable' ? 'Unusable' : asset.status}
             </span>
           </div>
           <div className="mt-4 text-sm text-slate-600">
+            {asset.asset_id && (
+              <div className="mb-1"><span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border font-mono">ID: {asset.asset_id}</span></div>
+            )}
             <div>S/N: {asset.serial_number || 'N/A'}</div>
             <div className="mt-1">Current Holder: <span className="font-medium text-slate-900">{asset.assigned_profile?.full_name || 'None'}</span></div>
           </div>
@@ -546,13 +556,25 @@ function AssetApprovals() {
 
 function ManageAssets() {
   const queryClient = useQueryClient();
-  const [newAsset, setNewAsset] = useState({ name: '', type: 'laptop', serial_number: '' });
+  const [newAsset, setNewAsset] = useState({ asset_id: '', name: '', type: 'laptop', serial_number: '', status: 'available' });
+  const [selectedAssetIds, setSelectedAssetIds] = useState<string[]>([]);
   
-  const { data: assets } = useQuery({ queryKey: ['internal_assets_manage'], queryFn: async () => (await supabase.from('internal_assets').select('*').order('created_at', { ascending: false })).data });
+  const { data: assets } = useQuery({ 
+    queryKey: ['internal_assets_manage'], 
+    queryFn: async () => (await supabase.from('internal_assets').select('*').order('created_at', { ascending: false })).data 
+  });
 
   const addAsset = useMutation({
     mutationFn: async () => {
-      await supabase.from('internal_assets').insert([{ ...newAsset, status: 'available' }]);
+      const payload: any = {
+        name: newAsset.name.trim(),
+        type: newAsset.type,
+        serial_number: newAsset.serial_number.trim() || null,
+        status: newAsset.status,
+        asset_id: newAsset.asset_id.trim() || null
+      };
+      const { error } = await supabase.from('internal_assets').insert([payload]);
+      if (error) throw error;
     },
     onError: (error: any) => {
       toast.error(error.message || 'Action failed');
@@ -561,15 +583,36 @@ function ManageAssets() {
       queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
       queryClient.invalidateQueries({ queryKey: ['internal_assets_avail'] });
-      setNewAsset({ name: '', type: 'laptop', serial_number: '' });
-      toast.success('Asset added');
+      setNewAsset({ asset_id: '', name: '', type: 'laptop', serial_number: '', status: 'available' });
+      toast.success('Asset added successfully');
+    }
+  });
+
+  const deleteAssets = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error: rpcErr } = await supabase.rpc('delete_internal_assets', { p_asset_ids: ids });
+      if (rpcErr) {
+        // Fallback to client-side cascading delete
+        await supabase.from('asset_requests').delete().in('asset_id', ids);
+        const { error: delErr } = await supabase.from('internal_assets').delete().in('id', ids);
+        if (delErr) throw delErr;
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete asset(s)');
+    },
+    onSuccess: (_, ids) => {
+      queryClient.invalidateQueries({ queryKey: ['internal_assets_manage'] });
+      queryClient.invalidateQueries({ queryKey: ['internal_assets'] });
+      queryClient.invalidateQueries({ queryKey: ['internal_assets_avail'] });
+      setSelectedAssetIds(prev => prev.filter(id => !ids.includes(id)));
+      toast.success(`${ids.length} asset(s) deleted`);
     }
   });
 
   const reclaimAsset = useMutation({
     mutationFn: async (id: string) => {
       await supabase.from('internal_assets').update({ status: 'available', assigned_to: null }).eq('id', id);
-      // also mark any ongoing requests as completed
       await supabase.from('asset_requests').update({ status: 'returned' }).eq('asset_id', id).in('status', ['approved', 'return_pending']);
     },
     onError: (error: any) => {
@@ -587,48 +630,195 @@ function ManageAssets() {
     }
   });
 
+  const allSelected = (assets && assets.length > 0 && selectedAssetIds.length === assets.length) || false;
+
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedAssetIds([]);
+    } else {
+      setSelectedAssetIds(assets?.map((a: any) => a.id) || []);
+    }
+  };
+
+  const toggleSelectAsset = (id: string) => {
+    setSelectedAssetIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div className="space-y-6">
       
       <AssetImportTool />
 
-      <div className="bg-slate-50 p-4 rounded-lg border flex gap-4 items-end">
-        <div className="flex-1">
-          <label className="text-xs font-medium">Asset Name</label>
-          <input className="w-full border rounded p-2 text-sm" value={newAsset.name} onChange={e => setNewAsset({...newAsset, name: e.target.value})} />
+      {/* Add Single Asset Form */}
+      <div className="bg-slate-50 p-4 rounded-lg border space-y-3">
+        <div className="text-sm font-semibold text-slate-800">Add Individual Asset</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+          <div>
+            <label className="text-xs font-medium text-slate-600 block mb-1">Asset ID (Optional)</label>
+            <input 
+              placeholder="e.g. AST-101" 
+              className="w-full border rounded p-2 text-sm bg-white" 
+              value={newAsset.asset_id} 
+              onChange={e => setNewAsset({...newAsset, asset_id: e.target.value})} 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 block mb-1">Asset Name *</label>
+            <input 
+              placeholder="e.g. ThinkPad T14" 
+              className="w-full border rounded p-2 text-sm bg-white" 
+              value={newAsset.name} 
+              onChange={e => setNewAsset({...newAsset, name: e.target.value})} 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 block mb-1">Type</label>
+            <select 
+              className="w-full border rounded p-2 text-sm bg-white" 
+              value={newAsset.type} 
+              onChange={e => setNewAsset({...newAsset, type: e.target.value})}
+            >
+              <option value="laptop">Laptop</option>
+              <option value="monitor">Monitor</option>
+              <option value="hht">HHT / Scanner</option>
+              <option value="phone">Phone</option>
+              <option value="mouse">Mouse</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 block mb-1">Serial / Tag (Optional)</label>
+            <input 
+              placeholder="e.g. PF123456" 
+              className="w-full border rounded p-2 text-sm bg-white" 
+              value={newAsset.serial_number} 
+              onChange={e => setNewAsset({...newAsset, serial_number: e.target.value})} 
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-600 block mb-1">Status</label>
+            <select 
+              className="w-full border rounded p-2 text-sm bg-white" 
+              value={newAsset.status} 
+              onChange={e => setNewAsset({...newAsset, status: e.target.value})}
+            >
+              <option value="available">Available</option>
+              <option value="in_use">In Use</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="unusable">Unusable</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="text-xs font-medium">Type</label>
-          <select className="w-full border rounded p-2 text-sm" value={newAsset.type} onChange={e => setNewAsset({...newAsset, type: e.target.value})}>
-            <option value="laptop">Laptop</option>
-            <option value="monitor">Monitor</option>
-            <option value="hht">HHT</option>
-            <option value="phone">Phone</option>
-            <option value="mouse">Mouse</option>
-            <option value="other">Other</option>
-          </select>
+        <div className="flex justify-end pt-1">
+          <Button onClick={() => addAsset.mutate()} disabled={!newAsset.name || addAsset.isPending}>
+            {addAsset.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
+            Add Single Asset
+          </Button>
         </div>
-        <div className="flex-1">
-          <label className="text-xs font-medium">Serial / Tag</label>
-          <input className="w-full border rounded p-2 text-sm" value={newAsset.serial_number} onChange={e => setNewAsset({...newAsset, serial_number: e.target.value})} />
-        </div>
-        <Button onClick={() => addAsset.mutate()} disabled={!newAsset.name}><Plus className="h-4 w-4 mr-2" /> Add Single</Button>
       </div>
 
+      {/* Asset Directory with Bulk & Single Delete */}
       <div className="bg-white rounded-lg shadow-sm border">
-        <div className="p-4 font-medium border-b bg-slate-50 rounded-t-lg">Asset Directory</div>
-        <div className="max-h-[400px] overflow-auto">
-          {assets?.map((a: any) => (
-            <div key={a.id} className="flex justify-between items-center p-3 border-b last:border-0">
-              <div>
-                <div className="font-medium">{a.name} <span className="text-slate-500 font-normal">({a.type})</span></div>
-                <div className="text-xs text-slate-500">Status: {a.status} {a.serial_number ? `| S/N: ${a.serial_number}` : ''}</div>
-              </div>
-              {a.status === 'in_use' && (
-                <Button size="sm" variant="outline" onClick={() => reclaimAsset.mutate(a.id)}>Reclaim Asset</Button>
-              )}
-            </div>
-          ))}
+        <div className="p-4 font-medium border-b bg-slate-50 rounded-t-lg flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <Checkbox 
+              checked={allSelected}
+              onCheckedChange={toggleSelectAll}
+              aria-label="Select all assets"
+            />
+            <span className="text-sm font-semibold text-slate-900">
+              Asset Directory ({assets?.length || 0})
+            </span>
+          </div>
+          {selectedAssetIds.length > 0 && (
+            <Button 
+              size="sm" 
+              variant="destructive" 
+              onClick={() => {
+                if (confirm(`Are you sure you want to permanently delete ${selectedAssetIds.length} selected asset(s)?`)) {
+                  deleteAssets.mutate(selectedAssetIds);
+                }
+              }}
+              disabled={deleteAssets.isPending}
+            >
+              {deleteAssets.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+              Delete Selected ({selectedAssetIds.length})
+            </Button>
+          )}
+        </div>
+
+        <div className="max-h-[500px] overflow-auto divide-y">
+          {(!assets || assets.length === 0) ? (
+            <div className="p-8 text-center text-slate-500 text-sm">No internal assets found.</div>
+          ) : (
+            assets.map((a: any) => {
+              const isSelected = selectedAssetIds.includes(a.id);
+              return (
+                <div 
+                  key={a.id} 
+                  className={`flex items-center justify-between p-3.5 hover:bg-slate-50/80 transition-colors ${isSelected ? 'bg-indigo-50/40' : ''}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox 
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelectAsset(a.id)}
+                      aria-label={`Select asset ${a.name}`}
+                    />
+                    <div>
+                      <div className="font-medium text-slate-900 flex items-center gap-2 flex-wrap">
+                        {a.asset_id && (
+                          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border">
+                            {a.asset_id}
+                          </span>
+                        )}
+                        <span>{a.name}</span>
+                        <span className="text-slate-500 font-normal text-xs uppercase bg-slate-100 px-1.5 py-0.5 rounded">
+                          {a.type}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                        <span>Status:</span>
+                        <span className={`px-2 py-0.5 rounded-full font-medium ${
+                          a.status === 'available' ? 'bg-green-100 text-green-700' :
+                          a.status === 'in_use' ? 'bg-blue-100 text-blue-700' :
+                          a.status === 'unusable' ? 'bg-rose-100 text-rose-700 border border-rose-200 font-semibold' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>
+                          {a.status === 'unusable' ? 'Unusable' : a.status}
+                        </span>
+                        {a.serial_number && <span>| S/N: <strong className="font-mono text-slate-700">{a.serial_number}</strong></span>}
+                        {a.notes && <span className="italic text-slate-400">({a.notes})</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {a.status === 'in_use' && (
+                      <Button size="sm" variant="outline" onClick={() => reclaimAsset.mutate(a.id)}>
+                        Reclaim Asset
+                      </Button>
+                    )}
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 h-8 w-8"
+                      title="Delete asset"
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to permanently delete "${a.name}"?`)) {
+                          deleteAssets.mutate([a.id]);
+                        }
+                      }}
+                      disabled={deleteAssets.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

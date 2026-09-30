@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 
@@ -23,6 +23,25 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
         .eq('status', 'completed');
         
       const { data: audits } = await query;
+
+      const auditIds = (audits || []).map((a: any) => a.id);
+      let backendAllocations: any[] = [];
+      if (auditIds.length > 0) {
+        const { data: allocData } = await supabase
+          .from('allocations')
+          .select('audit_id, user_id, hours')
+          .in('audit_id', auditIds)
+          .eq('is_approved', true);
+        backendAllocations = allocData || [];
+      }
+
+      const backendHoursMap: Record<string, number> = {};
+      backendAllocations.forEach((a: any) => {
+        if (a.audit_id && a.user_id) {
+          const key = `${a.audit_id}_${a.user_id}`;
+          backendHoursMap[key] = (backendHoursMap[key] || 0) + Number(a.hours || 0);
+        }
+      });
 
       let totalOwed = 0;
       let idleCostLeakage = 0;
@@ -69,7 +88,13 @@ export function useBillingMetrics(dateRange: { start: Date, end: Date }, zoneFil
             }
 
             if (intRate) {
-              rate = (Number(intRate) || 0) * days;
+              if (team.role === 'backend') {
+                // Backend employee: ONLY count logged hours on grid cell for this audit
+                const loggedHours = backendHoursMap[`${audit.id}_${team.user_id}`] || 0;
+                rate = ((Number(intRate) || 0) / 8) * loggedHours;
+              } else {
+                rate = (Number(intRate) || 0) * days;
+              }
               resourceName = team.user?.is_internal_vendor ? team.user.full_name : 'Internal Employee';
             }
           }

@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { WORK_HOURS_PER_DAY } from '@/lib/constants';
 import { format } from 'date-fns';
@@ -27,7 +27,13 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
           id, vendor_id, user_id, role,
           audit:audits(id, audit_date, end_date, project_id, status, project:projects(name))
         `);
-      if (teamError) throw teamError;
+      // Set of backend user+audit pairs so we can include their logged hours from allocations
+      const backendAuditUserSet = new Set<string>();
+      auditTeams?.forEach((t: any) => {
+        if (t.role === 'backend' && t.user_id && t.audit?.id) {
+          backendAuditUserSet.add(`${t.user_id}_${t.audit.id}`);
+        }
+      });
 
       let totalManDays = 0;
       let internalManDays = 0;
@@ -36,7 +42,9 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
       const monthMap: Record<string, any> = {};
 
       allocations?.forEach(a => {
-        if (a.audit_id) return;
+        const isBackendForAudit = a.audit_id && a.user_id && backendAuditUserSet.has(`${a.user_id}_${a.audit_id}`);
+        // Skip on-site audit allocations because their full days are computed via auditTeams loop below
+        if (a.audit_id && !isBackendForAudit) return;
 
         const manDays = a.hours / WORK_HOURS_PER_DAY;
         
@@ -59,7 +67,8 @@ export function useManDaysMetrics(dateRange: { start: Date, end: Date }, zoneFil
       });
 
       auditTeams?.forEach(t => {
-        if (t.role === 'asset') return;
+        // Skip assets and backend employees (backend hours are counted directly from logged grid cell allocations above)
+        if (t.role === 'asset' || t.role === 'backend') return;
         
         const audit = t.audit as any;
         if (!audit || !audit.audit_date || audit.status !== 'completed') return;

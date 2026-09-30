@@ -63,7 +63,7 @@ export function AttendancePage() {
 
       const days = eachDayOfInterval({ start: dateRange.start, end: dateRange.end });
 
-      // Compute attendance per employee based on hours (>= 8.0h = 1.0, >= 4.0h = 0.5, < 4.0h = 0.0)
+      // Compute attendance per employee based on hours (>= 5.0h = 1.0, >= 4.0h = 0.5, < 4.0h = 0.0)
       const report = profiles.map(p => {
         const userRecords = records.filter(r => r.user_id === p.id);
         const userLeaves = leaves.filter(l => l.user_id === p.id);
@@ -105,7 +105,7 @@ export function AttendancePage() {
 
             totalHours += hours;
 
-            if (hours >= 8.0) {
+            if (hours >= 5.0) {
               status = 'present';
               label = 'P';
               units = 1.0;
@@ -241,11 +241,11 @@ export function AttendancePage() {
         <span className="font-semibold text-slate-800">Attendance Key:</span>
         <span className="flex items-center gap-1.5">
           <span className="w-5 h-5 flex items-center justify-center rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-[11px]">P</span>
-          <span>Full Day Present (1.0) &ge; 8.0h</span>
+          <span>Full Day Present (1.0) &ge; 5.0h</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-5 h-5 flex items-center justify-center rounded bg-amber-100 text-amber-800 border border-amber-300 font-bold text-[11px]">HD</span>
-          <span>Half Day (0.5) &ge; 4.0h</span>
+          <span>Half Day (0.5) 4.0h &ndash; 5.0h</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-5 h-5 flex items-center justify-center rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold text-[11px]">L</span>

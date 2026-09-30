@@ -1,4 +1,4 @@
-﻿import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
@@ -177,6 +177,13 @@ export function CSVUploader() {
           </div>
         ) : results.length === 0 ? (
           <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-md p-3 text-xs text-amber-900 flex items-start gap-2.5">
+              <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-semibold">Bulk Onboarding Limit:</span> A maximum of <strong>10 employees</strong> can be onboarded at once per CSV file. For single employee onboarding, please use the <strong>"Add Employee"</strong> button on the Users page.
+              </div>
+            </div>
+
             <div 
               {...getRootProps()} 
               className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-colors ${isDragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
@@ -184,14 +191,14 @@ export function CSVUploader() {
               <input {...getInputProps()} />
               <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-sm font-medium">Drag & drop a CSV file here, or click to select</p>
-              <p className="text-xs text-muted-foreground mt-2">Only .csv files are supported</p>
+              <p className="text-xs text-muted-foreground mt-2">Only .csv files are supported (max 10 employees)</p>
             </div>
             
             <div className="bg-blue-50 border border-blue-100 rounded-md p-4 mt-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center text-blue-800 mb-2">
                     <AlertCircle className="h-5 w-5 mr-2" />
-                    <p className="font-medium mb-1">Expected CSV Format</p>
+                    <p className="font-medium mb-1">Expected CSV Format (Max 10 rows)</p>
                   </div>
                   <Button 
                     variant="outline" 
@@ -206,7 +213,7 @@ export function CSVUploader() {
                 <p className="text-sm text-blue-800 mb-2">Your CSV should contain the following headers:</p>
                 <ul className="list-disc list-inside space-y-1 text-xs text-blue-800 opacity-90">
                   <li><code>Employee ID</code></li>
-                  <li><code>First Name</code> & <code>Last Name</code></li>
+                  <li><code>First Name</code> &amp; <code>Last Name</code></li>
                   <li><code>Personal Email</code> (for login invite)</li>
                   <li><code>Phone Number</code></li>
                   <li><code>Role</code> (e.g. audit_executive, audit_lead)</li>
@@ -220,6 +227,15 @@ export function CSVUploader() {
               <span>{validRows.length} of {results.length} rows valid</span>
               <Button size="sm" variant="outline" onClick={() => setResults([])}>Clear</Button>
             </div>
+
+            {validRows.length > 10 && (
+              <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded text-xs font-medium flex items-start gap-2">
+                <AlertCircle className="h-4 w-4 text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>Batch Limit Exceeded:</strong> Found {validRows.length} valid rows. A maximum of 10 employees can be onboarded at once per CSV file. Please reduce the CSV to 10 rows or use individual employee onboarding.
+                </div>
+              </div>
+            )}
             
             <div className="space-y-2">
               {results.map((r, i) => (
@@ -243,7 +259,7 @@ export function CSVUploader() {
             </div>
 
             <div className="pt-4 flex justify-end">
-              <Button onClick={handleImport} disabled={validRows.length === 0 || isPending}>
+              <Button onClick={handleImport} disabled={validRows.length === 0 || validRows.length > 10 || isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Import {validRows.length} Valid Users
               </Button>

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useProfiles, useUpdateProfile, useDepartments } from '@/hooks/useProfiles';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Search, Loader2, Edit, ChevronDown } from 'lucide-react';
 import { PendingApprovals } from '@/components/admin/PendingApprovals';
 import { CSVUploader } from '@/components/admin/CSVUploader';
+import { SingleEmployeeOnboardingModal } from '@/components/admin/SingleEmployeeOnboardingModal';
 import { AdminPasswordReset } from '@/components/admin/AdminPasswordReset';
 import { ROLE_LABELS } from '@/lib/constants';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
@@ -145,7 +146,10 @@ export function UserManagement() {
             Delete {selectedUsers.length}
           </Button>
         )}
-        <CSVUploader />
+        <div className="flex items-center gap-2">
+          <SingleEmployeeOnboardingModal />
+          <CSVUploader />
+        </div>
       </div>
 
       <PendingApprovals profiles={pendingProfiles} onApprove={handleApprove} onReject={(id) => handleStatusChange(id, 'inactive')} />

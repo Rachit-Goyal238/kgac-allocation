@@ -79,85 +79,69 @@ export function ReconciliationPage() {
       let filteredAudits = audits;
 
       if (zoneFilter) {
-
         filteredAudits = audits.filter(audit => {
-
           return audit.teams?.some((t: any) => t.user?.zone?.toLowerCase().includes(zoneFilter.toLowerCase()));
-
         });
-
       }
 
+      const auditIds = (filteredAudits || []).map((a: any) => a.id);
+      let backendAllocations: any[] = [];
+      if (auditIds.length > 0) {
+        const { data: allocData } = await supabase
+          .from('allocations')
+          .select('audit_id, user_id, hours')
+          .in('audit_id', auditIds)
+          .eq('is_approved', true);
+        backendAllocations = allocData || [];
+      }
 
+      const backendHoursMap: Record<string, number> = {};
+      backendAllocations.forEach((a: any) => {
+        if (a.audit_id && a.user_id) {
+          const key = `${a.audit_id}_${a.user_id}`;
+          backendHoursMap[key] = (backendHoursMap[key] || 0) + Number(a.hours || 0);
+        }
+      });
 
       return filteredAudits.map(audit => {
-
           let totalTeamCost = 0;
-
           let internalCount = 0;
 
-
-
           let days = 1;
-
           if (audit.end_date && audit.end_date !== audit.audit_date) {
-
               const diffTime = Math.abs(new Date(audit.end_date).getTime() - new Date(audit.audit_date).getTime());
-
               days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
           }
 
-
-
           audit.teams?.forEach((team: any) => {
-
             if (team.vendor_id && team.vendor) {
-
               let rate = team.agreed_rate;
-
               if (!rate) {
-
                 rate = team.role === 'asset' 
-
                   ? team.vendor.default_asset_rate 
-
                   : team.vendor.default_human_rate;
-
               }
-
               totalTeamCost += (Number(rate) || 0) * days;
-
             } else if (!team.vendor_id) {
-
               internalCount += 1;
-
               let intRate = team.agreed_rate;
-
               if (!intRate && team.user?.monthly_salary) {
-
                 const auditDate = new Date(audit.audit_date || new Date());
-
                 const daysInMonth = new Date(auditDate.getFullYear(), auditDate.getMonth() + 1, 0).getDate();
-
                 intRate = Number(team.user.monthly_salary) / daysInMonth;
-
               } else if (!intRate) {
-
                 intRate = team.user?.agreed_rate;
-
               }
-
-
 
               if (intRate) {
-
-                totalTeamCost += (Number(intRate) || 0) * days;
-
+                if (team.role === 'backend') {
+                  const loggedHours = backendHoursMap[`${audit.id}_${team.user_id}`] || 0;
+                  totalTeamCost += ((Number(intRate) || 0) / 8) * loggedHours;
+                } else {
+                  totalTeamCost += (Number(intRate) || 0) * days;
+                }
               }
-
             }
-
           });
 
 

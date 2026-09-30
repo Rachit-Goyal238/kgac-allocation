@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Upload, Download, AlertCircle, Loader2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -18,13 +18,14 @@ export function AssetImportTool() {
   };
 
   const downloadTemplate = () => {
-    const headers = ['Name', 'Type', 'Serial Number', 'Status', 'Notes'];
+    const headers = ['Asset ID', 'Name', 'Type', 'Serial Number', 'Status', 'Notes'];
     const sampleData = [
-      ['ThinkPad T14', 'laptop', 'PF123456', 'available', 'New batch 2026'],
-      ['Zebra TC52', 'hht', 'ZBR98765', 'available', 'Scanner'],
-      ['iPhone 14', 'phone', 'IPH112233', 'available', 'Test device'],
-      ['Dell 27 Monitor', 'monitor', 'DEL4455', 'available', 'Desk 12'],
-      ['Logitech MX Master', 'mouse', 'LOG999', 'available', ''],
+      ['AST-1001', 'ThinkPad T14', 'laptop', 'PF123456', 'available', 'New batch 2026'],
+      ['AST-1002', 'Zebra TC52', 'hht', 'ZBR98765', 'available', 'Scanner'],
+      ['AST-1003', 'iPhone 14', 'phone', 'IPH112233', 'available', 'Test device'],
+      ['AST-1004', 'Dell 27 Monitor', 'monitor', 'DEL4455', 'available', 'Desk 12'],
+      ['AST-1005', 'Logitech MX Master', 'mouse', 'LOG999', 'available', ''],
+      ['AST-1006', 'Defective HHT Scanner', 'hht', 'ZBR00000', 'unusable', 'Display broken beyond repair'],
     ];
 
     const csvContent = [
@@ -54,6 +55,7 @@ export function AssetImportTool() {
 
               // Format rows for insertion
               const formattedAssets = rows.map((row, index) => {
+                const assetId = row['Asset ID']?.trim() || row['Asset Id']?.trim() || row['asset_id']?.trim() || null;
                 const name = row['Name']?.trim();
                 let type = row['Type']?.trim().toLowerCase() || 'other';
                 const serial = row['Serial Number']?.trim() || '';
@@ -66,11 +68,12 @@ export function AssetImportTool() {
                 const validTypes = ['laptop', 'monitor', 'hht', 'phone', 'mouse', 'other'];
                 if (!validTypes.includes(type)) type = 'other';
 
-                // Normalize status
-                const validStatuses = ['available', 'in_use', 'maintenance'];
+                // Normalize status (supports 'unusable')
+                const validStatuses = ['available', 'in_use', 'maintenance', 'unusable'];
                 if (!validStatuses.includes(status)) status = 'available';
 
                 return {
+                  asset_id: assetId,
                   name,
                   type,
                   serial_number: serial,
@@ -116,31 +119,32 @@ export function AssetImportTool() {
     <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
       <div>
         <h3 className="text-lg font-medium text-slate-900">Mass Asset Onboarding</h3>
-        <p className="text-sm text-slate-500 mt-1">Upload a CSV file to import multiple internal assets at once.</p>
+        <p className="text-sm text-slate-500 mt-1">Upload a CSV file to import multiple internal assets at once with optional Asset IDs and initial status.</p>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm text-blue-800 mb-6">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between flex-wrap gap-4">
           <div className="flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="space-y-2">
               <p className="font-medium">Expected CSV Format:</p>
               <ul className="list-disc list-inside space-y-1 ml-1 text-blue-700">
+                <li><code>Asset ID</code> (optional unique identifier/tag code, e.g. <code className="bg-blue-100 px-1 rounded">AST-1001</code>)</li>
                 <li><code>Name</code> (required)</li>
-                <li><code>Type</code> (<code className="bg-blue-100 px-1 rounded">laptop</code>, <code className="bg-blue-100 px-1 rounded">hht</code>, etc)</li>
-                <li><code>Serial Number</code></li>
-                <li><code>Status</code> (<code className="bg-blue-100 px-1 rounded">available</code>, <code className="bg-blue-100 px-1 rounded">in_use</code>)</li>
-                <li><code>Notes</code></li>
+                <li><code>Type</code> (<code className="bg-blue-100 px-1 rounded">laptop</code>, <code className="bg-blue-100 px-1 rounded">hht</code>, <code className="bg-blue-100 px-1 rounded">monitor</code>, <code className="bg-blue-100 px-1 rounded">phone</code>, <code className="bg-blue-100 px-1 rounded">mouse</code>, <code className="bg-blue-100 px-1 rounded">other</code>)</li>
+                <li><code>Serial Number</code> (optional S/N)</li>
+                <li><code>Status</code> (<code className="bg-blue-100 px-1 rounded">available</code>, <code className="bg-blue-100 px-1 rounded">in_use</code>, <code className="bg-blue-100 px-1 rounded">maintenance</code>, <code className="bg-blue-100 px-1 rounded">unusable</code>)</li>
+                <li><code>Notes</code> (optional comments or condition notes)</li>
               </ul>
             </div>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
-            className="h-7 text-xs bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200"
+            className="h-8 text-xs bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-200"
             onClick={downloadTemplate}
           >
-            <FileText className="h-3 w-3 mr-1" />
+            <FileText className="h-3.5 w-3.5 mr-1" />
             Download Template
           </Button>
         </div>
@@ -173,4 +177,3 @@ export function AssetImportTool() {
     </div>
   );
 }
-

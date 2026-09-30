@@ -336,7 +336,7 @@ export interface AuditTeam {
   user_id: string | null;
   vendor_id: string | null;
   vendor_resource_id?: string | null;
-  role: "lead" | "executive" | "asset";
+  role: "lead" | "executive" | "asset" | "backend";
   agreed_rate: number | null;
   assigned_rate?: number | null;
   resource_type?: 'internal' | 'external';
@@ -360,9 +360,10 @@ export interface VendorRate {
 
 export interface InternalAsset {
   id: string;
+  asset_id?: string | null;
   name: string;
   type: string;
-  status: 'available' | 'in_use' | 'maintenance';
+  status: 'available' | 'in_use' | 'maintenance' | 'unusable';
   serial_number?: string;
   assigned_to: string | null;
   notes: string | null;

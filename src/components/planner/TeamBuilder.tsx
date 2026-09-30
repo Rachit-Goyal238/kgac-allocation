@@ -92,7 +92,7 @@ export function TeamBuilder() {
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [selectedRateId, setSelectedRateId] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset'>('executive');
+  const [selectedRole, setSelectedRole] = useState<'lead' | 'executive' | 'asset' | 'backend'>('executive');
   const [actingAs, setActingAs] = useState<'solo' | 'agency'>('solo');
   const [agreedRate, setAgreedRate] = useState('');
   
@@ -592,7 +592,15 @@ export function TeamBuilder() {
                               {member.vendor_id ? `via ${member.vendor?.name}` : member.user?.email}
                             </div>
                             <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-[10px] uppercase">{member.role}</Badge>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-[10px] uppercase ${member.role === 'backend' ? 'bg-indigo-50 text-indigo-700 border-indigo-200 font-semibold' : ''}`}
+                              >
+                                {member.role === 'backend' ? 'Backend' : member.role}
+                              </Badge>
+                              {member.role === 'backend' && (
+                                <span className="text-[10px] text-slate-500 italic">(Remote / logged hours only)</span>
+                              )}
                               {member.vendor_id && <Badge variant="secondary" className="text-[10px]">External Rate: {member.agreed_rate || 'Default'}</Badge>}
                             </div>
                           </div>
@@ -758,12 +766,18 @@ export function TeamBuilder() {
                   value={selectedRole} onChange={e => setSelectedRole(e.target.value as any)}>
                   <option value="lead">Lead</option>
                   <option value="executive">Executive</option>
+                  <option value="backend">Backend (Remote / Office Supervision)</option>
                 </select>
                 {selectedRole === 'lead' && assignedLeads >= reqLeads && (
                   <p className="text-xs text-red-500 mt-1">Lead requirement met. Cannot assign more Leads.</p>
                 )}
                 {selectedRole === 'executive' && assignedExecs >= reqExecs && (
                   <p className="text-xs text-red-500 mt-1">Executive requirement met. Cannot assign more Executives.</p>
+                )}
+                {selectedRole === 'backend' && (
+                  <p className="text-xs text-indigo-600 bg-indigo-50/70 p-2 rounded border border-indigo-100 mt-1">
+                    ℹ️ Backend employees do not travel to the audit. They supervise remotely from the office. Their cost is calculated only from hours explicitly logged on the calendar cell for this audit.
+                  </p>
                 )}
               </div>
             </div>
