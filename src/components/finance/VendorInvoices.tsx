@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -48,9 +48,13 @@ export function VendorInvoices() {
   });
 
   const { data: audits } = useQuery({
-    queryKey: ['completed_audits'],
+    queryKey: ['available_audits_for_invoice'],
     queryFn: async () => {
-      const { data } = await supabase.from('audits').select('id, store_name, audit_date').eq('status', 'completed').order('audit_date', { ascending: false });
+      const { data } = await supabase
+        .from('audits')
+        .select('id, store_name, audit_date, status')
+        .in('status', ['scheduled', 'completed'])
+        .order('audit_date', { ascending: false });
       return data || [];
     }
   });
@@ -121,7 +125,7 @@ export function VendorInvoices() {
                 <label className="text-sm font-medium">Audit</label>
                 <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={selectedAudit} onChange={e => setSelectedAudit(e.target.value)}>
                   <option value="">-- Select Audit --</option>
-                  {audits?.map(a => <option key={a.id} value={a.id}>{a.store_name} ({a.audit_date})</option>)}
+                  {audits?.map((a: any) => <option key={a.id} value={a.id}>{a.store_name} ({a.audit_date}) - {a.status}</option>)}
                 </select>
               </div>
               <div className="space-y-2">

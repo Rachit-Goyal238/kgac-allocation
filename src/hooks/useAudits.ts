@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Audit, AuditTeam } from '@/lib/types';
 import { toast } from 'sonner';
@@ -11,7 +11,8 @@ export function useAudits() {
         .from('audits')
         .select(`
           *,
-          client:clients(name)
+          client:clients(name),
+          scheduler:profiles!audits_scheduled_by_fkey(full_name)
         `)
         .order('audit_date', { ascending: true });
       if (error) throw error;
@@ -144,3 +145,24 @@ export function useCompleteAudit() {
     }
   });
 }
+
+export function useCancelAudit() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (auditId: string) => {
+      const { error } = await supabase.rpc('cancel_audit', { p_audit_id: auditId });
+      if (error) throw error;
+      return auditId;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['audits'] });
+      queryClient.invalidateQueries({ queryKey: ['allocations'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Audit has been cancelled');
+    },
+    onError: (error: any) => {
+      toast.error(`Error cancelling audit: ${error.message}`);
+    }
+  });
+}
+

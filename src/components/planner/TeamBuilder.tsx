@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit, useCompleteAudit } from '@/hooks/useAudits';
+import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit, useCompleteAudit, useCancelAudit } from '@/hooks/useAudits';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Loader2, UserPlus, Trash2, Building, User, CheckCircle } from 'lucide-react';
+import { Loader2, UserPlus, Trash2, Building, User, CheckCircle, Ban, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ export function TeamBuilder() {
   const removeMember = useRemoveTeamMember();
   const updateAudit = useUpdateAudit();
   const completeAudit = useCompleteAudit();
+  const cancelAudit = useCancelAudit();
   const deleteAudit = useDeleteAudit();
 
   const [vendorModalOpen, setVendorModalOpen] = useState(false);
@@ -140,17 +141,28 @@ export function TeamBuilder() {
     }
   };
 
+  const handleCancelAudit = async () => {
+    if (!selectedAuditId) return;
+    if (confirm('Are you sure you want to cancel this audit? This will mark the audit as cancelled, remove all team allocations, and free up employee schedules.')) {
+      cancelAudit.mutate(selectedAuditId);
+    }
+  };
+
   const handlePublishAudit = async () => {
     if (!selectedAuditId) return;
+    if (!requirementsMet) {
+      toast.error('Cannot publish audit: Required leads and executives must be assigned first.');
+      return;
+    }
     setIsNotifying(true);
     try {
       const { error } = await supabase.rpc('publish_audit', { p_audit_id: selectedAuditId });
       if (error) throw error;
       toast.success('Audit scheduled, team allocated, and vendors notified!');
-        queryClient.invalidateQueries({ queryKey: ['audits'] });
-        queryClient.invalidateQueries({ queryKey: ['allocations'] });
+      queryClient.invalidateQueries({ queryKey: ['audits'] });
+      queryClient.invalidateQueries({ queryKey: ['allocations'] });
     } catch (err: any) {
-      toast.error('Failed to send notifications: ' + err.message);
+      toast.error('Failed to publish audit: ' + err.message);
     } finally {
       setIsNotifying(false);
     }
@@ -274,7 +286,18 @@ export function TeamBuilder() {
               {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
             </div>
             <div className="flex justify-between items-center mt-3">
-               <Badge variant={audit.status === 'scheduled' ? 'default' : 'secondary'} className="text-[10px] capitalize">
+               <Badge 
+                 variant={
+                   audit.status === 'scheduled' 
+                     ? 'default' 
+                     : audit.status === 'completed' 
+                     ? 'secondary' 
+                     : audit.status === 'cancelled' 
+                     ? 'destructive' 
+                     : 'outline'
+                 } 
+                 className={`text-[10px] capitalize ${audit.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : ''}`}
+               >
                  {audit.status}
                </Badge>
                <div className="text-xs text-slate-500">
@@ -312,7 +335,44 @@ export function TeamBuilder() {
               
                 {/* Contact Person Setup */}
                 <div className="p-4 rounded-lg border bg-slate-50 space-y-3">
-                  <h4 className="text-sm font-semibold">Audit Management</h4>
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-sm font-semibold">Audit Management</h4>
+                    <Badge 
+                      variant={
+                        selectedAudit.status === 'scheduled' 
+                          ? 'default' 
+                          : selectedAudit.status === 'completed' 
+                          ? 'secondary' 
+                          : selectedAudit.status === 'cancelled' 
+                          ? 'destructive' 
+                          : 'outline'
+                      }
+                      className="capitalize"
+                    >
+                      {selectedAudit.status}
+                    </Badge>
+                  </div>
+
+                  {selectedAudit.scheduled_at && (
+                    <div className="text-xs text-slate-700 bg-white p-2.5 rounded border border-slate-200 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-900">Scheduled By:</span>
+                        <span className="text-blue-700 font-medium">{selectedAudit.scheduler?.full_name || 'System / Manager'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-slate-900">Scheduled At:</span>
+                        <span>{format(new Date(selectedAudit.scheduled_at), 'dd-MMM-yyyy hh:mm a')}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedAudit.status === 'cancelled' && (
+                    <div className="p-3 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs flex items-center gap-2">
+                      <Ban className="h-4 w-4 shrink-0 text-red-600" />
+                      <span><strong>This audit is Cancelled.</strong> All team allocations have been removed.</span>
+                    </div>
+                  )}
+
                   <div className="flex gap-2 items-center">
                     <label className="text-sm text-muted-foreground w-1/4">Contact Person</label>
                     <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm" 
@@ -343,17 +403,55 @@ export function TeamBuilder() {
                     <div className="flex justify-end mt-2">
                       <Button size="sm" onClick={handleUpdateContactPerson} disabled={updateAudit.isPending}>Save Details</Button>
                     </div>
-                    <div className="pt-2 mt-2 border-t flex justify-between items-center">
-                      {selectedAudit.status === 'scheduled' ? (
-                        <Button variant="secondary" className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200" size="sm" onClick={handleCompleteAudit} disabled={completeAudit.isPending}>
-                          {completeAudit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
-                          Mark Completed
+                    <div className="pt-2 mt-2 border-t flex flex-wrap justify-between items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        {selectedAudit.status === 'scheduled' && (
+                          <Button variant="secondary" className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200" size="sm" onClick={handleCompleteAudit} disabled={completeAudit.isPending}>
+                            {completeAudit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                            Mark Completed
+                          </Button>
+                        )}
+                        {selectedAudit.status !== 'cancelled' && selectedAudit.status !== 'completed' && (
+                          <Button 
+                            variant="outline" 
+                            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700" 
+                            size="sm" 
+                            onClick={handleCancelAudit} 
+                            disabled={cancelAudit.isPending}
+                          >
+                            {cancelAudit.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Ban className="mr-2 h-4 w-4" />}
+                            Cancel Audit
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handlePublishAudit} 
+                          disabled={
+                            isNotifying || 
+                            !team || 
+                            team.length === 0 || 
+                            selectedAudit.status === 'completed' || 
+                            selectedAudit.status === 'cancelled' ||
+                            !requirementsMet
+                          }
+                          title={!requirementsMet ? 'Lead and Executive requirements must be met before publishing' : ''}
+                        >
+                          {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {selectedAudit.status === 'completed' 
+                            ? 'Audit Completed' 
+                            : selectedAudit.status === 'cancelled'
+                            ? 'Audit Cancelled'
+                            : 'Publish & Notify Team'}
                         </Button>
-                      ) : <div></div>}
-                      <Button variant="outline" size="sm" onClick={handlePublishAudit} disabled={isNotifying || !team || team.length === 0 || selectedAudit.status === 'completed'}>
-                        {isNotifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {selectedAudit.status === 'completed' ? 'Audit Completed' : 'Publish & Notify Team'}
-                      </Button>
+                        {!requirementsMet && selectedAudit.status !== 'completed' && selectedAudit.status !== 'cancelled' && (
+                          <span className="text-[11px] text-amber-600 font-medium">
+                            Requirements for Leads &amp; Executives must be met
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 

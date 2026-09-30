@@ -49,6 +49,7 @@ export function MyUpcomingAudits({
       
       const { data, error } = await query
         .neq('audit.status', 'draft')
+        .neq('audit.status', 'cancelled')
         .order('audit(audit_date)', { ascending: true });
 
       if (error) throw error;

@@ -1,4 +1,4 @@
-﻿// â”€â”€â”€ Enums & Literal Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€â”€ Enums & Literal Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export type UserRole =
   | "employee"
@@ -295,8 +295,15 @@ export interface Audit {
   audit_date: string;
   end_date?: string;
   audit_type: string;
-  status: "scheduled" | "in_progress" | "completed" | "cancelled";
+  status: "draft" | "scheduled" | "in_progress" | "completed" | "cancelled";
   billing_amount: number;
+  scheduled_by?: string | null;
+  scheduled_at?: string | null;
+  scheduler?: { full_name: string } | null;
+  required_leads?: number;
+  required_executives?: number;
+  contact_person_id?: string | null;
+  client?: { name: string } | null;
   created_at: string;
   updated_at: string;
 }
