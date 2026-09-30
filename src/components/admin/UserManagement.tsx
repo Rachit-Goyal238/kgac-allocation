@@ -186,6 +186,16 @@ export function UserManagement() {
               activeProfiles.map(profile => (
                 <TableRow key={profile.id}>
                   <TableCell>
+                    <Checkbox 
+                      checked={selectedUsers.includes(profile.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) setSelectedUsers([...selectedUsers, profile.id]);
+                        else setSelectedUsers(selectedUsers.filter(id => id !== profile.id));
+                      }}
+                      aria-label={`Select ${profile.full_name}`}
+                    />
+                  </TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
