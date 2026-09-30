@@ -1,16 +1,35 @@
--- Migration 070: Backend Employee Role, Internal Assets (Unusable status, Asset ID, Bulk/Single Delete), and Publish Audit update
+-- Migration 070: Backend Employee Role, Internal Assets (Unusable status, Asset ID, Bulk/Single Delete), Persistent App Config, and Publish Audit update
 
--- 1. Expand audit_teams role constraint to include 'backend'
+-- 1. Create a persistent app_config table for secrets (Resend API key, etc.) so you NEVER have to manually paste it in future migrations!
+CREATE TABLE IF NOT EXISTS public.app_config (
+  key text PRIMARY KEY,
+  value text NOT NULL,
+  description text,
+  updated_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.app_config ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow super admins to manage app_config" ON public.app_config;
+CREATE POLICY "Allow super admins to manage app_config" 
+ON public.app_config FOR ALL 
+USING (has_any_role(ARRAY['super_admin', 'admin']));
+
+-- Seed default placeholder if not already set (You can update this once via SQL: UPDATE public.app_config SET value = 'your_resend_key' WHERE key = 'resend_api_key')
+INSERT INTO public.app_config (key, value, description)
+VALUES ('resend_api_key', 're_YOUR_ACTUAL_KEY_HERE', 'Resend API Key for sending audit assignments and password reset emails')
+ON CONFLICT (key) DO NOTHING;
+
+-- 2. Expand audit_teams role constraint to include 'backend'
 ALTER TABLE public.audit_teams DROP CONSTRAINT IF EXISTS audit_teams_role_check;
 ALTER TABLE public.audit_teams ADD CONSTRAINT audit_teams_role_check CHECK (role IN ('lead', 'executive', 'asset', 'backend'));
 
--- 2. Expand internal_assets status constraint to include 'unusable' and add asset_id column
+-- 3. Expand internal_assets status constraint to include 'unusable' and add asset_id column
 ALTER TABLE public.internal_assets DROP CONSTRAINT IF EXISTS internal_assets_status_check;
 ALTER TABLE public.internal_assets ADD CONSTRAINT internal_assets_status_check CHECK (status IN ('available', 'in_use', 'maintenance', 'unusable'));
 
 ALTER TABLE public.internal_assets ADD COLUMN IF NOT EXISTS asset_id text;
 
--- 3. Delete RPC & RLS for internal assets
+-- 4. Delete RPC & RLS for internal assets
 DROP POLICY IF EXISTS "Allow admins to delete internal assets" ON public.internal_assets;
 DROP POLICY IF EXISTS "Allow admins and managers to delete internal assets" ON public.internal_assets;
 
@@ -33,7 +52,7 @@ BEGIN
 END;
 $$;
 
--- 4. Update publish_audit to skip 8h auto-allocation for backend role while keeping project assignment
+-- 5. Update publish_audit to skip 8h auto-allocation for backend role while keeping project assignment
 CREATE OR REPLACE FUNCTION public.publish_audit(p_audit_id uuid)
 RETURNS void
 LANGUAGE plpgsql
@@ -122,11 +141,22 @@ BEGIN
     v_date_display := to_char(v_audit_date, 'Mon DD, YYYY');
   END IF;
 
-  -- Resend credentials
-  SELECT decrypted_secret INTO v_api_key FROM vault.decrypted_secrets WHERE name = 'RESEND_API_KEY' LIMIT 1;
-  IF v_api_key IS NULL THEN
+  -- Retrieve Resend credentials:
+  -- Priority 1: public.app_config table (permanent, stored in DB)
+  SELECT value INTO v_api_key FROM public.app_config WHERE key = 'resend_api_key' LIMIT 1;
+  -- Priority 2: Supabase Vault
+  IF v_api_key IS NULL OR v_api_key = '' OR v_api_key LIKE 're_YOUR%' THEN
+    BEGIN
+      SELECT decrypted_secret INTO v_api_key FROM vault.decrypted_secrets WHERE name = 'RESEND_API_KEY' LIMIT 1;
+    EXCEPTION WHEN OTHERS THEN
+      v_api_key := NULL;
+    END;
+  END IF;
+  -- Priority 3: Custom session setting
+  IF v_api_key IS NULL OR v_api_key = '' OR v_api_key LIKE 're_YOUR%' THEN
     v_api_key := current_setting('app.settings.resend_api_key', true);
   END IF;
+
   v_from := 'KGAC Audit Notifications <notifications@thekgac.in>';
 
   -- 4. Mark Audit as Scheduled
@@ -188,7 +218,8 @@ BEGIN
 
       v_target_email := COALESCE(v_resource_email, v_vendor_email);
 
-      IF v_target_email IS NOT NULL AND v_target_email != '' THEN
+      -- Only attempt email send if valid email AND configured API key exist (prevents failing audit publish)
+      IF v_target_email IS NOT NULL AND v_target_email != '' AND v_api_key IS NOT NULL AND v_api_key != '' AND v_api_key NOT LIKE 're_YOUR%' THEN
         v_html := '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>KGAC Audit Assignment</title><style>body { font-family: -apple-system, BlinkMacSystemFont, ''Segoe UI'', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; } .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; } .header { background-color: #0f172a; padding: 30px 40px; text-align: center; } .header h1 { color: #ffffff; margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; } .content { padding: 40px; color: #334155; line-height: 1.6; } .content h2 { color: #0f172a; font-size: 20px; margin-top: 0; } .credentials-box { background-color: #f1f5f9; border-left: 4px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 6px 6px 0; } .cred-row { margin-bottom: 12px; } .cred-label { font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; } .cred-value { font-size: 16px; color: #0f172a; font-weight: 600; display: block; } .footer { padding: 20px 40px; background-color: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 13px; }</style></head><body><div class="container"><div class="header"><h1>KGAC Audit Allocation</h1></div><div class="content"><h2>Audit Assignment Details</h2><p>Hello ' || v_resource_name || ',</p><p>You have been scheduled for an upcoming audit assignment. Please review the details below:</p><div class="credentials-box"><div class="cred-row"><span class="cred-label">Project / Client</span><span class="cred-value">' || COALESCE(v_project_name, 'Unknown Project') || '</span></div><div class="cred-row"><span class="cred-label">Date(s)</span><span class="cred-value">' || v_date_display || '</span></div><div class="cred-row"><span class="cred-label">Assigned Role</span><span class="cred-value" style="text-transform: capitalize;">' || v_member.role || '</span></div><div class="cred-row"><span class="cred-label">Contact Person</span><span class="cred-value">' || COALESCE(v_contact_person, 'Project Manager') || '</span></div>' || 
         CASE 
           WHEN v_contact_email IS NOT NULL AND v_contact_email != '' AND v_contact_email NOT LIKE '%@kgac-users.com' 
@@ -209,14 +240,19 @@ BEGIN
           'html', v_html
         );
         
-        PERFORM net.http_post(
-            url := 'https://api.resend.com/emails',
-            headers := jsonb_build_object(
-              'Authorization', 'Bearer ' || v_api_key,
-              'Content-Type', 'application/json'
-            ),
-            body := v_payload
-        );
+        BEGIN
+          PERFORM net.http_post(
+              url := 'https://api.resend.com/emails',
+              headers := jsonb_build_object(
+                'Authorization', 'Bearer ' || v_api_key,
+                'Content-Type', 'application/json'
+              ),
+              body := v_payload
+          );
+        EXCEPTION WHEN OTHERS THEN
+          -- Email delivery issue will not fail audit scheduling transaction
+          RAISE WARNING 'Resend email dispatch error: %', SQLERRM;
+        END;
       END IF;
     END IF;
   END LOOP;
