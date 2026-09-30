@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Loader2, UserPlus, Trash2, Building, User, CheckCircle, Ban, AlertCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { Loader2, UserPlus, Trash2, Building, User, CheckCircle, Ban, AlertCircle, Search } from 'lucide-react';
+import { format, addMonths } from 'date-fns';
+import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
@@ -18,6 +19,32 @@ export function TeamBuilder() {
   const queryClient = useQueryClient();
   const { data: audits, isLoading: isLoadingAudits } = useAudits();
   const [selectedAuditId, setSelectedAuditId] = useState<string | null>(sessionStorage.getItem('teamBuilderAuditId') || null);
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(addMonths(new Date(), 3));
+  const [auditSearch, setAuditSearch] = useState('');
+
+  const filteredAudits = (audits || []).filter((audit: any) => {
+    // 1. Date Range Filter
+    const aStart = audit.audit_date;
+    const aEnd = audit.end_date || audit.audit_date;
+    const startStr = format(startDate, 'yyyy-MM-dd');
+    const endStr = format(endDate, 'yyyy-MM-dd');
+
+    const inDateRange = aStart <= endStr && aEnd >= startStr;
+    if (!inDateRange) return false;
+
+    // 2. Search Query Filter
+    if (auditSearch.trim()) {
+      const q = auditSearch.toLowerCase();
+      const matchStore = audit.store_name?.toLowerCase().includes(q);
+      const matchCode = audit.store_code?.toLowerCase().includes(q);
+      const matchClient = audit.client?.name?.toLowerCase().includes(q);
+      const matchLoc = audit.location?.toLowerCase().includes(q);
+      return matchStore || matchCode || matchClient || matchLoc;
+    }
+
+    return true;
+  });
 
   const { data: team, isLoading: isLoadingTeam } = useAuditTeams(selectedAuditId || undefined);
   const assignMember = useAssignTeamMember();
@@ -270,42 +297,74 @@ export function TeamBuilder() {
     <div className="flex gap-6 h-[calc(100vh-140px)]">
       {/* Left List */}
       <div className="w-1/3 border-r pr-4 overflow-y-auto space-y-3">
-        <h3 className="font-semibold text-lg mb-4">Audits ({audits?.length || 0})</h3>
-        {audits?.map((audit: any) => (
-          <div 
-            key={audit.id} 
-            className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedAuditId === audit.id ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-slate-50'}`}
-            onClick={() => {
-              setSelectedAuditId(audit.id); sessionStorage.setItem('teamBuilderAuditId', audit.id);
-              setContactPersonId(audit.contact_person_id || '');
-              setBillingAmount(audit.billing_amount ? audit.billing_amount.toString() : '');
-            }}
-          >
-            <div className="font-medium text-sm">{audit.store_name || audit.project?.name || 'Unknown Project'}</div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
-            </div>
-            <div className="flex justify-between items-center mt-3">
-               <Badge 
-                 variant={
-                   audit.status === 'scheduled' 
-                     ? 'default' 
-                     : audit.status === 'completed' 
-                     ? 'secondary' 
-                     : audit.status === 'cancelled' 
-                     ? 'destructive' 
-                     : 'outline'
-                 } 
-                 className={`text-[10px] capitalize ${audit.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : ''}`}
-               >
-                 {audit.status}
-               </Badge>
-               <div className="text-xs text-slate-500">
-                 {audit.required_leads} Leads, {audit.required_executives} Execs
-               </div>
-            </div>
+        <div className="sticky top-0 bg-white z-10 pb-3 border-b space-y-2.5">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-base">
+              Audits ({filteredAudits.length}{audits && filteredAudits.length !== audits.length ? ` of ${audits.length}` : ''})
+            </h3>
           </div>
-        ))}
+          
+          <div className="overflow-x-auto pb-1">
+            <DateRangePicker 
+              startDate={startDate} 
+              endDate={endDate} 
+              onChange={(s, e) => { setStartDate(s); setEndDate(e); }} 
+            />
+          </div>
+
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+            <Input 
+              placeholder="Search store, code, client, location..." 
+              value={auditSearch} 
+              onChange={e => setAuditSearch(e.target.value)} 
+              className="pl-8 h-8 text-xs bg-slate-50"
+            />
+          </div>
+        </div>
+
+        {filteredAudits.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-xs space-y-1">
+            <p className="font-medium text-slate-600">No audits found</p>
+            <p>Try adjusting your search query or extending the date range.</p>
+          </div>
+        ) : (
+          filteredAudits.map((audit: any) => (
+            <div 
+              key={audit.id} 
+              className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedAuditId === audit.id ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-slate-50'}`}
+              onClick={() => {
+                setSelectedAuditId(audit.id); sessionStorage.setItem('teamBuilderAuditId', audit.id);
+                setContactPersonId(audit.contact_person_id || '');
+                setBillingAmount(audit.billing_amount ? audit.billing_amount.toString() : '');
+              }}
+            >
+              <div className="font-medium text-sm">{audit.store_name || audit.project?.name || 'Unknown Project'}</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {format(new Date(audit.audit_date), 'MMM d')} {audit.end_date && audit.end_date !== audit.audit_date ? `- ${format(new Date(audit.end_date), 'MMM d, yyyy')}` : `, ${format(new Date(audit.audit_date), 'yyyy')}`}
+              </div>
+              <div className="flex justify-between items-center mt-3">
+                 <Badge 
+                   variant={
+                     audit.status === 'scheduled' 
+                       ? 'default' 
+                       : audit.status === 'completed' 
+                       ? 'secondary' 
+                       : audit.status === 'cancelled' 
+                       ? 'destructive' 
+                       : 'outline'
+                   } 
+                   className={`text-[10px] capitalize ${audit.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' : ''}`}
+                 >
+                   {audit.status}
+                 </Badge>
+                 <div className="text-xs text-slate-500">
+                   {audit.required_leads} Leads, {audit.required_executives} Execs
+                 </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Right Panel */}

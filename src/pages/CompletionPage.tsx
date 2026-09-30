@@ -7,7 +7,7 @@ import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { format, addMonths } from 'date-fns';
-import { CheckCircle2, Clock, AlertTriangle, XCircle, ListTodo, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Clock, AlertTriangle, XCircle, ListTodo, TrendingUp, Search } from 'lucide-react';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280'];
 
@@ -33,6 +33,7 @@ function ProgressRing({ pct }: { pct: number }) {
 export function CompletionPage() {
   const [dateRange, setDateRange] = useState({ start: new Date(), end: addMonths(new Date(), 3) });
   const [zoneFilter, setZoneFilter] = useState('');
+  const [mismatchSearch, setMismatchSearch] = useState('');
   const [allocations, setAllocations] = useState<any[]>([]);
 
   useEffect(() => {
@@ -72,6 +73,15 @@ export function CompletionPage() {
   ];
 
   const mismatches = allocations.filter(a => a.hours > 0 && a.task_status === 'not_started');
+
+  const filteredMismatches = mismatches.filter((m: any) => {
+    if (!mismatchSearch.trim()) return true;
+    const term = mismatchSearch.toLowerCase();
+    const nameMatch = m.profiles?.full_name?.toLowerCase().includes(term);
+    const dateMatch = format(new Date(m.allocation_date), 'MMM d, yyyy').toLowerCase().includes(term) || m.allocation_date.includes(term);
+    const projMatch = (m.audits?.store_name || m.projects?.name || '')?.toLowerCase().includes(term);
+    return nameMatch || dateMatch || projMatch;
+  });
 
   const projectGroups = allocations.reduce((acc: any, a) => {
     const projId = a.audit_id || a.project_id || 'unknown';
@@ -228,18 +238,64 @@ export function CompletionPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader><CardTitle>Auto-flagged Mismatches</CardTitle></CardHeader>
-          <CardContent>
-            {mismatches.length > 0 ? (
-              <ul className="space-y-2">
-                {mismatches.map((m: any) => (
-                  <li key={m.id} className="text-red-500 text-sm">
-                    <strong>{m.profiles?.full_name || 'Unknown User'}</strong> ({format(new Date(m.allocation_date), 'MMM d, yyyy')}): {m.hours} hours logged but status is 'not_started'
-                  </li>
-                ))}
-              </ul>
-            ) : <p>No mismatches found.</p>}
+        <Card className="flex flex-col">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold">Auto-flagged Mismatches</CardTitle>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                mismatches.length > 0 ? 'bg-red-100 text-red-700' : 'bg-slate-100 text-slate-600'
+              }`}>
+                {filteredMismatches.length}{filteredMismatches.length !== mismatches.length ? ` of ${mismatches.length}` : ''}
+              </span>
+            </div>
+            {mismatches.length > 0 && (
+              <span className="text-xs text-muted-foreground hidden sm:inline">Hours logged without active status</span>
+            )}
+          </CardHeader>
+          <CardContent className="space-y-3 flex-1 flex flex-col pt-0">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search employee, date, project..."
+                value={mismatchSearch}
+                onChange={e => setMismatchSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-400"
+              />
+            </div>
+
+            <div className="h-[230px] overflow-y-auto pr-1 space-y-2 divide-y divide-slate-100 border border-slate-100 rounded-md p-2 bg-slate-50/50">
+              {filteredMismatches.length > 0 ? (
+                filteredMismatches.map((m: any) => (
+                  <div key={m.id} className="pt-2 first:pt-0 flex items-start justify-between gap-2 text-xs">
+                    <div>
+                      <span className="font-semibold text-slate-800">
+                        {m.profiles?.full_name || 'Unknown User'}
+                      </span>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        {m.audits?.store_name || m.projects?.name || 'Assigned Task'} &bull; {format(new Date(m.allocation_date), 'MMM d, yyyy')}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="inline-block bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium text-[10px]">
+                        {m.hours}h logged
+                      </span>
+                      <div className="text-[10px] text-red-600 font-medium mt-0.5">
+                        not_started
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : mismatches.length > 0 ? (
+                <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
+                  No mismatches matching "{mismatchSearch}"
+                </div>
+              ) : (
+                <div className="h-full flex items-center justify-center text-xs text-emerald-600 font-medium">
+                  ✓ No anomalies found. All logged hours have active task statuses.
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
