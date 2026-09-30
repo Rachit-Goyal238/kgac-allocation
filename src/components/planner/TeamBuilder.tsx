@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAudits, useAuditTeams, useAssignTeamMember, useRemoveTeamMember, useUpdateAudit, useDeleteAudit, useCompleteAudit } from '@/hooks/useAudits';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
@@ -321,6 +321,17 @@ export function TeamBuilder() {
                       {employees?.map((emp: any) => <option key={emp.id} value={emp.id}>{emp.full_name}</option>)}
                     </select>
                     </div>
+                    {contactPersonId && (() => {
+                      const cp = employees?.find((emp: any) => emp.id === contactPersonId);
+                      const email = cp?.personal_email || (cp?.email && !cp.email.includes('@kgac-users.com') ? cp.email : null);
+                      const phone = cp?.phone_number;
+                      return (
+                        <div className="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200 ml-[25%] flex flex-wrap gap-x-5 gap-y-1">
+                          <span>📧 Email: <strong className="text-slate-800">{email || 'Not available'}</strong></span>
+                          <span>📞 Phone: <strong className="text-slate-800">{phone || 'Not available'}</strong></span>
+                        </div>
+                      );
+                    })()}
                     <div className="flex gap-2 items-center">
                       <label className="text-sm text-muted-foreground w-1/4">Client Revenue (₹)</label>
                       <div className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm items-center">
