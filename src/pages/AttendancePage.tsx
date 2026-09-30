@@ -7,6 +7,9 @@ import { DateRangePicker } from '@/components/shared/DateRangePicker';
 import { ExportButton } from '@/components/shared/ExportButton';
 import { exportToCSV, exportToExcel } from '@/lib/export';
 import { format, subDays } from 'date-fns';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { FileText } from 'lucide-react';
 import { Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
 export function AttendancePage() {
@@ -121,6 +124,7 @@ export function AttendancePage() {
                   <TableHead className="text-center">Days Present</TableHead>
                   <TableHead className="text-center">Days On Leave</TableHead>
                   <TableHead className="text-right">Total Hours</TableHead>
+                  <TableHead className="text-right w-[100px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -144,5 +148,109 @@ export function AttendancePage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+
+function AttendanceDetailsDialog({ user, startDate, endDate }: { user: any, startDate: Date, endDate: Date }) {
+  const [open, setOpen] = useState(false);
+  const startStr = format(startDate, 'MMM d, yyyy');
+  const endStr = format(endDate, 'MMM d, yyyy');
+
+  // Combine records and leaves into a single timeline
+  const timeline: any[] = [];
+  
+  if (user.records) {
+    user.records.forEach((r: any) => {
+      timeline.push({
+        date: new Date(r.date),
+        type: 'presence',
+        clock_in: r.clock_in,
+        clock_out: r.clock_out,
+        notes: r.notes
+      });
+    });
+  }
+  if (user.leaves) {
+    user.leaves.forEach((l: any) => {
+      timeline.push({
+        date: new Date(l.allocation_date),
+        type: 'leave',
+        status: l.status
+      });
+    });
+  }
+
+  // Sort descending by date
+  timeline.sort((a, b) => b.date.getTime() - a.date.getTime());
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-8 gap-1">
+          <FileText className="h-4 w-4 text-slate-500" />
+          <span className="hidden sm:inline">Details</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>
+            {user.name} - Attendance Log
+          </DialogTitle>
+          <p className="text-sm text-slate-500">{startStr} to {endStr}</p>
+        </DialogHeader>
+        
+        <div className="flex-1 overflow-auto mt-4 pr-2">
+          {timeline.length === 0 ? (
+            <div className="py-10 text-center text-slate-500">
+              No attendance or leave records in this period.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Clock In</TableHead>
+                  <TableHead>Clock Out</TableHead>
+                  <TableHead>Hours</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {timeline.map((t: any, i: number) => {
+                  let hours = 0;
+                  if (t.type === 'presence' && t.clock_in && t.clock_out) {
+                    const ms = new Date(t.clock_out).getTime() - new Date(t.clock_in).getTime();
+                    hours = Math.round((ms / (1000 * 60 * 60)) * 10) / 10;
+                  }
+                  
+                  return (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">{format(t.date, 'EEE, MMM d')}</TableCell>
+                      <TableCell>
+                        {t.type === 'presence' ? (
+                          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Present</span>
+                        ) : (
+                          <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium uppercase">{t.status?.replace('_', ' ')}</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-slate-600">
+                        {t.type === 'presence' && t.clock_in ? format(new Date(t.clock_in), 'HH:mm') : '-'}
+                      </TableCell>
+                      <TableCell className="text-slate-600">
+                        {t.type === 'presence' && t.clock_out ? format(new Date(t.clock_out), 'HH:mm') : '-'}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {t.type === 'presence' && hours > 0 ? `${hours}h` : '-'}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
