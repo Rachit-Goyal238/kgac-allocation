@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Lock, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Lock, AlertCircle, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function ResetPasswordPage() {
@@ -12,17 +12,50 @@ export function ResetPasswordPage() {
   const [loading, setLoading] = useState(true);
   const [isReady, setIsReady] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Check if we are using the custom Resend token
+  const searchParams = new URLSearchParams(window.location.search);
+  const resetToken = searchParams.get('token');
+
   useEffect(() => {
     let isMounted = true;
 
     async function initSession() {
-      // 1. Check for errors in URL hash (e.g. #error=access_denied&error_description=...)
+      // Method A: Custom Resend Token Flow (Primary)
+      if (resetToken) {
+        try {
+          const { data, error } = await supabase.rpc('verify_reset_token', {
+            p_token: resetToken.trim()
+          });
+
+          if (error) throw error;
+
+          if (isMounted) {
+            if (data && data.valid) {
+              setUserName(data.full_name || null);
+              setIsReady(true);
+            } else {
+              setErrorMsg(data?.error || 'Invalid or expired password reset link.');
+            }
+            setLoading(false);
+          }
+          return;
+        } catch (err: any) {
+          if (isMounted) {
+            setErrorMsg(err.message || 'Failed to verify reset token.');
+            setLoading(false);
+          }
+          return;
+        }
+      }
+
+      // Method B: Fallback Supabase Hash / PKCE Flow
       const hash = window.location.hash;
       if (hash && hash.includes('error=')) {
         const params = new URLSearchParams(hash.substring(1));
@@ -34,8 +67,6 @@ export function ResetPasswordPage() {
         return;
       }
 
-      // 2. Check for PKCE code in query params (?code=...)
-      const searchParams = new URLSearchParams(window.location.search);
       const code = searchParams.get('code');
       if (code) {
         try {
@@ -55,7 +86,6 @@ export function ResetPasswordPage() {
         }
       }
 
-      // 3. Listen to auth state changes (handles hash recovery tokens)
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         if (!isMounted) return;
         if (event === 'PASSWORD_RECOVERY' || (session && event === 'SIGNED_IN')) {
@@ -64,7 +94,6 @@ export function ResetPasswordPage() {
         }
       });
 
-      // 4. Fallback: Check existing session after small delay to let Supabase parse hash
       setTimeout(async () => {
         if (!isMounted) return;
         const { data: { session } } = await supabase.auth.getSession();
@@ -72,14 +101,13 @@ export function ResetPasswordPage() {
           setIsReady(true);
           setLoading(false);
         } else {
-          // If after 3 seconds still no session or recovery event
           setTimeout(async () => {
             if (!isMounted) return;
             const { data: { session: retrySession } } = await supabase.auth.getSession();
             if (retrySession) {
               setIsReady(true);
             } else {
-              setErrorMsg('Your reset session could not be verified. The link may have expired.');
+              setErrorMsg('No active password reset session found. Please request a new link.');
             }
             setLoading(false);
           }, 2000);
@@ -96,7 +124,7 @@ export function ResetPasswordPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [resetToken]);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,13 +141,27 @@ export function ResetPasswordPage() {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      if (resetToken) {
+        // Complete via custom Resend token RPC
+        const { data, error } = await supabase.rpc('complete_password_reset', {
+          p_token: resetToken.trim(),
+          p_new_password: password
+        });
 
-      toast.success('Password updated successfully! Please log in with your new password.');
-      // Sign out recovery session and redirect to login
-      await supabase.auth.signOut();
-      navigate('/login', { replace: true });
+        if (error) throw error;
+        if (data && !data.success) throw new Error(data.error);
+
+        toast.success('Password updated successfully! Please log in with your new password.');
+        navigate('/login', { replace: true });
+      } else {
+        // Complete via Supabase Auth session
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) throw error;
+
+        toast.success('Password updated successfully! Please log in with your new password.');
+        await supabase.auth.signOut();
+        navigate('/login', { replace: true });
+      }
     } catch (err: any) {
       console.error(err);
       toast.error(err.message || 'Failed to update password');
@@ -146,7 +188,7 @@ export function ResetPasswordPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-600 mb-4">
             <AlertCircle className="h-7 w-7" />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Reset Link Expired</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Reset Link Expired or Invalid</h2>
           <p className="text-sm text-slate-500 mb-6">{errorMsg}</p>
           <Button
             className="w-full bg-blue-600 hover:bg-blue-700"
@@ -168,7 +210,7 @@ export function ResetPasswordPage() {
             Set New Password
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Please enter your new secure password below.
+            {userName ? `Account for ${userName}` : 'Please enter your new secure password below.'}
           </p>
         </div>
 

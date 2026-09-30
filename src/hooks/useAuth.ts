@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Profile } from '@/lib/types';
@@ -92,20 +92,14 @@ export function useAuth() {
   
   const resetPassword = async (username: string) => {
     try {
-      // 1. Fetch real email using RPC
-      const { data: email, error: rpcError } = await supabase.rpc('get_email_by_username', {
+      const { data, error } = await supabase.rpc('request_password_reset', {
         p_username: username.trim().toUpperCase()
       });
-      if (rpcError) throw new Error(rpcError.message);
-      if (!email) throw new Error('Username not found.');
-
-      // 2. Trigger standard password reset
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/auth/reset-password',
-      });
-      
       if (error) throw error;
-      toast.success('Password reset link sent to your registered email!');
+      if (data && !data.success) {
+        throw new Error(data.message || 'Failed to send reset link');
+      }
+      toast.success(data?.message || 'Password reset link sent to your registered email!');
     } catch (error: any) {
       toast.error(error.message || 'Failed to reset password');
       throw error;
