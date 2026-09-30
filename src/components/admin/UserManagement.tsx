@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { useProfiles, useUpdateProfile, useDepartments } from '@/hooks/useProfiles';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +24,7 @@ export function UserManagement() {
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   
   const { profile: currentUser } = useAuthContext();
   const isAdmin = currentUser?.roles?.includes('admin') || currentUser?.roles?.includes('super_admin');
@@ -31,6 +33,21 @@ export function UserManagement() {
   const { data: departments = [], isLoading: deptsLoading } = useDepartments();
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
+
+  const deleteSelected = useMutation({
+    mutationFn: async () => {
+      await Promise.all(selectedUsers.map(id => supabase.rpc('delete_user_by_admin', { target_user_id: id })));
+    },
+    onSuccess: () => {
+      toast.success(`${selectedUsers.length} users deleted`);
+      setSelectedUsers([]);
+      queryClient.invalidateQueries({ queryKey: ['profiles'] });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error('Failed to delete some users');
+    }
+  });
 
   const deleteUser = useMutation({
     mutationFn: async (userId: string) => {
@@ -122,6 +139,12 @@ export function UserManagement() {
             </SelectContent>
           </Select>
         </div>
+        {selectedUsers.length > 0 && (
+          <Button variant="destructive" onClick={() => { if(confirm(`Delete ${selectedUsers.length} users?`)) deleteSelected.mutate(); }} disabled={deleteSelected.isPending}>
+            {deleteSelected.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+            Delete {selectedUsers.length}
+          </Button>
+        )}
         <CSVUploader />
       </div>
 
@@ -131,6 +154,16 @@ export function UserManagement() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox 
+                  checked={activeProfiles.length > 0 && selectedUsers.length === activeProfiles.length}
+                  onCheckedChange={(checked) => {
+                    if (checked) setSelectedUsers(activeProfiles.map(p => p.id));
+                    else setSelectedUsers([]);
+                  }}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead>User</TableHead>
               <TableHead>Emp ID</TableHead>
               <TableHead>Phone</TableHead>
