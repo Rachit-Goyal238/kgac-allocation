@@ -1,4 +1,6 @@
 ﻿import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
@@ -16,6 +18,9 @@ import { VendorInvoices } from '@/components/finance/VendorInvoices';
 export function BillingPage() {
   const [dateRange, setDateRange] = useState({ start: subMonths(new Date(), 1), end: addMonths(new Date(), 1) });
   const [zoneFilter, setZoneFilter] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'audits';
+  const setActiveTab = (tab: string) => setSearchParams({ tab }, { replace: true });
   
   // Tab 1: Original Audit Expense metrics
   const { data: auditData, isLoading: isLoadingAudits } = useBillingMetrics(dateRange, zoneFilter);
@@ -127,7 +132,7 @@ export function BillingPage() {
         </div>
       </div>
 
-      <Tabs defaultValue="audits" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="audits" className="flex items-center gap-2"><Briefcase className="h-4 w-4"/> Audits Expenses</TabsTrigger>
           <TabsTrigger value="projects" className="flex items-center gap-2"><Building className="h-4 w-4"/> Manual Projects Expenses</TabsTrigger>

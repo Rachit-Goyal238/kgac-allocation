@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -31,7 +33,9 @@ import { AssetHistoryReport } from '@/components/assets/AssetHistoryReport';
 export function AssetsPage() {
   const { profile } = useAuthContext();
   const isManagerOrAdmin = profile?.roles?.some(r => ['admin', 'super_admin', 'manager', 'hr'].includes(r));
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'dashboard';
+  const setActiveTab = (tab: string) => setSearchParams({ tab }, { replace: true });
 
   // Quick badge count for My Held Assets
   const { data: myHeldCount } = useQuery({
