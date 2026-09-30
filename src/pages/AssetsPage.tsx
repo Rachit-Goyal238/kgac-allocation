@@ -77,27 +77,27 @@ export function AssetsPage() {
           {isManagerOrAdmin && <TabsTrigger value="manage">Manage Assets</TabsTrigger>}
         </TabsList>
 
-        <TabsContent value="dashboard" className="mt-0">
+        <TabsContent value="dashboard" forceMount hidden={activeTab !== "dashboard"} className="mt-0">
           <AssetDashboard />
         </TabsContent>
-        <TabsContent value="my-assets" className="mt-0">
+        <TabsContent value="my-assets" forceMount hidden={activeTab !== "my-assets"} className="mt-0">
           <MyHeldAssets userId={profile?.id} onRequestTab={() => setActiveTab('my-requests')} />
         </TabsContent>
-        <TabsContent value="my-requests" className="mt-0">
+        <TabsContent value="my-requests" forceMount hidden={activeTab !== "my-requests"} className="mt-0">
           <MyAssetRequests userId={profile?.id} />
         </TabsContent>
         {isManagerOrAdmin && (
-          <TabsContent value="approvals" className="mt-0">
+          <TabsContent value="approvals" forceMount hidden={activeTab !== "approvals"} className="mt-0">
             <AssetApprovals />
           </TabsContent>
         )}
         {isManagerOrAdmin && (
-          <TabsContent value="history" className="mt-0">
+          <TabsContent value="history" forceMount hidden={activeTab !== "history"} className="mt-0">
             <AssetHistoryReport />
           </TabsContent>
         )}
         {isManagerOrAdmin && (
-          <TabsContent value="manage" className="mt-0">
+          <TabsContent value="manage" forceMount hidden={activeTab !== "manage"} className="mt-0">
             <ManageAssets />
           </TabsContent>
         )}

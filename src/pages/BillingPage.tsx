@@ -139,7 +139,7 @@ export function BillingPage() {
           <TabsTrigger value="invoices" className="flex items-center gap-2"><FileText className="h-4 w-4"/> Vendor Invoices</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="audits" className="space-y-6">
+        <TabsContent value="audits" forceMount hidden={activeTab !== "audits"} className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -259,7 +259,7 @@ export function BillingPage() {
             </Card>
         </TabsContent>
 
-        <TabsContent value="projects" className="space-y-6">
+        <TabsContent value="projects" forceMount hidden={activeTab !== "projects"} className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -353,7 +353,7 @@ export function BillingPage() {
             </Card>
         </TabsContent>
 
-        <TabsContent value="invoices" className="space-y-6">
+        <TabsContent value="invoices" forceMount hidden={activeTab !== "invoices"} className="space-y-6">
           <VendorInvoices />
         </TabsContent>
       </Tabs>

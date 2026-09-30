@@ -72,21 +72,21 @@ export function AdminPage() {
         
         
 
-        <TabsContent value="users" className="mt-0">
+        <TabsContent value="users" forceMount hidden={activeTab !== "users"} className="mt-0">
 
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <UserManagement />
           </div>
         </TabsContent>
 
-        <TabsContent value="departments" className="mt-0">
+        <TabsContent value="departments" forceMount hidden={activeTab !== "departments"} className="mt-0">
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <DepartmentManager />
           </div>
         </TabsContent>
 
         {isManagerPlus && (
-          <TabsContent value="projects" className="mt-0">
+          <TabsContent value="projects" forceMount hidden={activeTab !== "projects"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <ProjectManager />
             </div>
@@ -94,7 +94,7 @@ export function AdminPage() {
         )}
 
         {isAdminPlus && (
-          <TabsContent value="vendors" className="mt-0">
+          <TabsContent value="vendors" forceMount hidden={activeTab !== "vendors"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <Suspense fallback={<TabLoader />}>
                 <VendorManager />
@@ -104,7 +104,7 @@ export function AdminPage() {
         )}
 
         {(isAdminPlus || isClientHead) && (
-          <TabsContent value="clients" className="mt-0">
+          <TabsContent value="clients" forceMount hidden={activeTab !== "clients"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <Suspense fallback={<TabLoader />}>
                 <ClientManager />
@@ -114,7 +114,7 @@ export function AdminPage() {
         )}
         
         {isAdminPlus && (
-          <TabsContent value="settings" className="mt-0">
+          <TabsContent value="settings" forceMount hidden={activeTab !== "settings"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6 max-w-2xl">
               <h3 className="text-lg font-medium mb-4">Development Tools</h3>
               <p className="text-sm text-muted-foreground mb-6">
@@ -128,7 +128,7 @@ export function AdminPage() {
 
 
         {isSuperAdmin && (
-          <TabsContent value="audit-log" className="mt-0">
+          <TabsContent value="audit-log" forceMount hidden={activeTab !== "audit-log"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <Suspense fallback={<TabLoader />}>
                 <AuditLogViewer />
@@ -138,7 +138,7 @@ export function AdminPage() {
         )}
 
         {isSuperAdmin && (
-          <TabsContent value="database" className="mt-0">
+          <TabsContent value="database" forceMount hidden={activeTab !== "database"} className="mt-0">
             <div className="bg-white rounded-lg shadow-sm border p-6 max-w-4xl">
               <Suspense fallback={<TabLoader />}>
                 <DatabaseMaintenance />
